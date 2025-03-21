@@ -1,0 +1,25 @@
+<?php
+// indonesia
+return [
+    'back' => 'Kembali',
+    'publish' => 'Publikasi',
+    'preview' => 'Pratinjau',
+    'upload' => 'Unggahan Tugas',
+    'up' => 'Atas',
+    'down' => 'Bawah',
+    'add' => 'Tambah',
+    'big_header' => 'Judul Besar',
+    'small_header' => 'Judul Kecil',
+    'medium_header' => 'Judul Sedang',
+    'paragraph' => 'Paragraf',
+    'image' => 'Gambar',
+    'video' => 'Video',
+    'audio' => 'Suara',
+    'header' => 'Judul',
+    'content' => 'Konten',
+    'task' => 'Tugas',
+    'notification' => 'Pemberitahuan',
+    'loading' => 'Memuat',
+    'not_found' => 'Tidak Ditemukan',
+    'search' => 'Cari',
+];

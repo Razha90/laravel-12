@@ -1,0 +1,25 @@
+<?php
+// france
+return [
+    'back' => 'Retour',
+    'publish' => 'Publier',
+    'preview' => 'Aperçu',
+    'upload' => 'Tâche de téléchargement',
+    'up' => 'Haut',
+    'down' => 'Bas',
+    'add' => 'Ajouter',
+    'big_header' => 'Grand Titre',
+    'small_header' => 'Petit Titre',
+    'medium_header' => 'Titre Moyen',
+    'paragraph' => 'Paragraphe',
+    'image' => 'Image',
+    'video' => 'Vidéo',
+    'audio' => 'Audio',
+    'header' => 'Titre',
+    'content' => 'Contenu',
+    'task' => 'Tâche',
+    'notification' => 'Notification',
+    'loading' => 'Chargement',
+    'not_found' => 'Non trouvé',
+    'search' => 'Rechercher',
+];

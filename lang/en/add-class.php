@@ -1,0 +1,25 @@
+<?php
+// english
+return [
+    'back' => 'Back',
+    'publish' => 'Publish',
+    'preview' => 'Preview',
+    'upload' => 'Task Upload',
+    'up' => 'Up',
+    'down' => 'Down',
+    'add' => 'Add',
+    'big_header' => 'Big Header',
+    'small_header' => 'Small Header',
+    'medium_header' => 'Medium Header',
+    'paragraph' => 'Paragraph',
+    'image' => 'Image',
+    'video' => 'Video',
+    'audio' => 'Audio',
+    'header' => 'Title',
+    'content' => 'Content',
+    'task' => 'Task',
+    'notification' => 'Notification',
+    'loading' => 'Loading',
+    'not_found' => 'Not Found',
+    'search' => 'Search',
+];
