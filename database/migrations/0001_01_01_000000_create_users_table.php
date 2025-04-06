@@ -14,12 +14,16 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->dateTime('last_change_name')->nullable();
             $table->string('profile_photo_path');
+            $table->dateTime('birth_date')->nullable();
+            $table->dateTime('last_change_profile')->nullable();
             $table->enum('language', ['en', 'id', 'fr'])->default('fr');
-            $table->enum('role', ['admin', 'teacher', 'user'])->default('user');
+            $table->enum('role', ['admin', 'teacher', 'guest'])->default('guest');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('origin');
             $table->rememberToken();
             $table->timestamps();
         });

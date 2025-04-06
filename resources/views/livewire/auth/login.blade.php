@@ -40,14 +40,18 @@ new #[Layout('components.layouts.auth')] class extends Component {
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
         $user = Auth::user();
+        // if (empty($user->language)) {
+        //     $user->language = Session::get('locale', config('app.locale'));
+        //     $user->save();
+        // } else {
+        //     Session::put('locale', $user->language);
+        // }
+        $locale = $user->language ?? config('app.locale');
+        cookie()->queue(cookie('locale', $locale, 43200));
         if (empty($user->language)) {
-            $user->language = Session::get('locale', config('app.locale'));
+            $user->language = $locale;
             $user->save();
-        } else {
-            Session::put('locale', $user->language);
         }
-
-        // $this->redirectIntended(default: route('my-app', absolute: false), navigate: true);
         $this->redirect(route('my-app', absolute: false));
     }
 
@@ -87,7 +91,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 
-    <form wire:submit="login" class="flex flex-col gap-6">
+    <form wire:submit.prevent="login" class="flex flex-col gap-6">
         <!-- Email Address -->
         <flux:input
             wire:model="email"

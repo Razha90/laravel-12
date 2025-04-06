@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ Cookie::get('locale', 'fr') }}">
+
 <head>
     @include('partials.new-head')
 </head>
 
 <body class="bg-accent_grey">
+    <livewire:component.nav-auth />
     {{ $slot }}
-    @fluxScripts
+    @persist('data-notifikasi')
+        <livewire:component.data-notifikasi />
+    @endpersist
 </body>
 
 </html>

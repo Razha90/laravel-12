@@ -10,23 +10,26 @@ class LanguageController extends Controller
 {
     public function change(Request $request)
     {
-        $lang = $request->lang;
+        // $lang = $request->lang;
 
-        if (!in_array($lang, ['en', 'id', 'fr'])) {
-            abort(400);
-        }
+        // if (!in_array($lang, ['en', 'id', 'fr'])) {
+        //     abort(400);
+        // }
 
-        try {
-            if (auth()->check()) {
-                $user = auth()->user(); 
-                $user->update(['language'=> $lang]);
-            }
-        } catch (\Throwable $th) {
-            Log::error('Language Session'. $th);
-        }
+        // try {
+        //     if (auth()->check()) {
+        //         $user = auth()->user(); 
+        //         $user->update(['language'=> $lang]);
+        //     }
+        // } catch (\Throwable $th) {
+        //     Log::error('Language Session'. $th);
+        // }
 
-        Session::put('locale', $lang);
+        // Session::put('locale', $lang);
 
-        return redirect()->back();
+        // return redirect()->back();
+        $locale = $request->lang;
+
+        return redirect()->back()->withCookie(cookie('locale', $locale, 43200));
     }
 }

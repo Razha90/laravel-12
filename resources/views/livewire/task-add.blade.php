@@ -55,6 +55,10 @@ new #[Layout('components.layouts.app-page')] class extends Component {
             $date = $data['date'];
             $time = $data['time'];
             $schedule = $data['schedule'];
+            $deadline = $data['deadline'];
+            $isDeadline = $data['isDeadline'];
+            $canUpload = $data['canUpload'];
+            $type = $data['type'];
 
             if ($schedule) {
                 $validator = Validator::make(
@@ -62,12 +66,15 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     [
                         'date' => 'required|date_format:Y-m-d',
                         'time' => 'required|date_format:H:i',
+                        'type' => 'required|string',
                     ],
                     [
                         'date.required' => __('add-task.date_required'),
                         'time.required' => __('add-task.time_required'),
                         'date.date_format' => __('add-task.date_required'),
                         'time.date_format' => __('add-task.time_required'),
+                        'type.required' => __('add-task.type_required'),
+                        'type.string' => __('add-task.type_string'),
                     ],
                 );
 
@@ -77,9 +84,71 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     return;
                 }
                 $release = $date . ' ' . $time . ':00';
+                Log::info('Sechedule Time: ' . $release);
+
             } else {
-                $release = date('Y-m-d H:i:s');
+                $release = $this->content[0]['release'];
+                if (empty($release)) {
+                    $release = now()->format('Y-m-d H:i:s');
+                    Log::info('Release Time: ' . $release);
+                }
             }
+
+            if ($type == 'task') {
+                $validator = Validator::make(
+                    $data,
+                    [
+                        'canUpload' => 'required|boolean',
+                        'isDeadline' => 'required|boolean',
+                    ],
+                    [
+                        'canUpload.required' => __('add-task.can_upload_required'),
+                        'isDeadline.required' => __('add-task.is_deadline_required'),
+                        'canUpload.boolean' => __('add-task.can_upload_boolean'),
+                        'isDeadline.boolean' => __('add-task.is_deadline_boolean'),
+                    ],
+                );
+
+                if ($validator->fails()) {
+                    $this->dispatch('failed', ['message' => $validator->errors()->first()]);
+                    Log::error('Validation data task, in Add Task' . $validator->errors()->first());
+                    return;
+                }
+
+                if ($isDeadline) {
+                    $validator = Validator::make(
+                        $data,
+                        [
+                            'deadline' => 'required|date_format:Y-m-d H:i',
+                        ],
+                        [
+                            'deadline.required' => __('add-task.deadline_required'),
+                            'deadline.date_format' => __('add-task.deadline_format'),
+                        ],
+                    );
+
+                    if ($validator->fails()) {
+                        $this->dispatch('failed', ['message' => $validator->errors()->first()]);
+                        Log::error('Validation data task, in Add Task' . $validator->errors()->first());
+                        return;
+                    }
+                }
+
+                if (!empty($deadline)) {
+                    $deadline = $deadline . ':00';
+                } else {
+                    $deadline = null;
+                }
+
+                Content::where('id', $this->task)->update([
+                    'visibility' => true,
+                    'release' => $release,
+                    'deadline' => $deadline,
+                    'canUpload' => $canUpload,
+                    'isDeadline' => $isDeadline,
+                ]);
+            }
+
             Content::where('id', $this->task)->update([
                 'visibility' => true,
                 'release' => $release,
@@ -110,7 +179,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
 
 <div>
     @vite(['resources/js/editor.js'])
-    <div x-data="{ alert: false, message: '' }"
+    <div x-cloak x-data="{ alert: false, message: '' }"
         x-on:failed.window="(event) => { 
         message = event.detail[0].message;
         alert = true;
@@ -131,7 +200,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
         </div>
     </div>
 
-    <div x-data="{ alert: false, message: '' }"
+    <div x-cloak x-data="{ alert: false, message: '' }"
         x-on:success.window="(event) => { 
         message = event.detail[0].message;
         alert = true;
@@ -173,12 +242,12 @@ new #[Layout('components.layouts.app-page')] class extends Component {
             </div>
             <div class="flex flex-row gap-x-4 items-center">
 
-                <a href="{{ route('settings.profile') }}"
+                <a wire:navigate href="{{ route('settings.profile') }}"
                     class="w-[45px] h-[45px] overflow-hidden rounded-full border border-secondary_blue p-1  hover:opacity-50 transition-opacity"
                     x-data="{ isClicked: false }"
                     @click.prevent="if (!isClicked) { isClicked = true; window.location.href = '{{ route('settings.profile') }}'; }"
                     :class="{ 'pointer-events-none opacity-50': isClicked }">
-                    <img src="{{ asset('/img/profile/' . auth()->user()->profile_photo_path) }}" alt="Profile Photo">
+                    <img src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo">
                 </a>
 
             </div>
@@ -186,7 +255,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
     </header>
 
     <main x-data="cmsContent()" x-init="init()" class="relative min-h-[500px] w-full min-w-[500px] h-[92vh]">
-        <div x-data="{ alert: false, message: '' }"
+        <div x-cloak="" x-data="{ alert: false, message: '' }"
             x-on:show-failed.window="(event) => { 
         message = event.detail.message;
         alert = true;
@@ -208,14 +277,15 @@ new #[Layout('components.layouts.app-page')] class extends Component {
         </div>
 
         <!-- Main modal -->
-        <div x-cloak x-data="{ alert: false, message:'', condition:'', warning:'' }" x-show="alert"
+        <div x-cloak x-data="{ alert: false, message: '', condition: '', warning: '' }" x-show="alert"
             x-on:show-modal-failed.window="(event) => { 
         alert = true;
         message = event.detail.message;
         condition = event.detail.condition;
         warning = event.detail.warning;
 
-    }" aria-hidden="true"
+    }"
+            aria-hidden="true"
             class="overflow-y-auto overflow-x-hidden fixed z-50 flex justify-center items-center w-full md:inset-0 h-[100%] max-h-full bg-black/40">
             <div class="relative p-4 w-full max-w-2xl max-h-full">
                 <!-- Modal content -->
@@ -224,7 +294,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     <div
                         class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
                         <h3 class="text-xl font-semibold text-gray-900 " x-text="warning">
-                            
+
                         </h3>
                         <button type="button" @click="() => {alert = false;}"
                             class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center "
@@ -244,20 +314,17 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     </div>
                     <!-- Modal footer -->
                     <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b ">
-                        <button data-modal-hide="default-modal" type="button"
-                        x-show="condition == 'SAVE'"
+                        <button data-modal-hide="default-modal" type="button" x-show="condition == 'SAVE'"
                             class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                             @click="() => {clickSave(); rememberSave = false; alert=false;}">{{ __('add-task.button_ok') }}</button>
-                        <button data-modal-hide="default-modal" type="button"
-                        x-show="condition == 'SAVE'"
+                        <button data-modal-hide="default-modal" type="button" x-show="condition == 'SAVE'"
                             class="py-2.5 px-5 ms-3 text-sm font-medium text-red-500 focus:outline-none bg-white rounded-lg border border-red-400 hover:bg-red-500 hover:text-white focus:z-10 focus:ring-4 focus:ring-red-400 "
                             @click="() => {alert = false; rememberSave=true}">{{ __('add-task.button_cancel') }}</button>
-                        <button data-modal-hide="default-modal" type="button"
-                        x-show="condition == 'TITLE'"
+                        <button data-modal-hide="default-modal" type="button" x-show="condition == 'TITLE'"
                             class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                             @click="() => {alert = false;}">{{ __('add-task.button_ready') }}</button>
 
-                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -280,8 +347,8 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                         <button type="button" @click="() => {alert = false; rememberSave = false}"
                             class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center "
                             data-modal-hide="default-modal">
-                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 14 14">
+                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 14 14">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                     stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                             </svg>
@@ -322,19 +389,19 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                                 saved) ? saved ? '{{ __('add-task.saved') }}': '{{ __('add-task.saving') }}' : '{{ __('add-task.save') }}....' ">
                     </button>
                 </div>
-                <div class="flex flex-col mt-4 gap-y-3">
-                    <h2 class="text-lg font-bold mb-2">{{ __('add-task.choose_content_type') }}</h2>
+                <div class="flex flex-col mt-4">
+                    <h2 class="text-xl font-bold mb-2 font-koho">{{ __('add-task.choose_content_type') }}</h2>
                     <div x-data="{ open: false }" class="relative w-full">
-                        <select x-model="type" 
+                        <select x-model="type"
                             class="w-full p-2 pr-8 rounded bg-white border border-secondary_blue focus:outline-none focus:ring-2 focus:ring-secondary_blue appearance-none"
-                            @focus="open = true" 
-                            @blur="open = false"
-                            @change="() => {open = false; saveNew = false}">
+                            @focus="open = true" @blur="open = false"
+                            @change="() => {open = false; saveNew = false; checkChangeDeadline();}">
                             <option value="task">{{ __('add-class.task') }}</option>
                             <option value="notification">{{ __('add-class.notification') }}</option>
                             <option value="material">{{ __('add-task.material') }}</option>
                         </select>
-                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-secondary_blue">
+                        <div
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-secondary_blue">
                             <span x-show="!open">▼</span>
                             <span x-show="open">...</span>
                         </div>
@@ -342,6 +409,63 @@ new #[Layout('components.layouts.app-page')] class extends Component {
 
 
 
+                </div>
+
+                <!-- Deadline -->
+                <div x-show="type == 'task'" class="mt-3 bg-accent_grey p-3 rounded-2xl animate-fade">
+                    <h2 class="text-xl font-koho font-bold">{{ __('add-task.deadline') }}</h2>
+                    <div class="flex flex-row items-center gap-x-2">
+                        <input type="checkbox" x-model="borderDeadline" name="border-deadline"
+                            @change="checkChangeDeadline">
+                        <label class="opacity-70 text-base h-5"
+                            for="border-deadline">{{ __('add-task.deadline_title') }}</label>
+                        <div x-data="{ showTooltip: false }" class="inline-block ml-2 relative h-5">
+                            <span @mouseenter="showTooltip = true" @mouseleave="showTooltip = false"
+                                class="cursor-pointer text-blue-500">
+                                ℹ️
+                            </span>
+                            <div x-show="showTooltip" x-transition
+                                class="absolute left-0 top-full mt-1 w-48 bg-gray-800 text-white text-xs rounded-md p-2 shadow-lg">
+                                {{ __('add-task.deadline_title_detail') }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <input type="date" x-model="deadline" name="deadline" x-bind:min="today"
+                            :disabled="!borderDeadline" :class="!borderDeadline ? 'opacity-50 cursor-not-allowed' : ''"
+                            class="border rounded p-2 transition-all bg-white"
+                            @change="() => {validateDeadlineTime();checkChangeDeadline()}">
+
+                        <input type="time" x-model="deadlineTime" name="deadlineTime"
+                            x-bind:min="isToday ? currentTime : '00:00'" :disabled="!borderDeadline"
+                            :class="!borderDeadline ? 'opacity-50 cursor-not-allowed' : ''"
+                            class="border rounded p-2 transition-all bg-white"
+                            @change="() => {validateDeadlineTime();checkChangeDeadline()}">
+
+                        <p x-show="deadlineError" class="text-red-500 text-sm mt-1">
+                            {{ __('add-task.deadline_timeout') }}
+                        </p>
+                    </div>
+                    <div class="flex flex-row items-center gap-x-2 mt-3">
+                        <input type="checkbox" x-model="canUpload" name="canUpload" :disabled="!borderDeadline"
+                            :class="!borderDeadline ? 'opacity-50 cursor-not-allowed' : ''"
+                            @change="checkChangeDeadline">
+
+                        <label class="opacity-70 text-base h-5"
+                            for="canUpload">{{ __('add-task.can_upload') }}</label>
+                        <div x-data="{ showTooltip: false }" class="inline-block ml-2 relative h-5">
+                            <span @mouseenter="showTooltip = true" @mouseleave="showTooltip = false"
+                                class="cursor-pointer text-blue-500">
+                                ℹ️
+                            </span>
+
+                            <!-- Tooltip -->
+                            <div x-show="showTooltip" x-transition
+                                class="absolute left-0 top-full mt-1 w-48 bg-gray-800 text-white text-xs rounded-md p-2 shadow-lg">
+                                {{ __('add-task.detail_can_upload') }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Release Time -->
@@ -365,8 +489,9 @@ new #[Layout('components.layouts.app-page')] class extends Component {
 
                     <div class="flex flex-col">
                         <label for="date">{{ __('add-task.add_date') }}</label>
-                        <input type="date" x-model="date" name="date" :disabled="!isSchedule"
-                            class="border rounded p-2 transition-all"
+                        <input x-bind:min="today" type="date" x-model="date" name="date"
+                            :disabled="!isSchedule" class="border rounded p-2 transition-all"
+                            @change='checkChangeDeadline'
                             :class="isSchedule ? 'bg-white text-black border-gray-300' :
                                 'bg-gray-200 text-gray-500 border-gray-400 cursor-not-allowed'">
                     </div>
@@ -374,7 +499,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     <div class="flex flex-col">
                         <label for="time">{{ __('add-task.add_time') }}</label>
                         <input type="time" x-model="time" name="time" :disabled="!isSchedule"
-                            class="border rounded p-2 transition-all"
+                            @change='checkChangeDeadline' class="border rounded p-2 transition-all"
                             :class="isSchedule ? 'bg-white text-black border-gray-300' :
                                 'bg-gray-200 text-gray-500 border-gray-400 cursor-not-allowed'">
                     </div>
@@ -386,7 +511,8 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                         class="text-primary_white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-lg px-5 py-2.5 me-2 mb-2  focus:outline-none text-center"></button>
                     <button x-show="release == 'PUBLISH'" x-on:click="handleDraft" x-text="draft" type="button"
                         class="text-primary_white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-lg px-6 py-2 me-2 mb-2  focus:outline-none text-center"></button>
-                    <button x-show="(release == 'PUBLISH') && ((date != lastDate) || (time != lastTime))" x-on:click="handlePublish" x-text="update_publish" type="button"
+                    <button x-show="showUpdatePublish" x-on:click="handlePublish" x-text="update_publish"
+                        type="button"
                         class="text-primary_white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-lg px-6 py-2 me-2 mb-2  focus:outline-none text-center"></button>
                 </div>
             </div>
@@ -417,8 +543,9 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     placeholder="{{ __('add-task.title') }}">
                 <div class="bg-white" id="editorjs" wire:ignore></div>
             </div>
+
             <div x-show="(type == 'task') && isLoading && content.length > 0"
-                class="w-full p-3 bg-primary_white mt-4">
+                class="w-full p-3 bg-primary_white mt-4 animate-fade">
                 <div
                     class="rounded-xl border border-dashed border-secondary_blue w-full flex flex-row items-center p-3">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[40px]">
@@ -521,12 +648,24 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                 isSchedule: false,
                 rememberSave: false,
                 publishPost: false,
+                deadline: null,
+                canUpload: true,
+                deadlineTime: null,
+                lastDeadline: null,
+                lastCanUpload: true,
+                lastDeadlineTime: null,
+                deadlineError: false,
+                borderDeadline: false,
+                lastBorderDeadline: false,
+                showUpdatePublish: false,
                 init() {
                     if (this.selectionPos) return;
                     this.selectionPos = true;
                     if (this.content.length > 0) {
                         this.initEditor(this.content[0].content, this.idContent);
                         this.initRelease();
+                        this.initDeadline();
+                        this.initType();
                     } else {
                         this.$nextTick(() => {
                             this.$dispatch('show-failed', {
@@ -544,7 +683,6 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                         try {
                             parsedData = JSON.parse(initialData);
                         } catch (error) {
-                            console.error("JSON parsing error:", error);
                             parsedData = {
                                 "time": 1742033242584,
                                 "blocks": [],
@@ -740,6 +878,11 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                 initTitle() {
                     this.title = this.content[0].title;
                 },
+                get minAllowedTime() {
+                    let now = new Date();
+                    now.setMinutes(now.getMinutes() + 10);
+                    return now.toTimeString().slice(0, 5);
+                },
                 handlePublish() {
                     if (!(this.saveNew && this.saved)) {
                         if (!this.rememberSave) {
@@ -760,14 +903,49 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                         return;
                     }
 
+                    let waktu = '';
+                    if (this.borderDeadline) {
+                        if (!this.deadline || !this.deadlineTime) {
+                            this.$dispatch('show-modal-failed', {
+                                message: '{{ __('add-task.date_must_detail') }}',
+                                condition: 'TITLE',
+                                warning: '{{ __('add-task.date_must') }}'
+                            });
+                            return;
+                        }
+                        waktu = new Date(`${this.deadline}T${this.deadlineTime}:00`);
+                        let now = new Date();
+                        now.setMinutes(now.getMinutes() + 10);
+                        if (waktu < now) {
+                            this.$dispatch('show-modal-failed', {
+                                message: '{{ __('add-task.time_min') }}',
+                                condition: 'TITLE',
+                                warning: '{{ __('add-task.date_must') }}'
+                            });
+                            return;
+                        }
+                        waktu = `${this.deadline} ${this.deadlineTime}`;
+                    }
+
+                    if (!this.deadline || !this.deadlineTime) {
+                        waktu = null;
+                    } else {
+                        waktu = `${this.deadline} ${this.deadlineTime}`;
+                    }
+
                     let data = {
                         date: this.isSchedule ? this.date : null,
                         time: this.isSchedule ? this.time : null,
                         schedule: this.isSchedule,
+                        canUpload: this.canUpload,
+                        deadline: waktu,
+                        isDeadline: this.borderDeadline,
+                        type: this.type,
                     };
                     Livewire.dispatch('savedPublishing', {
                         data: data
                     });
+                    return;
                 },
                 handleDraft() {
                     Livewire.dispatch('savedDraft');
@@ -775,20 +953,37 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                 initType() {
                     this.type = this.content[0].type;
                 },
+                initDeadline() {
+                    const deadline = this.content[0].deadline;
+                    this.borderDeadline = this.content[0].isDeadline == 0 ? false : true;
+                    this.lastBorderDeadline = this.borderDeadline;
+                    this.canUpload = this.content[0].canUpload == 0 ? false : true;
+                    this.lastCanUpload = this.canUpload;
+                    if (deadline && deadline.length > 0) {
+                        let [date, time] = deadline.split(" ");
+                        let [hours, minutes] = time.split(":");
+                        this.deadline = date;
+
+                        this.deadlineTime = `${hours}:${minutes}`;
+                        this.lastDeadline = date;
+                        this.lastDeadlineTime = `${hours}:${minutes}`;
+                    }
+                },
                 initRelease() {
                     if (this.publishPost) return;
                     this.publishPost = true;
                     Livewire.on('initRelease', (event) => {
+                        let STATUS = "DRAFT";
                         if (event[0].STATUS == 'INIT') {
                             this.visibility = this.content[0].visibility == 0 ? false : true;
                             const getRelease = this.content[0].release;
                             if (this.visibility) {
                                 if (getRelease == null) {
-                                    this.$nextTick(() => {
-                                        this.$dispatch('show-failed', {
-                                            message: '{{ __('add-task.not_found') }}'
-                                        });
-                                    });
+                                    // this.$nextTick(() => {
+                                    //     this.$dispatch('show-failed', {
+                                    //         message: '{{ __('add-task.not_found') }}kontol'
+                                    //     });
+                                    // });
                                 } else {
                                     let [date, time] = getRelease.split(" ");
                                     let [hours, minutes] = time.split(":");
@@ -811,6 +1006,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
 
                         if (event[0].STATUS == 'PUBLISH') {
                             const dateTime = event[0].DATE;
+                            console.log(dateTime);
                             let [date, time] = dateTime.split(' ');
                             let [hours, minutes] = time.split(':');
                             this.$nextTick(() => {
@@ -820,6 +1016,15 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                                 this.time = `${hours}:${minutes}`
                                 this.lastDate = date;
                                 this.lastTime = `${hours}:${minutes}`
+
+
+                                if (this.type == 'task') {
+                                    this.lastDeadline = this.deadline;
+                                    this.lastDeadlineTime = this.deadlineTime;
+                                    this.lastBorderDeadline = this.borderDeadline;
+                                    this.lastCanUpload = this.canUpload;
+                                    this.checkChangeDeadline();
+                                }
                             });
                             return;
                         }
@@ -836,8 +1041,8 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                             return;
                         }
                         this.$nextTick(() => {
-                                this.release = STATUS
-                            });
+                            this.release = STATUS
+                        });
 
                     });
                     Livewire.dispatch('initRelease', [{
@@ -861,6 +1066,41 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                         let hours = String(now.getHours()).padStart(2, '0');
                         let minutes = String(now.getMinutes()).padStart(2, '0');
                         this.time = `${hours}:${minutes}`;
+                    }
+                },
+                checkChangeDeadline() {
+                    if (this.type == 'task') {
+                        this.showUpdatePublish = this.release == 'PUBLISH' && (
+                            this.deadline != this.lastDeadline ||
+                            this.deadlineTime != this.lastDeadlineTime ||
+                            this.canUpload != this.lastCanUpload ||
+                            this.date != this.lastDate ||
+                            this.time != this.lastTime ||
+                            this.borderDeadline != this.lastBorderDeadline);
+                    } else {
+                        alert(this.date == this.lastDate);
+                        alert(this.time == this.lastTime);
+                        this.showUpdatePublish = this.release == 'PUBLISH' && (
+                            this.date != this.lastDate || this.time != this.lastTime);
+                    }
+
+
+
+                },
+                get today() {
+                    return new Date().toISOString().split('T')[0];
+                },
+                get currentTime() {
+                    return new Date().toTimeString().slice(0, 5);
+                },
+                get isToday() {
+                    return this.deadline === this.today;
+                },
+                validateDeadlineTime() {
+                    if (this.isToday && this.deadlineTime < this.currentTime) {
+                        this.deadlineError = true; // Tampilkan error jika waktu kurang dari sekarang
+                    } else {
+                        this.deadlineError = false; // Sembunyikan error jika valid
                     }
                 }
 

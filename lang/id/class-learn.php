@@ -36,5 +36,10 @@ return [
     'add_content' => 'Tambah Konten',
     'info' => 'Informasi',
     'error.add_content' => 'Error Menambahkan Konten',
+    'task' => 'Tugas',
+    'material' => 'Materi',
+    'no_title' => 'Tidak ada judul',
+    'deadline' => 'Batas Waktu',
+    'detail' => 'Rincian',
 
 ];

@@ -10,10 +10,15 @@ new #[Layout('components.layouts.auth')] class extends Component {
     /**
      * Send an email verification notification to the user.
      */
+
+    public function mount()
+    {
+        auth()->user()->email_verified_at ? $this->redirectIntended(default: route('my-app', absolute: false), navigate: true) : null;
+    }
     public function sendVerification(): void
     {
         if (Auth::user()->hasVerifiedEmail()) {
-            $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+            $this->redirectIntended(default: route('my-app', absolute: false), navigate: true);
 
             return;
         }
@@ -37,6 +42,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 <div class="mt-4 flex flex-col gap-6">
     <flux:text class="text-center">
         {{ __('Please verify your email address by clicking on the link we just emailed to you.') }}
+        {{ auth()->user()->email }}
     </flux:text>
 
     @if (session('status') == 'verification-link-sent')
@@ -50,8 +56,15 @@ new #[Layout('components.layouts.auth')] class extends Component {
             {{ __('Resend verification email') }}
         </flux:button>
 
-        <flux:link class="text-sm cursor-pointer" wire:click="logout">
+        <!-- <flux:link class="text-sm cursor-pointer" wire:click="logout">
             {{ __('Log out') }}
-        </flux:link>
+        </flux:link> -->
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit"
+                class="rounded-lg px-2 py-1 transition-colors hover:cursor-pointer inline-flex w-full text-accent-content underline">
+                {{ __('welcome.logout') }}
+            </button>
+        </form>
     </div>
 </div>

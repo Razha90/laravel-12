@@ -9,5 +9,6 @@ return [
     'not_found' => 'Kelas kamu masih kosong',
     'add.success' => 'Kelas berhasil ditambahkan',
     'add.failed' => 'Kelas gagal ditambahkan',
+    'not.a.teacher' => 'Kamu bukan guru',
 
 ];

@@ -3,6 +3,11 @@
 use Livewire\Volt\Component;
 use Livewire\Attributes\Layout;
 use App\Models\Classroom;
+use App\Models\ClassroomMember;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\support\Str;
+use Illuminate\Support\Facades\Log;
 
 new #[Layout('components.layouts.app-page')] class extends Component {
     public $classrooms = [];
@@ -15,15 +20,33 @@ new #[Layout('components.layouts.app-page')] class extends Component {
         $this->loadData();
     }
 
+    private function makeCode()
+    {
+        while (true) {
+            $letters = Str::upper(Str::random(5));
+            $numbers = str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
+            $code = str_shuffle($letters . $numbers);
+            if (!Classroom::where('code', $code)->exists()) {
+                return $code;
+            }
+        }
+    }
+
     public function addClass()
     {
         try {
-            Log::info('Session User:', ['user' => Auth::user()]);
 
-            if (!Auth::check()) {
-                session()->flash('FAILED', 'You need to login first');
-                return redirect()->route('login');
+            DB::beginTransaction();
+
+            if (Auth::user()->role != 'teacher') {
+                Log::error('User ' . Auth::id() . ' is not a teacher, is', ['role' => Auth::user()->role]);
+                $this->dispatch('failed', [
+                    'message' => __('classroom.not.a.teacher'),
+                ]);
+                return;
             }
+            Log::info('User 2');
+
             $randomImage = ['class-1.jpeg', 'class-2.jpeg', 'class-3.jpeg', 'class-4.jpeg', 'class-5.jpeg'];
             $classroom = new Classroom();
             $classroom->user_id = Auth::id();
@@ -31,16 +54,33 @@ new #[Layout('components.layouts.app-page')] class extends Component {
             $classroom->description = 'No Description';
             $classroom->position = '';
             $classroom->image = '/img/web/' . $randomImage[rand(0, 4)];
-
+            $classroom->code = $this->makeCode();
+            $classroom->password = null;
+            $classroom->status = 'active';
             $classroom->save();
+
+
+
+            $membership = new ClassroomMember();
+            $membership->classroom_id = $classroom->id;
+            $membership->user_id = Auth::id();
+            $membership->role = 'admin';
+            $membership->action = 'edit';
+            $membership->status = 'approved';
+            $membership->joined_at = now();
+            $membership->save();
+
             session()->flash('SUCCESS', __('classroom.add.success'));
             $this->dispatch('class-response', [
                 'status' => true,
                 'data' => $classroom,
             ]);
         } catch (\Throwable $th) {
-            Log::error('ClasroomMain Error Add Class ' . $th);
-            session()->flash('FAILED', __('classroom.add.failed'));
+            DB::rollBack();
+            Log::error('ClasroomMain Error Add Class ' , ['error' => $th->getMessage()]);
+            $this->dispatch('failed', [
+                'message' => __('classroom.add.failed'),
+            ]);
             $this->dispatch('class-response', [
                 'status' => false,
                 'data' => null,
@@ -79,7 +119,6 @@ new #[Layout('components.layouts.app-page')] class extends Component {
 }; ?>
 
 <div>
-    <x-layouts.app.app-nav />
     <div x-data="play()" class="flex justify-center" x-on:class-response.window="handleEvent($event.detail)">
         @if (session()->has(key: 'SUCCESS'))
             <div x-data="{ alert: true }" x-init="setTimeout(() => alert = false, 5000)" x-show="alert" x-transition
@@ -96,8 +135,11 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                 </div>
             </div>
         @endif
-        @if (session()->has(key: 'FAILED'))
-            <div x-data="{ alert: true }" x-init="setTimeout(() => alert = false, 5000)" x-show="alert" x-transition
+            <div x-cloak x-data="{ alert: false, message:'' }" x-on:failed.window="() => {
+                alert = true;
+                message = event.detail[0].message;
+                setTimeout(() => alert = false, 5000);
+            }" x-show="alert" x-transition
                 class="flex items-start left-5 bottom-5 flex-row p-4 mb-4 text-sm rounded-lg bg-gray-800 animate-fade-up text-red-400 absolute"
                 role="alert">
                 <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -107,10 +149,9 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                 </svg>
                 <span class="sr-only">Info</span>
                 <div>
-                    <span class="font-medium">{{ session('FAILED') }}</span>
+                    <span class="font-medium" x-text="message"></span>
                 </div>
             </div>
-        @endif
         <div class="bg-primary_white max-w-[1600px] w-[90%] h-[88vh] mt-[12vh] rounded-xl ">
             <div class="w-full h-full">
                 <div class="flex w-full justify-between px-3 py-4">
@@ -137,7 +178,9 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                             <option value="desc">Z-A</option>
                         </select>
                     </div>
-                    <button @click="show = true"
+                    @auth
+                        @if (auth()->user()->role == 'teacher')
+                        <button @click="show = true"
                         class="bg-secondary_blue text-white rounded-xl px-4 py-2 flex flex-row gap-x-2 items-center justify-center cursor-pointer hover:opacity-60 transition-opacity">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[30px]">
                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -153,6 +196,9 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                         </svg>
                         <span>{{ __('classroom.add_class') }}</span>
                     </button>
+                            
+                        @endif
+                    @endauth
                 </div>
                 <div x-show="classrooms == null" class="w-full h-[200px] flex items-center justify-center">
                     <div

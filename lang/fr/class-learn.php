@@ -36,6 +36,8 @@ return [
     'add_content' => 'Ajouter du contenu',
     'info' => 'Information',
     'error.add_content' => 'Erreur lors de l\'ajout de contenu',
-
+    'no_title' => 'Pas de titre',
+    'task' => 'Tâche',
+    'detail' => 'Détail',
 
 ];

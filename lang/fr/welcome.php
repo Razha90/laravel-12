@@ -1,5 +1,5 @@
 <?php
-
+// france
 return [
     'register' => 'Liste',
     'login' => 'Connexion',
@@ -7,4 +7,6 @@ return [
     'home' =>'Accueil',
     'features' => 'Caractéristiques',
     'about' => 'À propos',
+    'profile' => 'Profil',
+    'logout' => 'Se déconnecter',
 ];

@@ -9,6 +9,7 @@ return [
     'not_found' => 'Votre classe est encore vide',
     'add.success' => 'Classe ajoutée avec succès',
     'add.failed' => 'Échec de l\'ajout de la classe',
+    'not.a.teacher' => 'Vous n\'êtes pas un enseignant',
 
 
 ];

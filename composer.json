@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "^12.0",
+        "laravel/reverb": "^1.4",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "livewire/flux": "^2.0",
@@ -56,7 +57,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74,#34d399\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan reverb:start\" \"npm run dev\" --names='server,queue,reverb,vite'"
         ]
     },
     "extra": {

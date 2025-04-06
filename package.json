@@ -30,7 +30,6 @@
         "concurrently": "^9.0.1",
         "editorjs-inline-font-size-tool": "^1.0.1",
         "laravel-vite-plugin": "^1.0",
-        "tailwindcss": "^4.0.7",
         "tailwindcss-animated": "^2.0.0",
         "tailwindcss-children": "^2.1.0",
         "vite": "^6.0"
@@ -39,5 +38,10 @@
         "@rollup/rollup-linux-x64-gnu": "4.9.5",
         "@tailwindcss/oxide-linux-x64-gnu": "^4.0.1",
         "lightningcss-linux-x64-gnu": "^1.29.1"
+    },
+    "devDependencies": {
+        "laravel-echo": "^2.0.2",
+        "pusher-js": "^8.4.0",
+        "tailwindcss": "^4.0.7"
     }
 }

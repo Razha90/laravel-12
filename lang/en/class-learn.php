@@ -36,4 +36,7 @@ return [
     'add_content' => 'Add Content',
     'info' => 'Information',
     'error.add_content' => 'Error Add Content',
+    'no_title' => 'No Title',
+    'deadline' => 'Deadline',
+    'detail' => 'Detail',
 ];

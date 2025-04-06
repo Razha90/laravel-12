@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Livewire\Attributes\Validate;
 use App\Models\Classroom;
 
-new #[Layout('components.layouts.app-page')] class extends Component {
+new #[Layout('components.layouts.app-flux')] class extends Component {
     use WithFileUploads;
     public $id;
     public $classrooms = [];
@@ -48,6 +48,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
     public function addContent()
     {
         try {
+            $maxOrder = Content::where('classroom_id', $this->id)->max('order');
             $createContent = Content::create([
                 'classroom_id' => $this->id,
                 'title' => '',
@@ -56,6 +57,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                 'visibility' => false,
                 'release' => null,
                 'type' => 'task',
+                'order' => $maxOrder + 1,
             ]);
             $createContent->save();
             return redirect()->route('task-add', ['id' => $this->id, 'task' => $createContent->id]);
@@ -176,8 +178,6 @@ new #[Layout('components.layouts.app-page')] class extends Component {
     public function deletedImage($file_old)
     {
         try {
-            // $file_old = str_replace('/storage/', '', $this->classrooms[0]['image']);
-            // $file_old = $this->classrooms[0]['image'];
             if (Storage::disk('public')->exists($file_old)) {
                 Storage::disk('public')->delete($file_old);
                 Log::info('File berhasil dihapus: ' . $file_old);
@@ -192,7 +192,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
     public function loadContent()
     {
         try {
-            $data;
+            $data = '';
             if (auth()->user()->id == $this->classrooms[0]['user_id']) {
                 $this->isTeacher = true;
                 $data = Content::where('classroom_id', $this->id)->get();
@@ -207,7 +207,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
 }; ?>
 
 <div>
-    <div x-data="{ alert: false, message: '' }"
+    <div x-cloak x-data="{ alert: false, message: '' }"
         x-on:show-success.window="(event) => { 
         message = event.detail[0].message;
         alert = true;
@@ -228,8 +228,8 @@ new #[Layout('components.layouts.app-page')] class extends Component {
         </div>
     </div>
 
-    <div class="flex w-full flex-row h-screen min-h-[600px]" x-data="starting">
-        <div x-data="{ alert: false, message: '' }"
+    <div class="h-screen min-h-[600px]" x-data="starting">
+        <div x-cloak x-data="{ alert: false, message: '' }"
             x-on:show-failed.window="(event) => { 
         message = event.detail[0].message;
         alert = true;
@@ -253,8 +253,8 @@ new #[Layout('components.layouts.app-page')] class extends Component {
             </div>
         </div>
 
-        <div class="flex w-full flex-row h-screen min-h-[600px]" x-data="starting">
-            <div x-data="{ alert: false, message: '' }"
+        <div class="h-screen min-h-[600px] w-full" x-data="starting">
+            <div x-cloak x-data="{ alert: false, message: '' }"
                 x-on:failed-content.window="(event) => { 
         message = event.detail[0].message;
         alert = true;
@@ -285,97 +285,52 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                 <p x-text="error.message"></p>
             </div>
 
-            <nav class="min-w-[65px] bg-accent_blue h-full text-secondary_blue pl-3 pr-6 py-3 animate-fade-right overflow-hidden transition-all duration-300 ease-in-out"
-                x-bind:class="{
-                    'w-[6%]': isNav,
-                    'w-[25%]': !isNav
-                }">
-                <div class="px-4 py-2 bg-secondary_blue items-center flex flex-row justify-between group cursor-pointer"
-                    @click="window.location.href = '{{ route('classroom') }}'"
-                    x-bind:class="{
-                        'px-2 py-1 rounded-lg': isNav,
-                        'px-4 py-2 rounded-2xl': !isNav
-                    }">
-                    <div class="flex flex-row gap-x-3 items-center transition-all ease-in-out">
-                        <img src="{{ url('/img/web/logo.png') }}" loading="lazy"
-                            x-bind:class="{
-                                'w-[60px] justify-center': isNav,
-                                'w-[100px]': !isNav
-                            }" />
-                        <p x-show="!isNav" class="text-primary_white text-2xl animate-fade">{{ config('app.name') }}</p>
-                    </div>
-                    <svg x-show="!isNav"
-                        class="group-hover:animate-infinite w-[40px] group-hover:animate-fade-right group-hover:animate-reverse animate-fill-both"
-                        fill="#ffffff" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70" enable-background="new 0 0 70 70"
-                        xml:space="preserve">
-                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                        <g id="SVGRepo_iconCarrier">
-                            <g>
-                                <g>
-                                    <path
-                                        d="M35.221,7c0.404,0,0.816,0.044,1.227,0.138c2.882,0.652,4.671,3.441,3.998,6.229L29.668,34.37l10.777,22.262 c0.673,2.789-1.116,5.576-3.998,6.23C36.037,62.955,35.627,63,35.223,63c-2.434,0-4.636-1.615-5.214-4.006L18.623,34.437h-0.036 l0.019-0.066l-0.019-0.066h0.036l11.386-23.299C30.587,8.614,32.788,7,35.221,7 M35.221,3c-4.183,0-7.802,2.684-8.971,6.585 L15.186,32.228c-0.375,0.614-0.581,1.314-0.594,2.025c-0.038,0.812,0.173,1.619,0.609,2.313l11.036,23.803 C27.391,64.295,31.023,67,35.223,67c0.707,0,1.416-0.08,2.107-0.236c2.479-0.563,4.568-2.045,5.89-4.174 c1.29-2.078,1.686-4.527,1.114-6.896c-0.067-0.277-0.164-0.547-0.288-0.805l-9.909-20.467l9.867-19.229 c0.145-0.282,0.255-0.58,0.33-0.888c0.571-2.369,0.176-4.818-1.115-6.897c-1.322-2.129-3.412-3.61-5.888-4.171 C36.64,3.079,35.929,3,35.221,3L35.221,3z">
-                                    </path>
-                                </g>
-                                <g>
-                                    <path
-                                        d="M24.411,31.365c-0.149,0-0.303-0.034-0.446-0.105c-0.494-0.247-0.694-0.848-0.447-1.342l5-10 c0.246-0.494,0.846-0.692,1.342-0.447c0.494,0.247,0.694,0.848,0.447,1.342l-5,10C25.131,31.163,24.778,31.365,24.411,31.365z M31.411,17.365c-0.149,0-0.303-0.034-0.446-0.105c-0.494-0.247-0.694-0.848-0.447-1.342l1-2c0.246-0.494,0.848-0.693,1.342-0.447 c0.494,0.247,0.694,0.848,0.447,1.342l-1,2C32.131,17.163,31.778,17.365,31.411,17.365z">
-                                    </path>
-                                </g>
-                                <g>
-                                    <path
-                                        d="M47.412,31.325c2.209,0,4,1.791,4,4s-1.791,4-4,4s-4-1.791-4-4S45.203,31.325,47.412,31.325 M47.412,27.325 c-4.411,0-8,3.589-8,8s3.589,8,8,8s8-3.589,8-8S51.823,27.325,47.412,27.325L47.412,27.325z">
-                                    </path>
-                                </g>
-                            </g>
-                        </g>
-                    </svg>
-                </div>
+            <flux:sidebar sticky stashable
+                class="bg-accent_blue h-full  pl-3 pr-6 py-3 animate-fade-right overflow-hidden transition-all duration-300 ease-in-out">
+                <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
+                <flux:brand href="/" logo="{{ url('/img/web/logo.png') }}" name="{{ config('app.name') }}"
+                    class="px-2" />
+                <flux:brand href="/" logo="{{ url('/img/web/logo.png') }}" name="{{ config('app.name') }}"
+                    class="px-2 hidden" />
 
-                <!-- Profile -->
-                <div x-data="{ isClicked: false }"
-                    class="flex flex-row justify-between items-center absolute bottom-3 bg-secondary_blue px-3 py-2 rounded-xl hover:animate-pulse cursor-pointer"
-                    @click.prevent="if (!isClicked) { isClicked = true; window.location.href = '{{ route('settings.profile') }}'; }"
-                    :class="{ 'pointer-events-none opacity-50': isClicked }"
-                    x-bind:class="{
-                        'w-auto': isNav,
-                        'w-[90%]': !isNav
-                    }">
-                    <div class="flex flex-row gap-x-3 items-center">
-                        <a href="{{ route('settings.profile') }}"
-                            class="w-[40px] h-[40px] overflow-hidden rounded-full border border-secondary_blue p-1  hover:opacity-50 transition-opacity">
-                            <img src="{{ asset('/img/profile/' . auth()->user()->profile_photo_path) }}" loading="lazy"
-                                alt="Profile Photo">
-                        </a>
-                        <p x-show="!isNav" class="text-primary_white text-xl">{{ auth()->user()->name }}</p>
-                    </div>
-                    <div x-show="!isNav">
-                        <svg class="w-[30px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                            <g id="SVGRepo_iconCarrier">
-                                <path
-                                    d="M21.2799 6.40005L11.7399 15.94C10.7899 16.89 7.96987 17.33 7.33987 16.7C6.70987 16.07 7.13987 13.25 8.08987 12.3L17.6399 2.75002C17.8754 2.49308 18.1605 2.28654 18.4781 2.14284C18.7956 1.99914 19.139 1.92124 19.4875 1.9139C19.8359 1.90657 20.1823 1.96991 20.5056 2.10012C20.8289 2.23033 21.1225 2.42473 21.3686 2.67153C21.6147 2.91833 21.8083 3.21243 21.9376 3.53609C22.0669 3.85976 22.1294 4.20626 22.1211 4.55471C22.1128 4.90316 22.0339 5.24635 21.8894 5.5635C21.7448 5.88065 21.5375 6.16524 21.2799 6.40005V6.40005Z"
-                                    stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                </path>
-                                <path
-                                    d="M11 4H6C4.93913 4 3.92178 4.42142 3.17163 5.17157C2.42149 5.92172 2 6.93913 2 8V18C2 19.0609 2.42149 20.0783 3.17163 20.8284C3.92178 21.5786 4.93913 22 6 22H17C19.21 22 20 20.2 20 18V13"
-                                    stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                </path>
-                            </g>
-                        </svg>
-                    </div>
-                </div>
-            </nav>
-            <div class="w-[75%] h-full relative flex justify-center bg-white"
-                x-bind:class="{
-                    'w-[94%]': isNav,
-                    'w-[75%]': !isNav
-                }">
-                <!-- ArrowNavigation -->
+                <flux:spacer />
+
+                <flux:dropdown position="top" align="start"
+                    class="max-lg:hidden bg-secondary_blue rounded-2xl px-3 py-1">
+                    <flux:profile avatar="{{ asset(auth()->user()->profile_photo_path) }}"
+                        name="{{ auth()->user()->name }}" tooltip size="xl" />
+                    <flux:menu class="bg-primary_white">
+                        <form method="POST" action="{{ route('logout') }}" class="w-full">
+                            @csrf
+                            <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle"
+                                class="w-full">
+                                {{ __('Log Out') }}
+                            </flux:menu.item>
+                        </form>
+                    </flux:menu>
+                </flux:dropdown>
+            </flux:sidebar>
+
+            <flux:header class="lg:hidden bg-accent_blue">
+                <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+
+                <flux:spacer />
+
+                <flux:dropdown position="top" alignt="start">
+                    <flux:profile avatar="https://fluxui.dev/img/demo/user.png" class="" />
+                    <flux:menu class="bg-primary_white">
+                        <form method="POST" action="{{ route('logout') }}" class="w-full">
+                            @csrf
+                            <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle"
+                                class="w-full">
+                                {{ __('Log Out') }}
+                            </flux:menu.item>
+                        </form>
+                    </flux:menu>
+                </flux:dropdown>
+            </flux:header>
+            <flux:main class="h-full relative flex justify-center bg-white">
+                <!-- ArrowNavigation
                 <div class="absolute z-40 top-1/2 bg-secondary_blue p-3 rounded-xl -left-8 cursor-pointer hover:animate-wiggle"
                     @click="toggle">
                     <svg class="w-[40px] rotate-180" fill="#ffffff" version="1.1" id="Layer_1"
@@ -391,7 +346,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                             </g>
                         </g>
                     </svg>
-                </div>
+                </div> -->
 
                 <!-- Content -->
                 <template x-if="isLoading">
@@ -731,8 +686,30 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                             <template x-for="(content, index) in Object.values(contents)" :key="index">
                                 <div>
                                     <template x-if="content.type == 'task'">
-                                        <div>
-
+                                        <div class="border border-gray-300 rounded-2xl p-3 flex flex-row items-start justify-between gap-x-2">
+                                            <div class="flex flex-row gap-x-2 items-center justify-between w-full">
+                                                <div class="flex flex-col">
+                                                    <div class="flex flex-row items-center gap-x-1">
+                                                        <flux:icon.clipboard-document-list class="text-gray-500"/>
+                                                        <flux:text class="text-gray-500 text-lg">{{ __('class-learn.task') }}</flux:text>
+                                                    </div>
+                                                    <flux:text
+                                                        x-text="content.title.length > 0 ? content.title : '[ {{ __('class-learn.no_title') }} ]'"
+                                                        class="text-secondary_black text-xl"></flux:text>
+                                                </div>
+                                                <div class="flex flex-col items-start justify-start w-[135px]">
+                                                    <div class="flex flex-row gap-x-1 items-center">
+                                                        <flux:icon.clock class="text-gray-500"/>
+                                                        <flux:text class="text-gray-500 text-lg">{{ __('class-learn.deadline') }}</flux:text>
+                                                    </div>
+                                                    <div class="text-center w-full">
+                                                        <flux:text class="text-secondary_black">-- : --</flux:text>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <flux:button icon="eye">{{ __('class-learn.detail') }}</flux:button>
+                                            </div>
                                         </div>
                                     </template>
                                     <template x-if="content.type == 'notification'">
@@ -760,7 +737,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     </button>
                 </div> -->
 
-            </div>
+            </flux:main>
         </div>
         <script>
             function starting() {

@@ -1,5 +1,5 @@
 <?php
-
+// indonesia
 return [
     'register' => 'Daftar',
     'login' => 'Masuk',
@@ -7,5 +7,7 @@ return [
     'home' =>'Beranda',
     'features' => 'Fitur',
     'about' => 'Tentang',
+    'profile' => 'Profil',
+    'logout' => 'Keluar',
 
 ];

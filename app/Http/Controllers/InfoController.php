@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -9,7 +10,6 @@ use Illuminate\Support\Facades\Log;
 class InfoController extends Controller
 {
     public function getInfoUrl(Request $request) {
-        Log::info('Request to getInfoUrl', ['query' => $request->query()]);
         $url = $request->query('url');
 
         if (!$url) {
@@ -37,6 +37,20 @@ class InfoController extends Controller
     
         } catch (\Exception $e) {
             return response()->json(['success' => 0, 'message' => 'Failed to fetch metadata'], 500);
+        }
+    }
+
+    public function getSchool(Request $request) {
+        try {
+            $search = $request->query('search');
+            $data = School::where('sekolah', 'like', "%$search%")->select('sekolah')->limit(50)->get();
+            if ($data->isEmpty()) {
+                return response()->json(['message' => 'Data not found'], 404);
+            }
+            return response()->json(['data' => $data], 200);
+        } catch (\Throwable $th) {
+            Log::error('InfoController getSchool , '.$th->getMessage());
+            return response()->json(['message' => 'Internal server error'], 500);
         }
     }
 }

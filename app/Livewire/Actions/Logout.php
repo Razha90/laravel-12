@@ -12,11 +12,9 @@ class Logout
      */
     public function __invoke()
     {
-        $saveSession = Session::get('locale', 'fr');
         Auth::guard('web')->logout();
         Session::invalidate();
         Session::regenerateToken();
-        Session::put('locale', $saveSession);
         return redirect('/');
     }
 }

@@ -16,8 +16,9 @@
             <ul class="flex flex-row gap-x-8 font-sans">
                 <li>
                     <a href="{{ route('my-app') }}"
+                    class="text-secondary_black"
                         :class="{
-                            'text-secondary_blue border-secondary_blue font-bold pointer-events-none': currentPath === '{{ route('my-app') }}',
+                            'text-secondary_blue  border-secondary_blue font-bold pointer-events-none': currentPath === '{{ route('my-app') }}',
                             'opacity-50 cursor-not-allowed': isNavigating
                         }"
                         @click.prevent="if (currentPath !== '{{ route('my-app') }}') { isNavigating = true; setTimeout(() => { window.location.href = '{{ route('my-app') }}'; }, 100); }">
@@ -27,6 +28,8 @@
 
                 <li>
                     <a href="{{ route('classroom') }}"
+                        class="text-secondary_black"
+
                         :class="{
                             'text-secondary_blue border-secondary_blue font-bold pointer-events-none': currentPath === '{{ route('classroom') }}',
                             'opacity-50 cursor-not-allowed': isNavigating
@@ -38,6 +41,7 @@
 
                 <li>
                     <a href="{{ route('chat') }}"
+                        class="text-secondary_black"
                         :class="{
                             'text-secondary_blue border-secondary_blue font-bold pointer-events-none': currentPath === '{{ route('chat') }}',
                             'opacity-50 cursor-not-allowed': isNavigating
@@ -48,15 +52,13 @@
                 </li>
             </ul>
         </div>
-
-
         <div class="flex flex-row gap-x-4">
             <div x-data="{ open: false }" x-cloak class="relative flex items-center">
                 <div @click="open = !open"
                     class="flex flex-row items-center gap-x-2 py-1 px-5 shadow-xl rounded-full border border-secondary_blue cursor-pointer">
                     <div
                         class="w-[30px] h-[30px] rounded-full overflow-hidden border border-secondary_blue">
-                        <svg x-show=" `{{ session()->get('locale', 'fr') }}` == `en`" version="1.1"
+                        <svg x-show=" `{{ Cookie::get('locale', 'fr') }}` == `en`" version="1.1"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             viewBox="0 0 130 120" enable-background="new 0 0 130 120" xml:space="preserve"
                             fill="#000000">
@@ -114,7 +116,7 @@
                                 </g>
                             </g>
                         </svg>
-                        <svg x-show="`{{ session()->get('locale', 'fr') }}` == `fr`" version="1.1"
+                        <svg x-show="`{{ Cookie::get('locale', 'fr') }}` == `fr`" version="1.1"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             viewBox="0 0 130 120" enable-background="new 0 0 130 120" xml:space="preserve"
                             fill="#000000">
@@ -141,7 +143,7 @@
                                 </g>
                             </g>
                         </svg>
-                        <svg x-show="`{{ session()->get('locale', 'id') }}` == `id`" viewBox="0 0 36 36"
+                        <svg x-show="`{{ Cookie::get('locale', 'id') }}` == `id`" viewBox="0 0 36 36"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             aria-hidden="true" role="img" class="iconify iconify--twemoji"
                             preserveAspectRatio="xMidYMid meet" fill="#000000">
@@ -154,10 +156,10 @@
                         </svg>
                     </div>
                     <p class="font-koho text-secondary_blue text-2xl">
-                        {{ session()->get('locale', 'fr') }}
+                        {{ Cookie::get('locale', 'fr') }}
                     </p>
                 </div>
-                <div x-show="open" @click.away="open = false"
+                <div x-show="open" @click.away="open = false" x-cloak
                     class="absolute top-12 rounded-2xl shadow-xl bg-primary_white"
                     x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="opacity-0 -translate-y-5 scale-95"
@@ -309,13 +311,45 @@
                     </ul>
                 </div>
             </div>
-            <a href="{{ route('settings.profile') }}"
+            <!-- <a href="{{ route('settings.profile') }}"
                 class="w-[40px] h-[40px] overflow-hidden rounded-full border border-secondary_blue p-1  hover:opacity-50 transition-opacity"
                 x-data="{ isClicked: false }"
                 @click.prevent="if (!isClicked) { isClicked = true; window.location.href = '{{ route('settings.profile') }}'; }"
                 :class="{ 'pointer-events-none opacity-50': isClicked }">
-                <img src="{{ asset('/img/profile/' . auth()->user()->profile_photo_path) }}" alt="Profile Photo">
-            </a>
+                <img src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo">
+            </a> -->
+            <div x-data="{open:false}" class="relative">
+                            <div class="rounded-full w-[40px] h-[40px] overflow-hidden border border-secondary_blue p-[2px] transition-opacity duration-300 hover:opacity-50 cursor-pointer" @click="open = !open">
+                                <img src="{{ asset(auth()->user()->profile_photo_path) }}"
+                                alt="Profile Photo">
+                            </div>
+                            <div x-show="open" @click.away="open = false" class="absolute top-14 right-0"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 -translate-y-1 scale-95"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                            x-transition:leave-end="opacity-0 -translate-y-1 scale-95"
+                            >
+                                <ul class=" bg-primary_white rounded-xl shadow-xl p-2 text-secondary_blue min-w-[150px]">
+                                    <li class="w-full">
+                                        <a href="{{ route('settings.profile') }}"
+                                            class="hover:bg-accent_grey rounded-lg px-2 py-1 transition-colors hover:cursor-pointer inline-flex w-full">
+                                            {{ __('welcome.profile') }}
+                                        </a>
+                                    </li>
+                                    <li class="w-full">
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit"
+                                                class="hover:bg-accent_grey rounded-lg px-2 py-1 transition-colors hover:cursor-pointer inline-flex w-full">
+                                                {{ __('welcome.logout') }}
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
         </div>
     </div>
 </nav>

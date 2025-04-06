@@ -19,6 +19,10 @@ return new class extends Migration
             $table->text('content');
             $table->boolean('visibility')->default(false);
             $table->dateTime('release')->nullable();
+            $table->dateTime('deadline')->nullable();
+            $table->boolean('canUpload')->default(true);
+            $table->boolean('isDeadline')->default(false);
+            $table->integer('order')->nullable();
             $table->foreignId('classroom_id')->constrained('classrooms')->onDelete('cascade');
             $table->timestamps();
         });

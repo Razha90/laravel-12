@@ -9,4 +9,5 @@ return [
     'not_found' => 'Your class is still empty',
     'add.success' => 'Class added successfully',
     'add.failed' => 'Failed to add class',
+    'not.a.teacher' => 'You are not a teacher',
 ];
