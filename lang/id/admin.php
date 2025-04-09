@@ -69,5 +69,8 @@ return [
   'role.in' => 'Peran tidak valid',
   'role_same' => 'Peran adalah sama dengan sebelumnya',
   'alert.birth' => 'Konfirmasi Perubahan Tanggal Lahir',
-  'birth_date' => 'Tanggal Lahir', 
+  'birth_date' => 'Tanggal Lahir',
+  'alert.origin' => 'Konfirmasi Perubahan Asal Sekolah',
+  'origin_same' => 'Asal sekolah adalah sama dengan sebelumnya',
+  'aplication_error' => 'Gagal mendapatkan surat lamaran',
 ];

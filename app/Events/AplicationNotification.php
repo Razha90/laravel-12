@@ -10,11 +10,13 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class NotificationsEvent implements ShouldBroadcast
+class AplicationNotification implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $message = [];
+    /**
+     * Create a new event instance.
+     */ public $message = [];
     public $user_id = null;
 
     /**
@@ -25,8 +27,9 @@ class NotificationsEvent implements ShouldBroadcast
         try {
             $this->message = $message;
             $this->user_id = $user_id;
+            Log::info('aplication Event: ' . json_encode($this->message));
         } catch (\Throwable $th) {
-            Log::error('NotificationsEvent Error: ' . $th->getMessage());
+            Log::error('aplication Event Error: ' . $th->getMessage());
         }
     }
 
@@ -37,8 +40,7 @@ class NotificationsEvent implements ShouldBroadcast
      */
     public function broadcastOn(): Channel
     {
-        return new PrivateChannel('notifications.' . $this->user_id);
-
+        return new PrivateChannel('aplications.' . $this->user_id);
     }
 
     /**
@@ -46,7 +48,7 @@ class NotificationsEvent implements ShouldBroadcast
      */
     public function broadcastAs(): string
     {
-        return 'notifications';
+        return 'aplications';
     }
 
     /**

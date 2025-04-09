@@ -70,4 +70,7 @@ return [
   'role_same' => 'Role is the same as the current role',
   'alert.birth' => 'Confirm birth date change',
   'birth_date' => 'Birth Date',
+  'alert.origin' => 'Confirm origin change',
+  'origin_same' => 'School origin is the same as the current origin',
+  'aplication_error' => 'Failed to get application letter',
 ];

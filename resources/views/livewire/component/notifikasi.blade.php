@@ -76,90 +76,106 @@ new class extends Component {
                 </div>
                 <div x-show="!activeLatter"
                     class="flex h-[400px] max-h-[400px] w-[85%] flex-col gap-y-3 overflow-auto pr-2">
-                    <div x-show="dataNotification.data.length > 0" @click="askOpen = true"
+                    <div x-show="dataNotification?.data?.length > 0" @click="askOpen = true"
                         class="cursor-pointer text-xs text-red-500 transition-all hover:underline">
                         {{ __('nav.delete_all') }}
                     </div>
-                    <template x-show="dataNotification.data.length > 0"
-                        x-for="(content, index) in dataNotification.data" :key="index">
-                        <div x-bind:class="{
-                            'bg-yellow-500/10 border-yellow-300': content.read ==
-                                '0',
-                            'bg-secondary_blue/10  border-secondary_blue/70': content.read == '1'
-                        }"
-                            x-data="{ show: false }" class="relative rounded-xl border p-2">
-                            <h3 x-text="content.title" class="text-secondary_blue font-bold"></h3>
-                            <div x-html="content.body" class="text-secondary_blue mt-3 overflow-hidden"
-                                x-bind:class="{ 'max-h-auto': show, 'max-h-[20px]': !show }"></div>
-                            <div x-show="show" x-transition x-text="changeDate(content.created_at)"
-                                class="text-secondary_blue text-right text-sm opacity-50"></div>
-                            <div @click="if (content.read == '0') { readNotification(content.id) } show = true"
-                                class="text-secondary_blue absolute bottom-0 left-1/2 -translate-x-1/2 cursor-pointer text-sm opacity-30"
-                                x-cloak x-show="!show">{{ __('nav.more') }}</div>
-                            <div @click="show=false" x-cloak
-                                class="text-secondary_blue mt-2 cursor-pointer text-center text-sm opacity-30"
-                                x-show="show">{{ __('nav.little') }}</div>
-                            <div x-show="content.read == '0'" x-transition
-                                class="absolute left-0 top-0 h-[8px] w-[8px] animate-pulse rounded-full bg-red-300">
+                    <template x-if="dataNotification?.data?.length > 0">
+                        <template x-init="console.log(dataNotification)" x-for="(content, index) in dataNotification?.data"
+                            :key="index">
+                            <div x-bind:class="{
+                                'bg-yellow-500/10 border-yellow-300': content.read ==
+                                    '0',
+                                'bg-secondary_blue/10  border-secondary_blue/70': content.read == '1'
+                            }"
+                                x-data="{ show: false }" class="relative rounded-xl border p-2">
+                                <h3 x-text="content.title" class="text-secondary_blue font-bold"></h3>
+                                <div x-html="content.body" class="text-secondary_blue mt-3 overflow-hidden"
+                                    x-bind:class="{ 'max-h-auto': show, 'max-h-[20px]': !show }"></div>
+                                <div x-show="show" x-transition x-text="changeDate(content.created_at)"
+                                    class="text-secondary_blue text-right text-sm opacity-50"></div>
+                                <div @click="if (content.read == '0') { readNotification(content.id) } show = true"
+                                    class="text-secondary_blue absolute bottom-0 left-1/2 -translate-x-1/2 cursor-pointer text-sm opacity-30"
+                                    x-cloak x-show="!show">{{ __('nav.more') }}</div>
+                                <div @click="show=false" x-cloak
+                                    class="text-secondary_blue mt-2 cursor-pointer text-center text-sm opacity-30"
+                                    x-show="show">{{ __('nav.little') }}</div>
+                                <div x-show="content.read == '0'" x-transition
+                                    class="absolute left-0 top-0 h-[8px] w-[8px] animate-pulse rounded-full bg-red-300">
+                                </div>
+                                <div class="absolute right-2 top-2 cursor-pointer"
+                                    @click="deleteNotification(content.id)">
+                                    <svg class="w-[20px]" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
+                                        </g>
+                                        <g id="SVGRepo_iconCarrier">
+                                            <path
+                                                d="M6 5H18M9 5V5C10.5769 3.16026 13.4231 3.16026 15 5V5M9 20H15C16.1046 20 17 19.1046 17 18V9C17 8.44772 16.5523 8 16 8H8C7.44772 8 7 8.44772 7 9V18C7 19.1046 7.89543 20 9 20Z"
+                                                stroke="#727D73" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"></path>
+                                        </g>
+                                    </svg>
+                                </div>
                             </div>
-                            <div class="absolute right-2 top-2 cursor-pointer" @click="deleteNotification(content.id)">
-                                <svg class="w-[20px]" viewBox="0 0 24 24" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                                    <g id="SVGRepo_iconCarrier">
-                                        <path
-                                            d="M6 5H18M9 5V5C10.5769 3.16026 13.4231 3.16026 15 5V5M9 20H15C16.1046 20 17 19.1046 17 18V9C17 8.44772 16.5523 8 16 8H8C7.44772 8 7 8.44772 7 9V18C7 19.1046 7.89543 20 9 20Z"
-                                            stroke="#727D73" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round"></path>
-                                    </g>
-                                </svg>
-                            </div>
-                        </div>
+                        </template>
                     </template>
-                    <div x-show="dataNotification.data.length == 0" class="text-secondary_blue text-center">
+                    <div x-show="dataNotification?.data?.length == 0" class="text-secondary_blue text-center">
                         {{ __('nav.null_notification') }}
                     </div>
                 </div>
                 <div x-show="activeLatter"
                     class="flex h-[400px] max-h-[400px] w-[85%] flex-col gap-y-3 overflow-auto pr-2">
-                    <template x-show="dataAplicationLetter.data.length > 0"
-                        x-for="(content, index) in dataAplicationLetter.data" :key="index">
-                        <div class="relative flex flex-col gap-y-2 rounded-xl p-2"
-                            x-bind:class="{ 'bg-yellow-300/20 border border-yellow-500/25': content.status == 'pending' }">
-                            <h3 x-show="content.role == 'teacher'" class="text-secondary_blue text-base font-bold">
-                                {{ __('nav.letter_teacher') }}</h3>
-                            <h3 x-show="content.role == 'guest'" class="text-secondary_blue text-base font-bold">
-                                {{ __('nav.letter_guest') }}</h3>
-                            <div>
-                                <p class="text-secondary_blue text-sm font-bold">{{ __('nav.name') }}</p>
-                                <p class="text-secondary_blue text-sm" x-text="content.full_name"></p>
+                    <template x-if="dataAplicationLetter?.data?.length > 0">
+                        <template x-for="(content, index) in dataAplicationLetter?.data" :key="index">
+                            <div class="relative flex flex-col gap-y-2 rounded-xl p-2"
+                                x-bind:class="{
+                                    'bg-yellow-300/20 border border-yellow-500/25': content && content.status ==
+                                        'pending',
+                                    'bg-green-300/20 border border-green-500/25': content && content.status ==
+                                        'approved',
+                                    'bg-red-300/20 border border-red-500/25': content && content.status ==
+                                        'rejected'
+                                }">
+                                <h3 x-show="content.role == 'teacher'"
+                                    class="text-secondary_blue text-base font-bold">
+                                    {{ __('nav.letter_teacher') }}</h3>
+                                <h3 x-show="content.role == 'guest'" class="text-secondary_blue text-base font-bold">
+                                    {{ __('nav.letter_guest') }}</h3>
+                                <div>
+                                    <p class="text-secondary_blue text-sm font-bold">{{ __('nav.name') }}</p>
+                                    <p class="text-secondary_blue text-sm" x-text="content.full_name"></p>
+                                </div>
+                                <div>
+                                    <p class="text-secondary_blue text-sm font-bold">{{ __('nav.origin') }}</p>
+                                    <p class="text-secondary_blue text-sm" x-text="content.origin"></p>
+                                </div>
+                                <div>
+                                    <p class="text-secondary_blue text-sm font-bold">{{ __('nav.message') }}</p>
+                                    <p class="text-secondary_blue text-sm" x-text="content.message"></p>
+                                </div>
+                                <div class="absolute right-3 top-3 animate-pulse">
+                                    <p x-show="content && content.status == 'pending'"
+                                        class="text-sm text-yellow-500">
+                                        {{ __('nav.pending') }}</p>
+                                    <p x-show="content.status == 'approved'" class="text-sm text-green-500">
+                                        {{ __('nav.approved') }}</p>
+                                    <p x-show="content.status == 'rejected'" class="text-sm text-red-500">
+                                        {{ __('nav.rejected') }}</p>
+                                </div>
+                                <div class="text-center">
+                                    <template x-if="content.status == 'pending'">
+                                        <button @click="deleteAplicationLetter(content.id)"
+                                            class="my-2 cursor-pointer rounded-md bg-red-500 px-4 py-1 text-sm text-white transition-colors hover:bg-red-400">
+                                            {{ __('nav.cancel') }}
+                                        </button>
+                                    </template>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-secondary_blue text-sm font-bold">{{ __('nav.origin') }}</p>
-                                <p class="text-secondary_blue text-sm" x-text="content.origin"></p>
-                            </div>
-                            <div>
-                                <p class="text-secondary_blue text-sm font-bold">{{ __('nav.message') }}</p>
-                                <p class="text-secondary_blue text-sm" x-text="content.message"></p>
-                            </div>
-                            <div class="absolute right-3 top-3 animate-pulse">
-                                <p x-show="content.status == 'pending'" class="text-sm text-yellow-500">
-                                    {{ __('nav.pending') }}</p>
-                                <p x-show="content.status == 'approved'" class="text-sm text-green-500">
-                                    {{ __('nav.approved') }}</p>
-                                <p x-show="content.status == 'rejected'" class="text-sm text-red-500">
-                                    {{ __('nav.rejected') }}</p>
-                            </div>
-                            <div class="text-center">
-                                <button @click="deleteAplicationLetter(content.id)"
-                                    class="my-2 cursor-pointer rounded-md bg-red-500 px-4 py-1 text-sm text-white transition-colors hover:bg-red-400">
-                                    {{ __('nav.cancel') }}
-                                </button>
-                            </div>
-                        </div>
+                        </template>
                     </template>
-                    <div x-show="dataAplicationLetter.data.length == 0" class="text-secondary_blue text-center">
+                    <div x-show="dataAplicationLetter?.data?.length == 0" class="text-secondary_blue text-center">
                         {{ __('nav.null_letter') }}
                     </div>
                 </div>
@@ -212,7 +228,7 @@ new class extends Component {
                     stroke="#2867A4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
             </g>
         </svg>
-        <div x-show="dataNotification.data.filter(item => item.read == '0').length > 0"
+        <div x-show="dataNotification?.data?.filter(item => item.read == '0').length > 0"
             class="absolute right-1 top-1 z-30 h-[10px] w-[10px] animate-pulse rounded-full bg-red-500"></div>
     </div>
 </div>
@@ -307,8 +323,12 @@ new class extends Component {
                 }
                 return 0;
             },
-            changeDate(time) {
-                return new Date(time).toISOString().split('T')[0];
+            changeDate(datetime) {
+                const date = new Date(datetime);
+                const twoDigit = (num) => num.toString().padStart(2, "0");
+                const formatted =
+                    `${twoDigit(date.getDate())}/${twoDigit(date.getMonth() + 1)}/${date.getFullYear()} ${twoDigit(date.getHours())}:${twoDigit(date.getMinutes())}`;
+                return formatted;
             }
 
         }

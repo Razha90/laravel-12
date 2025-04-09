@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('aplication_letter', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->enum('role', ['admin', 'teacher', 'guest'])->default('guest');
+            $table->enum('request_role', ['admin', 'teacher', 'guest'])->default('guest');
+            $table->enum('current_role', ['admin', 'teacher', 'guest'])->default('guest');
             $table->string('full_name');
             $table->text('message');
             $table->string('origin')->nullable();

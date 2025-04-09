@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\AplicationLater;
 use App\Http\Controllers\NotificationController;
 use App\Models\RandomAvatar;
+use App\Events\AplicationNotification;
 
 new #[Layout('components.layouts.app-flux')] class extends Component {
     use WithFileUploads;
@@ -31,8 +32,6 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
     public function initAsTeacher()
     {
         $this->name = auth()->user()->name;
-        $this->message = __('profile.message_letter_teacher');
-        $this->role = 'teacher';
         $this->origin = auth()->user()->origin;
     }
 
@@ -54,7 +53,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                 [
                     'name' => 'required|string|max:100|min:3',
                     'message' => 'required|string|max:5000|min:15',
-                    'role' => 'required|string|max:10|min:3|in:teacher,student,admin',
+                    'role' => 'required|string|max:10|min:3|in:teacher,guest,admin',
                     'origin' => 'required|string|max:255|min:3',
                 ],
                 [
@@ -88,51 +87,30 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                 return;
             }
 
-            $aplicationLetter = AplicationLater::where('user_id', auth()->user()->id)->get();
-            $role = ['teacher', 'student'];
-            foreach ($aplicationLetter as $letter) {
-                if ($letter->status === 'pending' && in_array($letter->role, $role)) {
-                    $this->dispatch('failed', ['message' => __('profile.letter_pending')]);
-                    return false;
-                }
+            $hasPending = AplicationLater::where('user_id', auth()->id())
+                ->where('status', 'pending')
+                ->exists();
+
+            if ($hasPending) {
+                $this->dispatch('failed', ['message' => __('profile.letter_pending')]);
+                Log::error("Liska");
+                return false;
             }
+
 
             $data = $validator->validated();
             $user = User::find(auth()->user()->id);
             $newAplicationLetter = $user->aplicationLetters()->create([
-                'role' => $data['role'],
+                'request_role' => $data['role'],
+                'current_role' => $user->role,
                 'full_name' => $data['name'],
                 'message' => $data['message'],
                 'origin' => $data['origin'],
                 'status' => 'pending',
             ]);
 
-            $this->js(
-                "
-            const getData = " .
-                    json_encode($newAplicationLetter) .
-                    ";
-            const data = localStorage.getItem('aplication-letter');
-            const now = new Date();
-            let saveData = {};
-            if (data == null) {
-                const newData = {
-                    created_at: now.toISOString(),
-                    data: [getData]
-                }
-                saveData = newData;
-            } else {
-                const newData = {
-                    created_at: now.toISOString(),
-                    data: [...JSON.parse(data).data, getData]
-                }
-                saveData = newData;
-            }
 
-            localStorage.setItem('aplication-letter', JSON.stringify(saveData));
-            const event = new Event('aplication-letter');
-            window.dispatchEvent(event);",
-            );
+            event(new AplicationNotification($newAplicationLetter, $user->id));
 
             $dataNotif = [
                 'title' => 'Request Letter Submission Successful',
@@ -518,16 +496,23 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
         </button>
     </div>
 
-    <div x-cloak x-init="Livewire.dispatch('initAsTeacher');" x-data="{ open: false }" x-show="open"
+    <div x-cloak x-init="Livewire.dispatch('initAsTeacher');" x-data="{ open: false, role: @entangle('role').live, message: @entangle('message').live, letter_teacher:'{{ __('profile.letter_teacher') }}', letter_guest:'{{ __('profile.letter_guest') }}'}" x-show="open"
         x-on:open-teacher.window="(event) => {
         open = true;
+        role = event.detail[0].role;
+        if (role == 'teacher') {
+            message = '{{ __('profile.message_letter_teacher') }}';
+        } else {
+            message = '{{ __('profile.message_letter_guest') }}';
+        }
+        
     }" x-transition.opacity
         class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <div @click.away="open = false" x-transition
             class="relative m-4 w-2/5 min-w-[40%] max-w-[40%] rounded-lg bg-white p-4 shadow-sm">
             <div class="flex items-center justify-between pb-4 text-xl font-medium text-slate-800">
-                <span class="text-secondary_blue font-bold">
-                    {{ __('profile.letter_teacher') }}
+                <span class="text-secondary_blue font-bold" x-text="role == 'teacher' ? letter_teacher : letter_guest;">
+                    
                 </span>
                 <button @click="open = false" class="text-slate-500 hover:text-slate-700">&times;</button>
             </div>
@@ -545,8 +530,9 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                     <flux:field>
                         <flux:label class="!text-secondary_blue ml-3 text-[18px] !font-bold">{{ __('profile.role') }}
                         </flux:label>
-                        <flux:select wire:model="role" disabled class="cursor-not-allowed">
-                            <flux:select.option>{{ __('profile.teacher') }}</flux:select.option>
+                        <flux:select class="cursor-not-allowed" x-model="role" disabled>
+                            <flux:select.option value="teacher">{{ __('profile.teacher') }}</flux:select.option>
+                            <flux:select.option value="guest">{{ __('profile.guest') }}</flux:select.option>
                         </flux:select>
                         <flux:error name="role" />
                     </flux:field>
@@ -593,11 +579,6 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                             }
                         },
                     }">
-                        <!-- <flux:input x-model="origin" wire:model="origin" :label="__('register.origin')" type="text" required
-                            :placeholder="__('register.origin_example')"
-                            @input="(event) => {loadSchool(event);}"
-                            @focus="(event) => { open = true; loadSchool(event); }" @click.away="open = false"
-                            autocomplete="origin" /> -->
                         <flux:field>
                             <flux:label class="!text-secondary_blue ml-3 text-[18px] !font-bold">
                                 {{ __('register.origin') }}</flux:label>
@@ -622,7 +603,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                     <flux:field>
                         <flux:label class="!text-secondary_blue ml-3 text-[18px] !font-bold">
                             {{ __('profile.message_teacher') }}</flux:label>
-                        <flux:textarea wire:model="message" />
+                        <flux:textarea x-model="message" />
                         <flux:error name="message" />
                     </flux:field>
 
@@ -654,7 +635,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                         <div class="bg-accent_grey h-[200px] w-[200px] overflow-auto rounded-full shadow-2xl"
                             @mouseenter="doubleShow = true" :class="{ 'opacity-75': doubleShow }">
                             <img src="{{ auth()->user()->profile_photo_path }}" alt="{{ auth()->user()->name }}"
-                                class="w-full rounded-t-2xl object-cover">
+                                class="w-full object-cover h-full" loading="lazy">
                         </div>
                         <div @mouseleave="doubleShow = false" x-show="doubleShow"
                             class="absolute left-0 top-0 z-30 flex h-[200px] w-[200px] cursor-pointer items-center justify-center overflow-auto rounded-full">
@@ -776,7 +757,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                     {{ __('profile.guest') }}
                                 </p>
                                 <p class="text-accent_blue/70 cursor-pointer text-xs italic hover:underline"
-                                    @click="$dispatch('open-teacher')">{{ __('profile.change_teacher') }}</p>
+                                    @click="$dispatch('open-teacher', [{role:'teacher'}])">{{ __('profile.change_teacher') }}</p>
                             @break
 
                             @case('admin')
@@ -790,7 +771,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                     {{ __('profile.teacher') }}
                                 </p>
                                 <p class="text-accent_blue/70 cursor-pointer text-xs italic hover:underline"
-                                    @click="$dispatch('open-teacher')">{{ __('profile.change_guest') }}</p>
+                                    @click="$dispatch('open-teacher', [{role:'guest'}])">{{ __('profile.change_guest') }}</p>
                             @break
 
                             @default
@@ -798,7 +779,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                     {{ __('profile.guest') }}
                                 </p>
                                 <p class="text-accent_blue/70 cursor-pointer text-xs italic hover:underline"
-                                    @click="$dispatch('open-teacher')">{{ __('profile.change_teacher') }}</p>
+                                    @click="$dispatch('open-teacher', [{role:'teacher'}])">{{ __('profile.change_teacher') }}</p>
                         @endswitch
                     </div>
                     <div class="mt-7">

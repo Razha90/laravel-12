@@ -293,6 +293,45 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
         $this->updateUser($currentPage);
         $this->sendNotification($id, $message, $title);
     }
+
+    public function originUpdated($id, $origin, $message, $title, $currentPage)
+    {
+        try {
+            $validator = Validator::make(
+                ['origin' => $origin],
+                [
+                    'origin' => 'required|string|max:255|min:3',
+                ],
+                [
+                    'origin.required' => __('profile.origin_required'),
+                    'origin.string' => __('profile.origin_string'),
+                    'origin.max' => __('profile.origin_max'),
+                    'origin.min' => __('profile.origin_min'),
+                ],
+            );
+            if ($validator->fails()) {
+                $this->dispatch('failed', ['message' => $validator->errors()->first()]);
+                return;
+            }
+
+            $user = User::find($id);
+            $newOrigin = $validator->validated()['origin'];
+
+            if ($user->origin === $newOrigin) {
+                $this->dispatch('failed', ['message' => __('admin.origin_same')]);
+                return;
+            }
+            $user->origin = $newOrigin;
+            $user->save();
+        } catch (\Throwable $th) {
+            Log::error('Dashboard Origin ', [
+                'error' => $th->getMessage(),
+            ]);
+            return;
+        }
+        $this->updateUser($currentPage);
+        $this->sendNotification($id, $message, $title);
+    }
 }; ?>
 
 <flux:main class="h-full overflow-auto bg-white" x-data="initBar" x-init="init">
@@ -471,7 +510,7 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
                         <div class="relative my-3 h-32 w-32">
                             <template x-if="imageUrl">
                                 <img x-bind:src="imageUrl" alt="Preview"
-                                    class="h-32 w-32 rounded-full object-cover">
+                                    class="h-32 w-32 rounded-full object-cover" loading="lazy">
                             </template>
                             <flux:icon.trash x-show="imageUrl" variant="solid"
                                 @click="imageUrl = null; editImagePicking = false;"
@@ -494,7 +533,7 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
                             <div class="hover:border-secondary_blue h-[30px] w-[30px] cursor-pointer overflow-hidden rounded-full border border-white transition-all"
                                 @click="clickImage(image.path)">
                                 <img x-bind:src="image.path" x-bind:alt="image.name"
-                                    class="h-full w-full object-cover" />
+                                    class="h-full w-full object-cover" loading="lazy" />
                             </div>
                         </template>
                     </div>
@@ -734,7 +773,7 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
                 <div
                     class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600">
                     <h3 class="text-secondary_blue text-xl font-semibold">
-                        {{ __('admin.alert.birth') }}
+                        {{ __('admin.alert.origin') }}
                     </h3>
                     <button type="button" @click="openOrigin"
                         class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
@@ -749,16 +788,14 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
                 </div>
                 <div class="p-4">
                     <div class="mb-4">
-                        <flux:input :label="__('register.origin')" type="text" required
-                            :placeholder="__('register.origin_example')" @input="(event) => {loadSchool(event);}"
-                            @focus="(event) => { open = true; loadSchool(event); }" @click.away="open = false"
-                            autocomplete="origin" class="text-secondary_blue!" />
 
                         <flux:field>
+                            <flux:label class="text-secondary_blue! text-base! font-bold!">{{ __('register.origin') }}
+                            </flux:label>
                             <flux:input x-model="originUpdated" type="text" required
                                 :placeholder="__('register.origin_example')" @input="(event) => {loadSchool(event);}"
                                 @focus="(event) => { open = true; loadSchool(event); }" @click.away="open = false"
-                                autocomplete="origin" />
+                                autocomplete="origin" class="border-secondary_blue! rounded-md border" class:input="text-secondary_blue!" />
                             <flux:error name="origin" />
                         </flux:field>
 
@@ -787,7 +824,7 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
                             class="border-secondary_blue focus:border-secondary_blue text-secondary_blue mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none"></textarea>
                     </div>
                     <div class="mt-4 flex w-full justify-end">
-                        <button @click="senderBirth()"
+                        <button @click="senderOrigin()"
                             class="bg-secondary_blue hover:border-secondary_blue hover:text-secondary_blue cursor-pointer rounded-lg border px-5 py-2 text-white transition-all hover:bg-white">{{ __('admin.send') }}</button>
                     </div>
                 </div>
@@ -833,8 +870,8 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
                 <template x-for="(user, index) in users.data" :key="index">
                     <tr class="p-2 odd:bg-gray-200 even:bg-gray-100">
                         <td scope="row" class="p-2">
-                            <img x-bind:src="user.profile_photo_path" alt="Profile Photo"
-                                class="mx-auto h-16 w-16 rounded-full" />
+                            <img x-bind:src="user.profile_photo_path" x-bind:alt="user.name"
+                                class="mx-auto h-16 w-16 rounded-full" loading="lazy"/>
                             <template x-if="idChanged == user.id">
                                 <div class="animate-fade mt-2">
                                     <flux:separator class="mb-2" />
@@ -1071,6 +1108,24 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
                 this.editRole = false;
                 this.roleUpdated = null;
             },
+            senderOrigin() {
+                if (this.originUpdated == null) {
+                    this.$dispatch('failed-center', [{
+                        message: '{{ __('profile.origin_required') }}'
+                    }])
+                    return;
+                }
+                if (this.originUpdated == this.users.data.find(user => user.id == this.idChanged).origin) {
+                    this.$dispatch('failed-center', [{
+                        message: '{{ __('admin.origin_same') }}'
+                    }])
+                    return;
+                }
+                this.$wire.originUpdated(this.idChanged, this.originUpdated, this.notificationMessage,
+                    this.notificationTitle, this.users.current_page);
+                this.editOrigin = false;
+                this.originUpdated = null;
+            },
             senderRole() {
                 if (this.roleUpdated == null) {
                     this.$dispatch('failed-center', [{
@@ -1261,7 +1316,6 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
                     const data = await response.json();
                     this.dummySchools = data.data.map(school => school.sekolah);
                     this.schools = this.dummySchools.slice(0, 10);
-                    console.log(this.schools);
                 } catch (error) {
                     this.schools = [];
                     this.dummySchools = [];

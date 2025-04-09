@@ -70,4 +70,7 @@ return [
   'image_success' => 'Image mise à jour avec succès',
   'alert.birth' => 'Confirmer le changement de date de naissance',
   'birth_date' => 'Date de naissance',
+  'alert.origin' => 'Confirmer le changement d\'origine',
+  'origin_same' => 'L\'origine de l\'école est la même que précédemment',
+  'aplication_error' => 'Échec de l\'obtention de la lettre de candidature',
 ];

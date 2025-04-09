@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Events\NotificationsEvent;
 use App\Models\Notification;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,7 +15,7 @@ class NotificationController extends Controller
             $data = [
                 'title' => $datas['title'],
                 'body' => $datas['body'],
-                'user_id' => auth()->user()->id,
+                'user_id' => $datas['user_id'],
             ];
 
             $validated = Validator::make(
@@ -52,19 +51,10 @@ class NotificationController extends Controller
                 'read' => false,
             ]);
 
-            event(new NotificationsEvent($notification));
+            event(new NotificationsEvent($notification, $result['user_id']));
         } catch (\Throwable $th) {
             Log::error(message: 'NotificationController Error: ' . $th->getMessage());
             throw $th;
         }
-        // $message = $request->query('message');
-
-        // Log::info('message: '.$message);
-        // $data = [
-        //     'message' => $message
-        // ];
-
-        // event(new NotificationsEvent($message));
-        // return response()->json(['status' => 'Notification sent!', 'message' => $message]);
     }
 }

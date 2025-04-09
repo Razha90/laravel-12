@@ -11,5 +11,5 @@
 
 @livewireScripts
 @livewireStyles
-@vite(['resources/css/app.css'])
+@vite(['resources/css/app.css', 'resources/js/echo.js'])
 @fluxAppearance

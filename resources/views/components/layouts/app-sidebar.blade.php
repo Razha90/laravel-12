@@ -122,7 +122,7 @@
             <div class="flex w-full flex-row items-center justify-around rounded-md bg-white p-2">
                 <div
                     class="border-secondary_blue h-[40px] w-[40px] cursor-pointer overflow-hidden rounded-full border p-[2px] transition-opacity duration-300 hover:opacity-50">
-                    <img src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo">
+                    <img src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo" loading="lazy">
                 </div>
                 <p class="text-secondary_blue w-[110px] truncate overflow-ellipsis whitespace-nowrap text-sm font-bold">
                     {{ auth()->user()->name }}</p>

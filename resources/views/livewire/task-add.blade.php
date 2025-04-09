@@ -247,7 +247,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     x-data="{ isClicked: false }"
                     @click.prevent="if (!isClicked) { isClicked = true; window.location.href = '{{ route('settings.profile') }}'; }"
                     :class="{ 'pointer-events-none opacity-50': isClicked }">
-                    <img src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo">
+                    <img loading="lazy" src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo">
                 </a>
 
             </div>

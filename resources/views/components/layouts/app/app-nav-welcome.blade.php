@@ -5,7 +5,7 @@
             <div>
                 <a href="{{ route('home') }}" wire:navigate.hover
                     class="transition-opacity hover:cursor-pointer hover:opacity-50">
-                    <img src="{{ url('/img/web/logo.png') }}" width="100" height="100" />
+                    <img src="{{ url('/img/web/logo.png') }}" width="100" height="100" loading="lazy" />
                 </a>
             </div>
             <div>
@@ -26,7 +26,8 @@
                         window.location.hash = '#welcome';
                     }
                 
-                });" class="text-accent_blue flex flex-row gap-x-6 text-xl">
+                });"
+                    class="text-accent_blue flex flex-row gap-x-6 text-xl">
                     <li>
                         <a href="#welcome"
                             @click="() => { if (path == '/') {hash = '#welcome'} else {window.location.href='/#welcome'} }"
@@ -321,16 +322,17 @@
                 </div>
                 @auth
                     <!-- <a href="{{ route('settings.profile') }}" x-data="{ clicked: false }"
-                                @click.prevent="if (!clicked) { clicked = true; window.location.href='{{ route('settings.profile') }}' }"
-                                :class="{ 'opacity-50 pointer-events-none': clicked }"
-                                class="border-secondary_blue h-[40px] w-[40px] cursor-pointer overflow-hidden rounded-full border p-[2px] transition-opacity duration-300 hover:opacity-50">
-                                <img src="{{ asset(auth()->user()->profile_photo_path) }}"
-                                    alt="Profile Photo">
-                            </a> -->
+                                    @click.prevent="if (!clicked) { clicked = true; window.location.href='{{ route('settings.profile') }}' }"
+                                    :class="{ 'opacity-50 pointer-events-none': clicked }"
+                                    class="border-secondary_blue h-[40px] w-[40px] cursor-pointer overflow-hidden rounded-full border p-[2px] transition-opacity duration-300 hover:opacity-50">
+                                    <img src="{{ asset(auth()->user()->profile_photo_path) }}"
+                                        alt="Profile Photo">
+                                </a> -->
                     <div x-data="{ open: false }" class="relative">
                         <div class="border-secondary_blue h-[40px] w-[40px] cursor-pointer overflow-hidden rounded-full border p-[2px] transition-opacity duration-300 hover:opacity-50"
                             @click="open = !open">
-                            <img src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo">
+                            <img src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo"
+                                loading="lazy">
                         </div>
                         <div x-cloak x-show="open" @click.away="open = false" class="absolute right-0 top-14"
                             x-transition:enter="transition ease-out duration-300"

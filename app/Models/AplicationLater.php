@@ -12,11 +12,13 @@ class AplicationLater extends Model
 
     // Nama tabel yang terhubung
     protected $table = 'aplication_letter';
+    
 
     // Kolom yang dapat diisi (mass assignable)
     protected $fillable = [
         'user_id',
-        'role',
+        'current_role',
+        'request_role',
         'full_name',
         'message',
         'origin',

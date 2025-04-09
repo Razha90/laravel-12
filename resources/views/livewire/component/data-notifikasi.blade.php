@@ -106,18 +106,17 @@ new class extends Component {
                                 created_at: now.toISOString(),
                                 data: [e.data]
                             }
-                            // localStorage.setItem('notifications', JSON.stringify(newData));
                             updateNotification(newData);
                         } else {
                             const newData = {
                                 created_at: now.toISOString(),
-                                data: [...JSON.parse(data).data, e.data]
+                                data: [e.data, ...JSON.parse(data).data]
                             }
                             // localStorage.setItem('notifications', JSON.stringify(newData));
                             updateNotification(newData);
                         }
                     } catch (error) {
-                        console.log(error);
+                        console.error(error);
                     }
                 })
                 .on("pusher:subscription_succeeded", async () => {
@@ -144,7 +143,7 @@ new class extends Component {
                         const savedTime = new Date(parsedData.created_at);
                         const differenceInMinutes = (now - savedTime) / 1000 / 60;
 
-                        if (!(differenceInMinutes < 60)) {
+                        if (!(differenceInMinutes < 5)) {
                             const getData = await $wire.getNotification();
                             if (getData.original.status) {
                                 const newData = {
@@ -233,53 +232,153 @@ new class extends Component {
                 }
             });
 
-            async function initAplicationLetter() {
-                const data = localStorage.getItem('aplication-letter');
-                if (data == null) {
-                    const getData = await $wire.getAplicationLetter();
-                    if (getData.original.status) {
-                        const create_data = {
-                            created_at: new Date().toISOString(),
-                            data: getData.original.data
-                        }
-                        // localStorage.setItem('aplication-letter', JSON.stringify(create_data));
-                        updateAplicationLetter(create_data);
-                    } else {
-                        const create_data = {
-                            created_at: new Date().toISOString(),
-                            data: []
-                        }
-                        // localStorage.setItem('aplication-letter', JSON.stringify(create_data));
-                        updateAplicationLetter(create_data);
-                    }
-                } else {
-                    const parsedData = JSON.parse(data);
-                    const now = new Date();
-                    const savedTime = new Date(parsedData.created_at);
-                    const differenceInMinutes = (now - savedTime) / 1000 / 60;
+            // async function initAplicationLetter() {
+            //     const data = localStorage.getItem('aplication-letter');
+            //     if (data == null) {
+            //         const getData = await $wire.getAplicationLetter();
+            //         if (getData.original.status) {
+            //             const create_data = {
+            //                 created_at: new Date().toISOString(),
+            //                 data: getData.original.data
+            //             }
+            //             // localStorage.setItem('aplication-letter', JSON.stringify(create_data));
+            //             updateAplicationLetter(create_data);
+            //         } else {
+            //             const create_data = {
+            //                 created_at: new Date().toISOString(),
+            //                 data: []
+            //             }
+            //             // localStorage.setItem('aplication-letter', JSON.stringify(create_data));
+            //             updateAplicationLetter(create_data);
+            //         }
+            //     } else {
+            //         const parsedData = JSON.parse(data);
+            //         const now = new Date();
+            //         const savedTime = new Date(parsedData.created_at);
+            //         const differenceInMinutes = (now - savedTime) / 1000 / 60;
 
-                    if (!(differenceInMinutes < 60)) {
+            //         if (!(differenceInMinutes < 60)) {
+            //             const getData = await $wire.getAplicationLetter();
+            //             if (getData.original.status) {
+            //                 const newData = {
+            //                     created_at: now.toISOString(),
+            //                     data: getData.original.data
+            //                 }
+            //                 // localStorage.setItem('aplication-letter', JSON.stringify(newData));
+            //                 updateAplicationLetter(newData);
+            //             } else {
+            //                 const newData = {
+            //                     created_at: now.toISOString(),
+            //                     data: []
+            //                 }
+            //                 // localStorage.setItem('aplication-letter', JSON.stringify(newData));
+            //                 updateAplicationLetter(newData);
+            //             }
+            //         }
+            //     }
+            // }
+
+            window.Echo.private("aplications." + userId)
+                .listen(".aplications", async (e) => {
+                    try {
+                        const data = localStorage.getItem('aplication-letter');
+                        const now = new Date();
+                        if (data == null) {
+                            const newData = {
+                                created_at: now.toISOString(),
+                                data: [e.data]
+                            }
+                            updateAplicationLetter(newData);
+                        } else {
+                            const parsed = JSON.parse(data);
+                            if (e.data.hasOwnProperty('origin') && e.data.origin) {
+                                const existingIndex = parsed.data.findIndex(item => item.id === e.data.id);
+                                if (existingIndex !== -1) {
+                                    parsed.data[existingIndex] = e.data;
+                                } else {
+                                    parsed.data.push(e.data);
+                                }
+                            } else {
+                                parsed.data = parsed.data.filter(item => item.id !== e.data.id);
+
+                            }
+
+                            const newData = {
+                                created_at: now.toISOString(),
+                                data: parsed.data
+                            };
+
+                            updateAplicationLetter(newData);
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    }
+                })
+                .on("pusher:subscription_succeeded", async () => {
+                    const data = localStorage.getItem('aplication-letter');
+                    const now = new Date();
+
+                    if (data === null) {
                         const getData = await $wire.getAplicationLetter();
-                        console.log(getData);
                         if (getData.original.status) {
                             const newData = {
                                 created_at: now.toISOString(),
                                 data: getData.original.data
                             }
-                            // localStorage.setItem('aplication-letter', JSON.stringify(newData));
                             updateAplicationLetter(newData);
                         } else {
                             const newData = {
                                 created_at: now.toISOString(),
                                 data: []
                             }
-                            // localStorage.setItem('aplication-letter', JSON.stringify(newData));
                             updateAplicationLetter(newData);
                         }
+                    } else {
+                        const parsedData = JSON.parse(data);
+                        const savedTime = new Date(parsedData.created_at);
+                        const differenceInMinutes = (now - savedTime) / 1000 / 60;
+
+                        if (!(differenceInMinutes < 5)) {
+                            const getData = await $wire.getAplicationLetter();
+                            if (getData.original.status) {
+                                const newData = {
+                                    created_at: now.toISOString(),
+                                    data: getData.original.data
+                                }
+                                localStorage.setItem('aplication-letter', JSON.stringify(newData));
+                                updateAplicationLetter(newData);
+                            } else {
+                                const newData = {
+                                    created_at: now.toISOString(),
+                                    data: []
+                                }
+                                localStorage.setItem('aplication-letter', JSON.stringify(newData));
+                                updateAplicationLetter(newData);
+                            }
+                        }
                     }
-                }
-            }
-            initAplicationLetter();
+
+                }).on("pusher:subscription_error", async (status) => {
+
+                    const getData = await $wire.getAplicationLetter();
+                    if (getData.original.status) {
+                        const now = new Date();
+                        const newData = {
+                            created_at: now.toISOString(),
+                            data: getData.original.data
+                        }
+                        localStorage.setItem('aplication-letter', JSON.stringify(newData));
+                        updateAplicationLetter(newData);
+                    } else {
+                        const now = new Date();
+                        const newData = {
+                            created_at: now.toISOString(),
+                            data: []
+                        }
+                        localStorage.setItem('aplication-letter', JSON.stringify(newData));
+                        updateAplicationLetter(newData);
+                    }
+                });
 
             window.addEventListener('aplication-letter-delete', async function(event) {
                 const try_delete = await $wire.deleteAplicationLetter(event.detail.id);

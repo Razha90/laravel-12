@@ -164,7 +164,7 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
                     </button>
                 </div>
                 <div class="p-4">
-                    <img x-bind:src="pathImage" alt="Full Image" class="h-full w-full rounded-lg object-cover" />
+                    <img loading="lazy" x-bind:src="pathImage" alt="Full Image" class="h-full w-full rounded-lg object-cover" />
                 </div>
             </div>
         </div>
@@ -180,7 +180,7 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
                 <div class="relative h-[100px] w-[100px] overflow-hidden rounded-full">
                     <div class="absolute inset-0 z-10 h-full w-full bg-transparent" x-show="show"
                         @click="if(show){pathImage=image.path; showImage=true;}"></div>
-                    <img x-bind:src="image.path" x-bind:alt="image.name"
+                    <img loading="lazy" x-bind:src="image.path" x-bind:alt="image.name"
                         class="h-full w-full object-cover" />
                 </div>
                 <flux:icon.trash x-show="show" variant="solid" @click="deleteImage(image.id)"

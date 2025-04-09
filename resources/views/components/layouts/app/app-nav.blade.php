@@ -3,7 +3,7 @@
         class="max-w-[1200px] w-[1200px] px-4 py-2 select-none flex flex-row justify-between items-center bg-primary_white rounded-full shadow-xl animate-fade-down h-[60px]">
         <div>
             <a href="{{ route('my-app') }}" class="hover:cursor-pointer hover:opacity-50 transition-opacity">
-                <img src="{{ url('/img/web/logo.png') }}" width="100" height="100" />
+                <img loading="lazy" src="{{ url('/img/web/logo.png') }}" width="100" height="100" />
             </a>
         </div>
         <div x-data="{
@@ -311,17 +311,10 @@
                     </ul>
                 </div>
             </div>
-            <!-- <a href="{{ route('settings.profile') }}"
-                class="w-[40px] h-[40px] overflow-hidden rounded-full border border-secondary_blue p-1  hover:opacity-50 transition-opacity"
-                x-data="{ isClicked: false }"
-                @click.prevent="if (!isClicked) { isClicked = true; window.location.href = '{{ route('settings.profile') }}'; }"
-                :class="{ 'pointer-events-none opacity-50': isClicked }">
-                <img src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo">
-            </a> -->
             <div x-data="{open:false}" class="relative">
                             <div class="rounded-full w-[40px] h-[40px] overflow-hidden border border-secondary_blue p-[2px] transition-opacity duration-300 hover:opacity-50 cursor-pointer" @click="open = !open">
                                 <img src="{{ asset(auth()->user()->profile_photo_path) }}"
-                                alt="Profile Photo">
+                                alt="Profile Photo" loading="lazy">
                             </div>
                             <div x-show="open" @click.away="open = false" class="absolute top-14 right-0"
                             x-transition:enter="transition ease-out duration-300"
