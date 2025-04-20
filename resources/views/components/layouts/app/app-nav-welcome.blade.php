@@ -3,8 +3,7 @@
         <div
             class="bg-primary_white animate-fade-down max-960:min-w-[90%] flex h-[80px] w-[80%] min-w-[600px] max-w-[900px] items-center justify-between rounded-full p-4 shadow-xl">
             <div>
-                <a href="{{ route('home') }}" wire:navigate.hover
-                    class="transition-opacity hover:cursor-pointer hover:opacity-50">
+                <a href="{{ route('home') }}" class="transition-opacity hover:cursor-pointer hover:opacity-50">
                     <img src="{{ url('/img/web/logo.png') }}" width="100" height="100" loading="lazy" />
                 </a>
             </div>
@@ -176,9 +175,56 @@
                         x-transition:leave="transition ease-in duration-200"
                         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                         x-transition:leave-end="opacity-0 -translate-y-5 scale-95">
-                        <ul class="flex flex-col gap-4 rounded-xl p-5 shadow-xl">
-                            <li @click="window.location.href = `{{ route('change.lang', ['lang' => 'fr']) }}`"
-                                class="hover:bg-accent_grey flex flex-row items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:cursor-pointer">
+                        <ul class="flex flex-col gap-4 rounded-xl px-4 py-2 shadow-xl" x-data="{ currentLang: '{{ Cookie::get('locale', 'fr') }}' }">
+                            <li @click="if (currentLang !== 'fr') window.location.href = '{{ route('change.lang', ['lang' => 'fr']) }}'"
+                                class="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
+                                :class="currentLang === 'fr'
+                                    ?
+                                    'bg-accent_grey text-gray-400 cursor-not-allowed' :
+                                    'hover:bg-accent_grey cursor-pointer'">
+                                <div class="border-accent_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
+                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+                                        xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 130 120"
+                                        enable-background="new 0 0 130 120" xml:space="preserve" fill="#000000">
+                                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
+                                        </g>
+                                        <g id="SVGRepo_iconCarrier">
+                                            <g id="Infos">
+                                                <rect id="BG" x="-650" y="-740" fill="#D8D8D8" width="2180"
+                                                    height="1700">
+                                                </rect>
+                                            </g>
+                                            <g id="Others"> </g>
+                                            <g id="Europe">
+                                                <g id="Row_5"> </g>
+                                                <g id="Row_4"> </g>
+                                                <g id="Row_3"> </g>
+                                                <g id="Row_2">
+                                                    <g>
+                                                        <rect x="87" fill="#DB3A49" width="43" height="120">
+                                                        </rect>
+                                                        <rect x="43" fill="#FFFFFF" width="44" height="120">
+                                                        </rect>
+                                                        <rect fill="#2A66B7" width="43" height="120">
+                                                        </rect>
+                                                    </g>
+                                                </g>
+                                                <g id="Row_1"> </g>
+                                            </g>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <p class="font-koho text-secondary_blue text-xl">
+                                    France
+                                </p>
+                            </li>
+                            <li @click="if (currentLang !== 'en') window.location.href = '{{ route('change.lang', ['lang' => 'en']) }}'"
+                                class="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
+                                :class="currentLang === 'en'
+                                    ?
+                                    'bg-accent_grey text-gray-400 cursor-not-allowed' :
+                                    'hover:bg-accent_grey cursor-pointer'">
                                 <div class="border-accent_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
                                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
                                         xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 130 120"
@@ -249,53 +295,18 @@
                                             </g>
                                         </g>
                                     </svg>
-                                </div>
-                                <p class="font-koho text-secondary_blue text-xl">
-                                    France
-                                </p>
-                            </li>
-                            <li @click="window.location.href = `{{ route('change.lang', ['lang' => 'en']) }}`"
-                                class="hover:bg-accent_grey flex flex-row items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:cursor-pointer">
-                                <div class="border-accent_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
-                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
-                                        xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 130 120"
-                                        enable-background="new 0 0 130 120" xml:space="preserve" fill="#000000">
-                                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
-                                        </g>
-                                        <g id="SVGRepo_iconCarrier">
-                                            <g id="Infos">
-                                                <rect id="BG" x="-650" y="-740" fill="#D8D8D8" width="2180"
-                                                    height="1700">
-                                                </rect>
-                                            </g>
-                                            <g id="Others"> </g>
-                                            <g id="Europe">
-                                                <g id="Row_5"> </g>
-                                                <g id="Row_4"> </g>
-                                                <g id="Row_3"> </g>
-                                                <g id="Row_2">
-                                                    <g>
-                                                        <rect x="87" fill="#DB3A49" width="43" height="120">
-                                                        </rect>
-                                                        <rect x="43" fill="#FFFFFF" width="44" height="120">
-                                                        </rect>
-                                                        <rect fill="#2A66B7" width="43" height="120">
-                                                        </rect>
-                                                    </g>
-                                                </g>
-                                                <g id="Row_1"> </g>
-                                            </g>
-                                        </g>
-                                    </svg>
 
                                 </div>
                                 <p class="font-koho text-secondary_blue text-xl">
                                     English
                                 </p>
                             </li>
-                            <li @click="window.location.href = `{{ route('change.lang', ['lang' => 'id']) }}`"
-                                class="hover:bg-accent_grey flex flex-row items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:cursor-pointer">
+                            <li @click="if (currentLang !== 'id') window.location.href = '{{ route('change.lang', ['lang' => 'id']) }}'"
+                                class="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
+                                :class="currentLang === 'id'
+                                    ?
+                                    'bg-accent_grey text-gray-400 cursor-not-allowed' :
+                                    'hover:bg-accent_grey cursor-pointer'">
                                 <div class="border-accent_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
                                     <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"
                                         xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img"
@@ -322,12 +333,12 @@
                 </div>
                 @auth
                     <!-- <a href="{{ route('settings.profile') }}" x-data="{ clicked: false }"
-                                    @click.prevent="if (!clicked) { clicked = true; window.location.href='{{ route('settings.profile') }}' }"
-                                    :class="{ 'opacity-50 pointer-events-none': clicked }"
-                                    class="border-secondary_blue h-[40px] w-[40px] cursor-pointer overflow-hidden rounded-full border p-[2px] transition-opacity duration-300 hover:opacity-50">
-                                    <img src="{{ asset(auth()->user()->profile_photo_path) }}"
-                                        alt="Profile Photo">
-                                </a> -->
+                                            @click.prevent="if (!clicked) { clicked = true; window.location.href='{{ route('settings.profile') }}' }"
+                                            :class="{ 'opacity-50 pointer-events-none': clicked }"
+                                            class="border-secondary_blue h-[40px] w-[40px] cursor-pointer overflow-hidden rounded-full border p-[2px] transition-opacity duration-300 hover:opacity-50">
+                                            <img src="{{ asset(auth()->user()->profile_photo_path) }}"
+                                                alt="Profile Photo">
+                                        </a> -->
                     <div x-data="{ open: false }" class="relative">
                         <div class="border-secondary_blue h-[40px] w-[40px] cursor-pointer overflow-hidden rounded-full border p-[2px] transition-opacity duration-300 hover:opacity-50"
                             @click="open = !open">
@@ -383,5 +394,4 @@
             </div>
         </div>
     </div>
-    <div></div>
 </nav>

@@ -1,5 +1,5 @@
 <?php
-
+// indonesian
 return [
     'add_class' => 'Tambah Kelas',
     "add_code" => "Tambahkan Kode Kelas",
@@ -10,5 +10,29 @@ return [
     'add.success' => 'Kelas berhasil ditambahkan',
     'add.failed' => 'Kelas gagal ditambahkan',
     'not.a.teacher' => 'Kamu bukan guru',
-
+    'not_found_classroom' => 'Kelas tidak ditemukan.',
+    'classroom_code_invalid' => 'Kode kelas tidak valid',
+    'join.success' => 'Berhasil bergabung dengan kelas',
+    'classroom_password' => 'Kelas memerlukan kata sandi untuk bergabung',
+    'classroom_password_invalid' => 'Kata sandi kelas tidak valid',
+    'classroom_password_min' => 'Kata sandi kelas minimal 8 karakter',
+    'classroom_password_max' => 'Kata sandi kelas maksimal 8 karakter',
+    'classroom_password_string' => 'Kata sandi kelas harus berupa string',
+    'classroom_closed' => 'Kelas ditutup oleh pengajar',
+    'classroom_join_failed' => 'Gagal bergabung dengan kelas, coba sesaat lagi.',
+    'classroom_password_not_same' => 'Kata sandi kelas salah sama dengan yang dimasukkan',
+    'new' => 'Terbaru',
+    'old' => 'Terlama',
+    'pending' => 'Menunggu',
+    'approved' => 'Disetujui',
+    'rejected' => 'Ditolak',
+    'classroom_rejected' => 'Permintaan bergabung sebelumnya ditolak, coba berbicara dengan pangajar.',
+    'classroom_pending' => 'Permintaan bergabung sedang menunggu persetujuan.',
+    'already_joined' => 'Kamu sudah bergabung dengan kelas ini.',
+    'by_you' => 'Oleh kamu',
+    'by' => 'Oleh',
+    'send_join_request' => 'Kelas ini memerlukan persetujuan untuk bergabung, silahkan tunggu hingga pengajar menyetujui permintaan kamu.',
+    'ok' => 'Oke',
+    'wait_for_approval' => 'Permintaan kamu sedang menunggu persetujuan dari pengajar.',
+    'wait_for_approval_message' => 'Silahkan tunggu hingga pengajar menyetujui permintaan kamu.',
 ];

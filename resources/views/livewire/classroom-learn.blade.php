@@ -154,7 +154,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                 'position' => $position,
                 'title' => $title,
             ]);
-            $this->dispatch('show-success', ['message' => __('class-learn.success')]);
+            $this->dispatch('success', ['message' => __('class-learn.success')]);
             $this->loadData();
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validasi gagal!', $e->errors());
@@ -207,26 +207,6 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
 }; ?>
 
 <div>
-    <div x-cloak x-data="{ alert: false, message: '' }"
-        x-on:show-success.window="(event) => { 
-        message = event.detail[0].message;
-        alert = true;
-        setTimeout(() => alert = false, 5000);
-    }"
-        x-show="alert" x-transition
-        class="flex items-start left-5 bottom-5 flex-row p-4 mb-4 text-sm rounded-lg bg-gray-800 animate-fade-up text-green-400 absolute z-30"
-        role="alert">
-
-        <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-            viewBox="0 0 20 20">
-            <path
-                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-        </svg>
-        <span class="sr-only">{{ __('class-learn.info') }}</span>
-        <div>
-            <span class="font-medium" x-text="message"></span>
-        </div>
-    </div>
 
     <div class="h-screen min-h-[600px]" x-data="starting">
         <div x-cloak x-data="{ alert: false, message: '' }"
@@ -239,10 +219,10 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
         previewImage = classrooms[0].image;
     }"
             x-show="alert" x-transition
-            class="flex items-start left-5 bottom-5 flex-row p-4 mb-4 text-sm rounded-lg bg-gray-800 animate-fade-up text-red-400 absolute z-30"
+            class="animate-fade-up absolute bottom-5 left-5 z-30 mb-4 flex flex-row items-start rounded-lg bg-gray-800 p-4 text-sm text-red-400"
             role="alert">
 
-            <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+            <svg class="me-3 inline h-4 w-4 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor" viewBox="0 0 20 20">
                 <path
                     d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
@@ -261,10 +241,10 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
         setTimeout(() => alert = false, 5000);
     }"
                 x-show="alert" x-transition
-                class="flex items-start left-5 bottom-5 flex-row p-4 mb-4 text-sm rounded-lg bg-gray-800 animate-fade-up text-red-400 absolute z-30"
+                class="animate-fade-up absolute bottom-5 left-5 z-30 mb-4 flex flex-row items-start rounded-lg bg-gray-800 p-4 text-sm text-red-400"
                 role="alert">
 
-                <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                <svg class="me-3 inline h-4 w-4 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor" viewBox="0 0 20 20">
                     <path
                         d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
@@ -279,24 +259,51 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                 x-transition:enter-start="scale-x-0" x-transition:enter-end="scale-x-100"
                 x-transition:leave="transition-transform duration-500 ease-in-out"
                 x-transition:leave-start="scale-x-100" x-transition:leave-end="scale-x-0"
-                class="bg-orange-100 border-l-4 absolute left-3 top-3 z-30 border-orange-500 text-orange-700 p-4 overflow-hidden origin-left"
+                class="absolute left-3 top-3 z-30 origin-left overflow-hidden border-l-4 border-orange-500 bg-orange-100 p-4 text-orange-700"
                 role="alert">
                 <p class="font-bold" x-text="error.title"></p>
                 <p x-text="error.message"></p>
             </div>
 
             <flux:sidebar sticky stashable
-                class="bg-accent_blue h-full  pl-3 pr-6 py-3 animate-fade-right overflow-hidden transition-all duration-300 ease-in-out">
+                class="bg-accent_blue animate-fade-right h-full overflow-hidden py-3 pl-3 pr-6 transition-all duration-300 ease-in-out">
                 <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
                 <flux:brand href="/" logo="{{ url('/img/web/logo.png') }}" name="{{ config('app.name') }}"
                     class="px-2" />
                 <flux:brand href="/" logo="{{ url('/img/web/logo.png') }}" name="{{ config('app.name') }}"
-                    class="px-2 hidden" />
+                    class="hidden px-2" />
 
                 <flux:spacer />
 
-                <flux:dropdown position="top" align="start"
-                    class="max-lg:hidden bg-secondary_blue rounded-2xl px-3 py-1">
+                <div class="relative flex h-[145px] items-end" x-data="{ showProfile: false }">
+                    <div class="bg-primary_white absolute top-0 w-full rounded-xl p-2 shadow-xl flex flex-col gap-y-2 animate-fade-up" x-transition x-show="showProfile" x-cloak @click.away="showProfile = false">
+                        <a class="text-secondary_black/70 bg-primary_white hover:bg-secondary_black/15 hover:text-primary_white w-full cursor-pointer rounded-md p-1 text-center transition-colors font-bold"
+                            href="{{ route('settings.profile') }}">{{ __('welcome.profile') }}</a>
+                        <form method="POST" action="{{ route('logout') }}" class="w-full hover:bg-accent_red/15 transition-all cursor-pointer p-1 rounded-md">
+                            @csrf
+                            <button type="submit" class="w-full text-center cursor-pointer">
+                                <p class="text-accent_red font-bold">{{ __('welcome.logout') }}</p>
+                        </form>
+                    </div>
+                    <div class="bg-secondary_blue flex w-full flex-row items-center justify-between rounded-xl p-2">
+                        <div class="flex flex-row items-center gap-x-2">
+                            <div class="h-[35px] w-[35px] overflow-hidden rounded-full">
+                                <img src="{{ auth()->user()->profile_photo_path }}" alt="{{ auth()->user()->name }}" />
+                            </div>
+                            <p class="text-primary_white w-[140px] overflow-hidden truncate whitespace-nowrap">
+                                {{ auth()->user()->name }}</p>
+                        </div>
+
+                        <div class="border-white-500 flex h-[20px] w-[20px] cursor-pointer items-center justify-center rounded-full border-2"
+                            @click="showProfile = !showProfile">
+                            <div class="bg-primary_white h-[14px] w-[14px] rounded-full transition-all"
+                                :class="{ 'opacity-0': showProfile, 'opacity-100': !showProfile }"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <flux:dropdown position="top" align="start"
+                    class="bg-secondary_blue rounded-2xl px-3 py-1 max-lg:hidden">
                     <flux:profile avatar="{{ asset(auth()->user()->profile_photo_path) }}"
                         name="{{ auth()->user()->name }}" tooltip size="xl" />
                     <flux:menu class="bg-primary_white">
@@ -308,10 +315,11 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                             </flux:menu.item>
                         </form>
                     </flux:menu>
-                </flux:dropdown>
+                </flux:dropdown> -->
+
             </flux:sidebar>
 
-            <flux:header class="lg:hidden bg-accent_blue">
+            <flux:header class="bg-accent_blue lg:hidden">
                 <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
                 <flux:spacer />
@@ -329,9 +337,9 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                     </flux:menu>
                 </flux:dropdown>
             </flux:header>
-            <flux:main class="h-full relative flex justify-center bg-white">
+            <flux:main class="relative flex h-full justify-center bg-white">
                 <!-- ArrowNavigation
-                <div class="absolute z-40 top-1/2 bg-secondary_blue p-3 rounded-xl -left-8 cursor-pointer hover:animate-wiggle"
+                <div class="bg-secondary_blue hover:animate-wiggle absolute -left-8 top-1/2 z-40 cursor-pointer rounded-xl p-3"
                     @click="toggle">
                     <svg class="w-[40px] rotate-180" fill="#ffffff" version="1.1" id="Layer_1"
                         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -350,42 +358,42 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
 
                 <!-- Content -->
                 <template x-if="isLoading">
-                    <div class="w-full h-[200px] flex items-center justify-center">
+                    <div class="flex h-[200px] w-full items-center justify-center">
                         <div
-                            class="px-4 py-2 text-base font-medium leading-none text-center rounded-full animate-pulse bg-blue-900 text-blue-200">
+                            class="animate-pulse rounded-full bg-blue-900 px-4 py-2 text-center text-base font-medium leading-none text-blue-200">
                             {{ __('add-class.loading') }}....</div>
                     </div>
                 </template>
 
                 <!-- Not Found -->
                 <template x-if="!isLoading && !classrooms.length">
-                    <div class="w-full h-full flex items-center justify-center flex-col gap-y-4">
+                    <div class="flex h-full w-full flex-col items-center justify-center gap-y-4">
                         <div
-                            class="px-4 py-2 text-5xl font-medium leading-none text-center rounded-full animate-pulse bg-white border-2 border-red-500 text-red-700">
+                            class="animate-pulse rounded-full border-2 border-red-500 bg-white px-4 py-2 text-center text-5xl font-medium leading-none text-red-700">
                             {{ __('class-learn.not_found') }}....</div>
                         <p @click="window.location.href = '{{ route('classroom') }}'"
-                            class="underline text-secondary_blue cursor-pointer">Kembali</p>
+                            class="text-secondary_blue cursor-pointer underline">Kembali</p>
                     </div>
                 </template>
 
                 <!-- Content template -->
                 <template x-if="classrooms.length > 0">
-                    <div class="w-full flex flex-col justify-start gap-y-3 pt-5 px-5 max-w-[1200px] min-h-[400px]">
+                    <div class="flex min-h-[400px] w-full max-w-[1200px] flex-col justify-start gap-y-3 px-5 pt-5">
                         <!-- Wrapper Profile Class -->
                         <div x-bind:style="'background-image: url(' + previewImage + '); background-position: center ' + positionImage +
                             ';'"
-                            class="bg-no-repeat w-full bg-cover bg-center p-3 rounded-xl relative before:absolute before:inset-0 before:bg-black before:opacity-15 before:rounded-xl min-h-[300px] max-h-[400px] flex flex-col items-end justify-end hover:before:opacity-35 hover:before:transition-opacity "
+                            class="relative flex max-h-[400px] min-h-[300px] w-full flex-col items-end justify-end rounded-xl bg-cover bg-center bg-no-repeat p-3 before:absolute before:inset-0 before:rounded-xl before:bg-black before:opacity-15 hover:before:opacity-35 hover:before:transition-opacity"
                             x-ref="imageContainer">
 
                             <!-- Title -->
-                            <div class="min-h-[100px] flex items-center px-3 w-full bg-gray-400/10 rounded-md bg-clip-padding backdrop-filter backdrop-blur-sm  relative"
+                            <div class="relative flex min-h-[100px] w-full items-center rounded-md bg-gray-400/10 bg-clip-padding px-3 backdrop-blur-sm backdrop-filter"
                                 x-show="!editProfile">
-                                <p x-text="classrooms[0].title" class="text-4xl font-bold text-white absolute z-50">
+                                <p x-text="classrooms[0].title" class="absolute z-50 text-4xl font-bold text-white">
                                 </p>
                             </div>
 
                             <!-- Button Edit Profile -->
-                            <div class="bg-primary_white absolute top-2 right-2 p-3 rounded-full cursor-pointer hover:opacity-70 transition-opacity"
+                            <div class="bg-primary_white absolute right-2 top-2 cursor-pointer rounded-full p-3 transition-opacity hover:opacity-70"
                                 x-show="isTeacher && !editProfile" @click="initEdit"
                                 title="{{ __('class-learn.button_edit') }}">
                                 <svg class="w-[30px]" viewBox="0 0 24 24" fill="none"
@@ -408,9 +416,9 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                             </div>
 
                             <!-- Button Profile Edit Save Or Delete -->
-                            <div class="absolute top-2 right-2 flex flex-col gap-y-4"
+                            <div class="absolute right-2 top-2 flex flex-col gap-y-4"
                                 x-show="editProfile && !editImage">
-                                <div class="bg-primary_white p-3 rounded-full cursor-pointer hover:opacity-70 transition-opacity"
+                                <div class="bg-primary_white cursor-pointer rounded-full p-3 transition-opacity hover:opacity-70"
                                     @click="cancelEdit" title="{{ __('class-learn.button_edit') }}">
                                     <svg class="w-[35px]" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -424,7 +432,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                         </g>
                                     </svg>
                                 </div>
-                                <div class="bg-primary_white p-3 rounded-full cursor-pointer hover:opacity-70 transition-opacity"
+                                <div class="bg-primary_white cursor-pointer rounded-full p-3 transition-opacity hover:opacity-70"
                                     x-show="(previewImage != classrooms[0].image) || (editTitle != classrooms[0].title) || (positionImage != classrooms[0].position)"
                                     @click="savedContent" title="{{ __('class-learn.button_edit') }}">
                                     <svg class="w-[35px]" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
@@ -443,16 +451,16 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                             </div>
 
                             <!-- Edit Title -->
-                            <div class="min-h-[100px] flex items-center px-3 w-full bg-gray-400/10 rounded-md bg-clip-padding backdrop-filter backdrop-blur-sm  relative"
+                            <div class="relative flex min-h-[100px] w-full items-center rounded-md bg-gray-400/10 bg-clip-padding px-3 backdrop-blur-sm backdrop-filter"
                                 x-show="editProfile && !editImage" x-init="initData">
-                                <!-- <p x-text="classrooms[0].title" class="text-4xl font-bold text-white absolute z-50"></p> -->
+                                <!-- <p x-text="classrooms[0].title" class="absolute z-50 text-4xl font-bold text-white"></p> -->
                                 <input type="text" x-model="editTitle"
-                                    class="rounded-xl  font-bold text-2xl p-2 border-secondary_blue w-full bg-white text-secondary_black"
+                                    class="border-secondary_blue text-secondary_black w-full rounded-xl bg-white p-2 text-2xl font-bold"
                                     placeholder="{{ __('class-learn.title') }}" />
                             </div>
 
                             <!-- Button Edit Image -->
-                            <div class="border-4 rounded-xl border-dashed border-secondary_blue px-3 py-2 flex items-center justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white outline-8 outline-primary_white cursor-pointer hover:opacity-60 transition-colors duration-300"
+                            <div class="border-secondary_blue outline-primary_white absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-xl border-4 border-dashed bg-white px-3 py-2 outline-8 transition-colors duration-300 hover:opacity-60"
                                 x-show="editProfile && !editImage" @click="openEditImage">
                                 <svg class="w-[35px]" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -472,9 +480,9 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
 
                             <!-- Button Chose Edit Image -->
                             <div x-show="editImage && !isEditPosition"
-                                class="absolute bg-primary_white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl p-3 flex flex-col gap-y-3">
+                                class="bg-primary_white absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col gap-y-3 rounded-xl p-3">
                                 <div class="flex flex-row gap-x-2">
-                                    <div class="flex flex-col justify-center items-center hover:bg-secondary_blue/20 rounded-lg cursor-pointer transition-colors duration-300 p-1"
+                                    <div class="hover:bg-secondary_blue/20 flex cursor-pointer flex-col items-center justify-center rounded-lg p-1 transition-colors duration-300"
                                         @click="$refs.fileInput.click()">
                                         <svg class="w-[35px]" viewBox="0 0 24 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -493,14 +501,14 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                                 </path>
                                             </g>
                                         </svg>
-                                        <p class="text-xl text-secondary_blue">{{ __('class-learn.upload_image') }}
+                                        <p class="text-secondary_blue text-xl">{{ __('class-learn.upload_image') }}
                                         </p>
                                         <input wire:model.live="image" type="file"
                                             accept="image/png, image/jpg, image/jpeg, image/webp" class="hidden"
                                             x-ref="fileInput" @change="handleFileChange">
 
                                     </div>
-                                    <div class="flex flex-col justify-center items-center hover:bg-red-500/20 rounded-lg cursor-pointer transition-colors duration-300 p-1"
+                                    <div class="flex cursor-pointer flex-col items-center justify-center rounded-lg p-1 transition-colors duration-300 hover:bg-red-500/20"
                                         @click="deletedImage">
                                         <svg class="w-[35px]" viewBox="0 0 24 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -527,7 +535,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                         </svg>
                                         <p class="text-xl text-red-500">{{ __('class-learn.button_delete') }}</p>
                                     </div>
-                                    <div class="flex flex-col justify-center items-center hover:bg-orange-200/20 rounded-lg cursor-pointer transition-colors duration-300 p-1"
+                                    <div class="flex cursor-pointer flex-col items-center justify-center rounded-lg p-1 transition-colors duration-300 hover:bg-orange-200/20"
                                         @click="openEditPosition">
                                         <svg class="w-[35px]" fill="#fb923c" viewBox="0 0 16 16"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -544,8 +552,8 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                         <p class="text-xl text-orange-400">{{ __('class-learn.button_position') }}</p>
                                     </div>
                                 </div>
-                                <div class="flex flex-row gap-x-2 justify-center">
-                                    <div class="flex flex-col justify-center items-center hover:bg-green-500/20 rounded-lg cursor-pointer transition-colors duration-300 p-1"
+                                <div class="flex flex-row justify-center gap-x-2">
+                                    <div class="flex cursor-pointer flex-col items-center justify-center rounded-lg p-1 transition-colors duration-300 hover:bg-green-500/20"
                                         @click="editImage=false">
                                         <svg class="w-[25px]" viewBox="0 0 24 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -560,7 +568,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                             </g>
                                         </svg>
                                     </div>
-                                    <div class="flex flex-col justify-center items-center hover:bg-red-500/20 rounded-lg cursor-pointer transition-colors duration-300 p-1"
+                                    <div class="flex cursor-pointer flex-col items-center justify-center rounded-lg p-1 transition-colors duration-300 hover:bg-red-500/20"
                                         @click="cancelEditImage">
                                         <svg class="w-[25px]" viewBox="-0.5 0 25 25" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -581,10 +589,10 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
 
                             <!-- Button Change Position -->
                             <div x-show="isEditPosition"
-                                class="absolute bg-primary_white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl p-3 select-none">
+                                class="bg-primary_white absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none rounded-xl p-3">
                                 <div class="flex flex-row gap-x-3">
 
-                                    <div class="flex flex-col items-center justify-center bg-primary_white p-1 rounded-lg cursor-pointer hover:bg-black/20 transition-colors duration-300"
+                                    <div class="bg-primary_white flex cursor-pointer flex-col items-center justify-center rounded-lg p-1 transition-colors duration-300 hover:bg-black/20"
                                         @click="positionImage = 'top'">
                                         <svg class="w-[25px]" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"
                                             fill="none">
@@ -602,7 +610,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                         </svg>
                                         <p class="text-secondary_blue text-base">{{ __('class-learn.top') }}</p>
                                     </div>
-                                    <div class="flex flex-col items-center justify-center bg-primary_white p-1 rounded-lg cursor-pointer hover:bg-black/20 transition-colors duration-300"
+                                    <div class="bg-primary_white flex cursor-pointer flex-col items-center justify-center rounded-lg p-1 transition-colors duration-300 hover:bg-black/20"
                                         @click="positionImage = 'center'">
                                         <svg class="w-[35px]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
                                             fill="#2867a4">
@@ -619,7 +627,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                         </svg>
                                         <p class="text-secondary_blue text-base">{{ __('class-learn.center') }}</p>
                                     </div>
-                                    <div class="flex flex-col items-center justify-center bg-primary_white p-1 rounded-lg cursor-pointer hover:bg-black/20 transition-colors duration-300"
+                                    <div class="bg-primary_white flex cursor-pointer flex-col items-center justify-center rounded-lg p-1 transition-colors duration-300 hover:bg-black/20"
                                         @click="positionImage = 'bottom'">
                                         <svg class="w-[25px]" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"
                                             fill="none">
@@ -638,8 +646,8 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                         <p class="text-secondary_blue text-base">{{ __('class-learn.bottom') }}</p>
                                     </div>
                                 </div>
-                                <div class="flex flex-row gap-x-2 justify-center">
-                                    <div class="flex flex-col justify-center items-center hover:bg-green-500/20 rounded-lg cursor-pointer transition-colors duration-300 p-1"
+                                <div class="flex flex-row justify-center gap-x-2">
+                                    <div class="flex cursor-pointer flex-col items-center justify-center rounded-lg p-1 transition-colors duration-300 hover:bg-green-500/20"
                                         @click="isEditPosition = false">
                                         <svg class="w-[25px]" viewBox="0 0 24 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -654,7 +662,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                             </g>
                                         </svg>
                                     </div>
-                                    <div class="flex flex-col justify-center items-center hover:bg-red-500/20 rounded-lg cursor-pointer transition-colors duration-300 p-1"
+                                    <div class="flex cursor-pointer flex-col items-center justify-center rounded-lg p-1 transition-colors duration-300 hover:bg-red-500/20"
                                         @click="closedEditPosition">
                                         <svg class="w-[25px]" viewBox="-0.5 0 25 25" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -675,10 +683,10 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
 
                         </div>
 
-                        <div class="w-full border border-secondary_blue border-dashed rounded-lg bg-primary_white outline-8 outline-primary_white p-3"
+                        <div class="border-secondary_blue bg-primary_white outline-primary_white w-full rounded-lg border border-dashed p-3 outline-8"
                             wire:click="addContent" wire:target="addContent" wire:loading.attr="disabled"
                             wire:loading.class="opacity-50">
-                            <p class="text-center text-secondary_blue text-2xl font-bold">
+                            <p class="text-secondary_blue text-center text-2xl font-bold">
                                 {{ __('class-learn.add_content') }}</p>
                         </div>
 
@@ -686,29 +694,33 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                             <template x-for="(content, index) in Object.values(contents)" :key="index">
                                 <div>
                                     <template x-if="content.type == 'task'">
-                                        <div class="border border-gray-300 rounded-2xl p-3 flex flex-row items-start justify-between gap-x-2">
-                                            <div class="flex flex-row gap-x-2 items-center justify-between w-full">
+                                        <div
+                                            class="flex flex-row items-start justify-between gap-x-2 rounded-2xl border border-gray-300 p-3">
+                                            <div class="flex w-full flex-row items-center justify-between gap-x-2">
                                                 <div class="flex flex-col">
                                                     <div class="flex flex-row items-center gap-x-1">
-                                                        <flux:icon.clipboard-document-list class="text-gray-500"/>
-                                                        <flux:text class="text-gray-500 text-lg">{{ __('class-learn.task') }}</flux:text>
+                                                        <flux:icon.clipboard-document-list class="text-gray-500" />
+                                                        <flux:text class="text-lg text-gray-500">
+                                                            {{ __('class-learn.task') }}</flux:text>
                                                     </div>
                                                     <flux:text
                                                         x-text="content.title.length > 0 ? content.title : '[ {{ __('class-learn.no_title') }} ]'"
                                                         class="text-secondary_black text-xl"></flux:text>
                                                 </div>
-                                                <div class="flex flex-col items-start justify-start w-[135px]">
-                                                    <div class="flex flex-row gap-x-1 items-center">
-                                                        <flux:icon.clock class="text-gray-500"/>
-                                                        <flux:text class="text-gray-500 text-lg">{{ __('class-learn.deadline') }}</flux:text>
+                                                <div class="flex w-[135px] flex-col items-start justify-start">
+                                                    <div class="flex flex-row items-center gap-x-1">
+                                                        <flux:icon.clock class="text-gray-500" />
+                                                        <flux:text class="text-lg text-gray-500">
+                                                            {{ __('class-learn.deadline') }}</flux:text>
                                                     </div>
-                                                    <div class="text-center w-full">
+                                                    <div class="w-full text-center">
                                                         <flux:text class="text-secondary_black">-- : --</flux:text>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="flex items-center">
-                                                <flux:button icon="eye">{{ __('class-learn.detail') }}</flux:button>
+                                                <flux:button icon="eye">{{ __('class-learn.detail') }}
+                                                </flux:button>
                                             </div>
                                         </div>
                                     </template>
@@ -728,8 +740,8 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
 
                     </div>
                 </template>
-                <!-- <div class="flex flex-col items-center justify-center h-full" x-init="console.log(classrooms)">
-                    <p class="text-primary_black text-2xl font-bold mt-5">Classroom Found</p>
+                <!-- <div class="flex h-full flex-col items-center justify-center" x-init="console.log(classrooms)">
+                    <p class="text-primary_black mt-5 text-2xl font-bold">Classroom Found</p>
                     <button x-data="{ disabled: false }" :disabled="disabled" @click="disabled = true"
                         wire:click="addContent" wire:target="addContent" wire:loading.attr="disabled"
                         wire:loading.class="opacity-50">
@@ -739,144 +751,146 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
 
             </flux:main>
         </div>
-        <script>
-            function starting() {
-                return {
-                    isNav: false,
-                    classrooms: @entangle('classrooms').live,
-                    isLoading: @entangle('isLoading').live,
-                    isTeacher: @entangle('isTeacher').live,
-                    initContents: @entangle('contents').live,
-                    contents: [],
-                    editProfile: false,
-                    savedTemp: {},
-                    savedEditImage: {},
-                    editTitle: "",
-                    previewImage: "",
-                    positionImage: "",
-                    editImage: false,
-                    isEditPosition: false,
-                    saveEditPosition: {},
-                    errorMax: "{{ __('class-learn.image.max') }}",
-                    errorImage: "{{ __('class-learn.image.image') }}",
-                    error: {
-                        condition: false,
-                        message: "",
-                        title: ""
-                    },
-                    initData() {
-                        this.editTitle = this.classrooms[0].title;
-                        this.previewImage = this.classrooms[0].image;
-                        this.positionImage = this.classrooms[0].position;
-                        this.initContentsLive();
-                    },
-                    initContentsLive() {
-                        if (this.initContents.length > 0) {
-                            this.contents = this.initContents;
-                        }
-                    },
-                    toggle() {
-                        this.isNav = !this.isNav
-                    },
-                    check() {
-                        console.log(this.classrooms)
-                    },
-                    initEdit() {
-                        this.savedTemp = {
-                            image: this.previewImage,
-                            position: this.positionImage,
-                            title: this.editTitle
-                        }
-                        this.editProfile = true;
-                    },
-                    cancelEdit() {
-                        this.previewImage = this.savedTemp.image;
-                        this.positionImage = this.savedTemp.position;
-                        this.editTitle = this.savedTemp.title;
-                        this.editImage = false;
-                        this.editProfile = false;
-                    },
-                    openEditImage() {
-                        this.savedEditImage = {
-                            image: this.previewImage,
-                            position: this.positionImage
-                        }
-                        this.editImage = true;
-                    },
-                    deletedImage() {
-                        this.previewImage = "";
-                        this.$refs.fileInput.value = "";
-                    },
-                    cancelEditImage() {
-                        this.previewImage = this.savedEditImage.image;
-                        this.positionImage = this.savedEditImage.position;
-                        this.editImage = false;
-                    },
-                    openEditPosition() {
-                        this.saveEditPosition = {
-                            position: this.positionImage
-                        }
-                        this.isEditPosition = true;
-                    },
-                    closedEditPosition() {
-                        this.positionImage = this.saveEditPosition.position;
-                        this.isEditPosition = false;
-                    },
-                    handleFileChange(event) {
-                        const file = event.target.files[0];
-                        if (file) {
-                            this.previewImage = URL.createObjectURL(file);
-                        } else {
-                            this.$refs.fileInput.value = ""; // Reset input jika batal
-                            alert("Tidak ada file yang dipilih.");
-                        }
-                    },
-                    showError(condition, message, title) {
-                        this.error.condition = condition;
-                        this.error.message = message;
-                        this.error.title = title;
-                        setTimeout(() => {
-                            this.error.condition = false;
-                        }, 3000);
-                    },
-                    savedContent() {
-                        this.editProfile = false;
-                        if (this.editTitle == "") {
-                            this.showError(true, "{{ __('class-learn.title_can_not_empty') }}",
-                                "{{ __('class-learn.warn') }}");
-                            return;
-                        }
+    </div>
+</div>
+<script>
+    function starting() {
+        return {
+            isNav: false,
+            classrooms: @entangle('classrooms').live,
+            isLoading: @entangle('isLoading').live,
+            isTeacher: @entangle('isTeacher').live,
+            initContents: @entangle('contents').live,
+            contents: [],
+            editProfile: false,
+            savedTemp: {},
+            savedEditImage: {},
+            editTitle: "",
+            previewImage: "",
+            positionImage: "",
+            editImage: false,
+            isEditPosition: false,
+            saveEditPosition: {},
+            errorMax: "{{ __('class-learn.image.max') }}",
+            errorImage: "{{ __('class-learn.image.image') }}",
+            error: {
+                condition: false,
+                message: "",
+                title: ""
+            },
+            initData() {
+                this.editTitle = this.classrooms[0].title;
+                this.previewImage = this.classrooms[0].image;
+                this.positionImage = this.classrooms[0].position;
+                this.initContentsLive();
+            },
+            initContentsLive() {
+                if (this.initContents.length > 0) {
+                    this.contents = this.initContents;
+                }
+            },
+            toggle() {
+                this.isNav = !this.isNav
+            },
+            check() {
+                console.log(this.classrooms)
+            },
+            initEdit() {
+                this.savedTemp = {
+                    image: this.previewImage,
+                    position: this.positionImage,
+                    title: this.editTitle
+                }
+                this.editProfile = true;
+            },
+            cancelEdit() {
+                this.previewImage = this.savedTemp.image;
+                this.positionImage = this.savedTemp.position;
+                this.editTitle = this.savedTemp.title;
+                this.editImage = false;
+                this.editProfile = false;
+            },
+            openEditImage() {
+                this.savedEditImage = {
+                    image: this.previewImage,
+                    position: this.positionImage
+                }
+                this.editImage = true;
+            },
+            deletedImage() {
+                this.previewImage = "";
+                this.$refs.fileInput.value = "";
+            },
+            cancelEditImage() {
+                this.previewImage = this.savedEditImage.image;
+                this.positionImage = this.savedEditImage.position;
+                this.editImage = false;
+            },
+            openEditPosition() {
+                this.saveEditPosition = {
+                    position: this.positionImage
+                }
+                this.isEditPosition = true;
+            },
+            closedEditPosition() {
+                this.positionImage = this.saveEditPosition.position;
+                this.isEditPosition = false;
+            },
+            handleFileChange(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.previewImage = URL.createObjectURL(file);
+                } else {
+                    this.$refs.fileInput.value = ""; // Reset input jika batal
+                    alert("Tidak ada file yang dipilih.");
+                }
+            },
+            showError(condition, message, title) {
+                this.error.condition = condition;
+                this.error.message = message;
+                this.error.title = title;
+                setTimeout(() => {
+                    this.error.condition = false;
+                }, 3000);
+            },
+            savedContent() {
+                this.editProfile = false;
+                if (this.editTitle == "") {
+                    this.showError(true, "{{ __('class-learn.title_can_not_empty') }}",
+                        "{{ __('class-learn.warn') }}");
+                    return;
+                }
 
-                        if (this.editTitle.length <= 3) {
-                            this.showError(true, "{{ __('class-learn.title_min') }}", "{{ __('class-learn.warn') }}");
-                            return;
-                        }
+                if (this.editTitle.length <= 3) {
+                    this.showError(true, "{{ __('class-learn.title_min') }}", "{{ __('class-learn.warn') }}");
+                    return;
+                }
 
-                        if (this.editTitle.length > 100) {
-                            this.showError(true, "{{ __('class-learn.title_max') }}", "{{ __('class-learn.warn') }}");
-                            return;
-                        }
+                if (this.editTitle.length > 100) {
+                    this.showError(true, "{{ __('class-learn.title_max') }}", "{{ __('class-learn.warn') }}");
+                    return;
+                }
 
-                        if (this.previewImage == this.classrooms[0].image || this.previewImage == "") {
-                            const data = this.savedTemp = {
-                                image_path: this.previewImage,
-                                position: this.positionImage,
-                                title: this.editTitle,
-                                action: false
-                            }
-                            this.$wire.call('savedContent', data);
-                        } else {
-                            const data = this.savedTemp = {
-                                image_path: this.previewImage,
-                                position: this.positionImage,
-                                title: this.editTitle,
-                                action: true
-                            }
-                            this.$wire.call('savedContent', data);
-
-                        }
+                if (this.previewImage == this.classrooms[0].image || this.previewImage == "") {
+                    const data = this.savedTemp = {
+                        image_path: this.previewImage,
+                        position: this.positionImage,
+                        title: this.editTitle,
+                        action: false
                     }
+                    this.$wire.call('savedContent', data);
+                } else {
+                    const data = this.savedTemp = {
+                        image_path: this.previewImage,
+                        position: this.positionImage,
+                        title: this.editTitle,
+                        action: true
+                    }
+                    this.$wire.call('savedContent', data);
+
                 }
             }
-        </script>
-    </div>
+        }
+    }
+</script>
+</script>

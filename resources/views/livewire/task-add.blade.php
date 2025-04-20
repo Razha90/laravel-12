@@ -179,47 +179,6 @@ new #[Layout('components.layouts.app-page')] class extends Component {
 
 <div>
     @vite(['resources/js/editor.js'])
-    <div x-cloak x-data="{ alert: false, message: '' }"
-        x-on:failed.window="(event) => { 
-        message = event.detail[0].message;
-        alert = true;
-        setTimeout(() => alert = false, 5000);
-    }"
-        x-show="alert" x-transition
-        class="flex items-start left-5 bottom-5 flex-row p-4 mb-4 text-sm rounded-lg bg-gray-800 animate-fade-up text-red-400 absolute z-30"
-        role="alert">
-
-        <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-            viewBox="0 0 20 20">
-            <path
-                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-        </svg>
-        <span class="sr-only">Error</span>
-        <div>
-            <span class="font-medium" x-text="message"></span>
-        </div>
-    </div>
-
-    <div x-cloak x-data="{ alert: false, message: '' }"
-        x-on:success.window="(event) => { 
-        message = event.detail[0].message;
-        alert = true;
-        setTimeout(() => alert = false, 5000);
-    }"
-        x-show="alert" x-transition
-        class="flex items-start left-5 bottom-5 flex-row p-4 mb-4 text-sm rounded-lg bg-gray-800 animate-fade-up text-green-500 absolute z-30"
-        role="alert">
-
-        <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor" viewBox="0 0 20 20">
-            <path
-                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-        </svg>
-        <span class="sr-only">Error</span>
-        <div>
-            <span class="font-medium" x-text="message"></span>
-        </div>
-    </div>
 
     <header class="z-30 w-full bg-secondary_blue py-3 min-h-[70px]  px-[10%] fixed">
         <nav class="flex flex-row justify-between max-w-[1500px] w-full h-full items-center">

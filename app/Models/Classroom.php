@@ -7,8 +7,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Classroom extends Model
 {
-    protected $fillable = ['title', 'description', 'image', 'password', 'code', 'status', 'delete'];
+    protected $fillable = ['user_id','title', 'position' ,'description', 'image', 'password', 'code', 'status', 'ask_join'];
     
+    protected $hidden = [
+        'password',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+        ];
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

@@ -6,7 +6,7 @@ new class extends Component {
     //
 }; ?>
 
-<div x-data="init()" x-init="firstInit" class="">
+<div x-data="init()" x-init="firstInit">
     <div aria-hidden="true" x-show="open" x-cloak
         class="animate-fade fixed left-0 right-0 top-0 z-50 flex h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden bg-black/20 backdrop-blur-sm md:inset-0">
         <div class="relative max-h-full w-full max-w-2xl rounded-xl bg-white p-2" @click.away = "open = false">
@@ -81,26 +81,26 @@ new class extends Component {
                         {{ __('nav.delete_all') }}
                     </div>
                     <template x-if="dataNotification?.data?.length > 0">
-                        <template x-init="console.log(dataNotification)" x-for="(content, index) in dataNotification?.data"
+                        <template x-for="(content, index) in dataNotification?.data"
                             :key="index">
                             <div x-bind:class="{
-                                'bg-yellow-500/10 border-yellow-300': content.read ==
-                                    '0',
-                                'bg-secondary_blue/10  border-secondary_blue/70': content.read == '1'
+                                'bg-yellow-500/10 border-yellow-300': content.read_at ==
+                                    null,
+                                'bg-secondary_blue/10  border-secondary_blue/70': content.read_at != null
                             }"
                                 x-data="{ show: false }" class="relative rounded-xl border p-2">
                                 <h3 x-text="content.title" class="text-secondary_blue font-bold"></h3>
-                                <div x-html="content.body" class="text-secondary_blue mt-3 overflow-hidden"
+                                <div x-html="content.message" class="text-secondary_blue mt-3 overflow-hidden"
                                     x-bind:class="{ 'max-h-auto': show, 'max-h-[20px]': !show }"></div>
                                 <div x-show="show" x-transition x-text="changeDate(content.created_at)"
                                     class="text-secondary_blue text-right text-sm opacity-50"></div>
-                                <div @click="if (content.read == '0') { readNotification(content.id) } show = true"
+                                <div @click="if (content.read_at == null) { readNotification(content.id) } show = true"
                                     class="text-secondary_blue absolute bottom-0 left-1/2 -translate-x-1/2 cursor-pointer text-sm opacity-30"
                                     x-cloak x-show="!show">{{ __('nav.more') }}</div>
                                 <div @click="show=false" x-cloak
                                     class="text-secondary_blue mt-2 cursor-pointer text-center text-sm opacity-30"
                                     x-show="show">{{ __('nav.little') }}</div>
-                                <div x-show="content.read == '0'" x-transition
+                                <div x-show="content.read_at == null" x-transition
                                     class="absolute left-0 top-0 h-[8px] w-[8px] animate-pulse rounded-full bg-red-300">
                                 </div>
                                 <div class="absolute right-2 top-2 cursor-pointer"
@@ -228,7 +228,7 @@ new class extends Component {
                     stroke="#2867A4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
             </g>
         </svg>
-        <div x-show="dataNotification?.data?.filter(item => item.read == '0').length > 0"
+        <div x-show="dataNotification?.data?.filter(item => item.read_at == null).length > 0"
             class="absolute right-1 top-1 z-30 h-[10px] w-[10px] animate-pulse rounded-full bg-red-500"></div>
     </div>
 </div>
@@ -246,7 +246,6 @@ new class extends Component {
                 this.createListener();
                 this.dataNotification = this.dataNotifications;
                 this.dataAplicationLetter = this.dataAplicationLetters;
-                console.log(this.dataAplicationLetter);
             },
             createListener() {
                 if (this.stopCreateListener) return;
@@ -288,8 +287,6 @@ new class extends Component {
                 data.data.splice(index, 1);
                 localStorage.setItem('aplication-letter', JSON.stringify(data));
                 this.dataAplicationLetter = data;
-                console.log(data);
-
                 const event = new CustomEvent('aplication-letter-delete', {
                     detail: {
                         id: id
@@ -300,7 +297,17 @@ new class extends Component {
             readNotification(id) {
                 const data = JSON.parse(localStorage.getItem('notifications'));
                 const index = data.data.findIndex(item => item.id === id);
-                data.data[index].read = 1;
+                if (index !== -1) {
+                    const now = new Date();
+                    const formattedDate = now.getFullYear() + "-" +
+                        String(now.getMonth() + 1).padStart(2, '0') + "-" +
+                        String(now.getDate()).padStart(2, '0') + " " +
+                        String(now.getHours()).padStart(2, '0') + ":" +
+                        String(now.getMinutes()).padStart(2, '0') + ":" +
+                        String(now.getSeconds()).padStart(2, '0');
+
+                    data.data[index].read_at = formattedDate;
+                }
                 localStorage.setItem('notifications', JSON.stringify(data));
                 this.dataNotification = data;
                 const event = new CustomEvent('notification-read', {
@@ -315,13 +322,6 @@ new class extends Component {
             },
             get dataAplicationLetters() {
                 return JSON.parse(localStorage.getItem('aplication-letter'));
-            },
-            get countShowNotification() {
-                if (Array.isArray(this.dataNotification.data)) {
-                    const countRead = this.dataNotification.data.filter(item => item.read === 1).length;
-                    return countRead;
-                }
-                return 0;
             },
             changeDate(datetime) {
                 const date = new Date(datetime);

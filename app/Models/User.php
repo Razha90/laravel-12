@@ -20,11 +20,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var list<string>
      */
-    // protected $fillable = [
-    //     'name',
-    //     'email',
-    //     'password',
-    // ];
+
     protected $fillable = [
         'name',
         'profile_photo_path',
@@ -81,10 +77,5 @@ class User extends Authenticatable implements MustVerifyEmail
     public function aplicationLetters(): HasMany
     {
         return $this->hasMany(AplicationLater::class);
-    }
-
-    public function notifications()
-    {
-        return $this->hasMany(Notification::class);
     }
 }

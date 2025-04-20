@@ -3,7 +3,6 @@
 use App\Events\NotificationsEvent;
 use App\Http\Controllers\InfoController;
 use App\Http\Controllers\LanguageController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SaveImageController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;

@@ -1,8 +1,8 @@
-<nav class="fixed top-8 w-full flex justify-center z-30 items-center">
+<nav class="fixed top-8 z-30 flex w-full items-center justify-center">
     <div
-        class="max-w-[1200px] w-[1200px] px-4 py-2 select-none flex flex-row justify-between items-center bg-primary_white rounded-full shadow-xl animate-fade-down h-[60px]">
+        class="bg-primary_white animate-fade-down flex h-[60px] w-[1200px] max-w-[1200px] select-none flex-row items-center justify-between rounded-full px-4 py-2 shadow-xl">
         <div>
-            <a href="{{ route('my-app') }}" class="hover:cursor-pointer hover:opacity-50 transition-opacity">
+            <a href="{{ route('my-app') }}" class="transition-opacity hover:cursor-pointer hover:opacity-50">
                 <img loading="lazy" src="{{ url('/img/web/logo.png') }}" width="100" height="100" />
             </a>
         </div>
@@ -15,8 +15,7 @@
         }" x-cloak>
             <ul class="flex flex-row gap-x-8 font-sans">
                 <li>
-                    <a href="{{ route('my-app') }}"
-                    class="text-secondary_black"
+                    <a href="{{ route('my-app') }}" class="text-secondary_black"
                         :class="{
                             'text-secondary_blue  border-secondary_blue font-bold pointer-events-none': currentPath === '{{ route('my-app') }}',
                             'opacity-50 cursor-not-allowed': isNavigating
@@ -27,9 +26,7 @@
                 </li>
 
                 <li>
-                    <a href="{{ route('classroom') }}"
-                        class="text-secondary_black"
-
+                    <a href="{{ route('classroom') }}" class="text-secondary_black"
                         :class="{
                             'text-secondary_blue border-secondary_blue font-bold pointer-events-none': currentPath === '{{ route('classroom') }}',
                             'opacity-50 cursor-not-allowed': isNavigating
@@ -40,8 +37,7 @@
                 </li>
 
                 <li>
-                    <a href="{{ route('chat') }}"
-                        class="text-secondary_black"
+                    <a href="{{ route('chat') }}" class="text-secondary_black"
                         :class="{
                             'text-secondary_blue border-secondary_blue font-bold pointer-events-none': currentPath === '{{ route('chat') }}',
                             'opacity-50 cursor-not-allowed': isNavigating
@@ -55,9 +51,8 @@
         <div class="flex flex-row gap-x-4">
             <div x-data="{ open: false }" x-cloak class="relative flex items-center">
                 <div @click="open = !open"
-                    class="flex flex-row items-center gap-x-2 py-1 px-5 shadow-xl rounded-full border border-secondary_blue cursor-pointer">
-                    <div
-                        class="w-[30px] h-[30px] rounded-full overflow-hidden border border-secondary_blue">
+                    class="border-secondary_blue flex cursor-pointer flex-row items-center gap-x-2 rounded-full border px-5 py-1 shadow-xl">
+                    <div class="border-secondary_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
                         <svg x-show=" `{{ Cookie::get('locale', 'fr') }}` == `en`" version="1.1"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             viewBox="0 0 130 120" enable-background="new 0 0 130 120" xml:space="preserve"
@@ -160,17 +155,64 @@
                     </p>
                 </div>
                 <div x-show="open" @click.away="open = false" x-cloak
-                    class="absolute top-12 rounded-2xl shadow-xl bg-primary_white"
+                    class="bg-primary_white absolute top-12 rounded-2xl shadow-xl"
                     x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="opacity-0 -translate-y-5 scale-95"
                     x-transition:enter-end="opacity-100 translate-y-0 scale-100"
                     x-transition:leave="transition ease-in duration-200"
                     x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                     x-transition:leave-end="opacity-0 -translate-y-5 scale-95">
-                    <ul class="p-5 rounded-xl shadow-xl flex gap-4 flex-col">
-                        <li @click="window.location.href = `{{ route('change.lang', ['lang' => 'fr']) }}`"
-                            class="hover:bg-accent_grey flex flex-row items-center gap-2 transition-colors hover:cursor-pointer px-2 rounded-lg py-1">
-                            <div class="w-[30px] h-[30px] rounded-full overflow-hidden border border-accent_blue">
+                    <ul class="flex flex-col gap-4 rounded-xl px-4 py-2 shadow-xl" x-data="{ currentLang: '{{ Cookie::get('locale', 'fr') }}' }">
+                        <li @click="if (currentLang !== 'fr') window.location.href = '{{ route('change.lang', ['lang' => 'fr']) }}'"
+                            class="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
+                            :class="currentLang === 'fr'
+                                ?
+                                'bg-accent_grey text-gray-400 cursor-not-allowed' :
+                                'hover:bg-accent_grey cursor-pointer'">
+                            <div class="border-accent_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
+                                <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 130 120"
+                                    enable-background="new 0 0 130 120" xml:space="preserve" fill="#000000">
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
+                                    </g>
+                                    <g id="SVGRepo_iconCarrier">
+                                        <g id="Infos">
+                                            <rect id="BG" x="-650" y="-740" fill="#D8D8D8" width="2180"
+                                                height="1700">
+                                            </rect>
+                                        </g>
+                                        <g id="Others"> </g>
+                                        <g id="Europe">
+                                            <g id="Row_5"> </g>
+                                            <g id="Row_4"> </g>
+                                            <g id="Row_3"> </g>
+                                            <g id="Row_2">
+                                                <g>
+                                                    <rect x="87" fill="#DB3A49" width="43" height="120">
+                                                    </rect>
+                                                    <rect x="43" fill="#FFFFFF" width="44" height="120">
+                                                    </rect>
+                                                    <rect fill="#2A66B7" width="43" height="120">
+                                                    </rect>
+                                                </g>
+                                            </g>
+                                            <g id="Row_1"> </g>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </div>
+                            <p class="font-koho text-secondary_blue text-xl">
+                                France
+                            </p>
+                        </li>
+                        <li @click="if (currentLang !== 'en') window.location.href = '{{ route('change.lang', ['lang' => 'en']) }}'"
+                            class="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
+                            :class="currentLang === 'en'
+                                ?
+                                'bg-accent_grey text-gray-400 cursor-not-allowed' :
+                                'hover:bg-accent_grey cursor-pointer'">
+                            <div class="border-accent_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
                                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
                                     xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 130 120"
                                     enable-background="new 0 0 130 120" xml:space="preserve" fill="#000000">
@@ -240,54 +282,19 @@
                                         </g>
                                     </g>
                                 </svg>
-                            </div>
-                            <p class="font-koho text-secondary_blue text-xl">
-                                France
-                            </p>
-                        </li>
-                        <li @click="window.location.href = `{{ route('change.lang', ['lang' => 'en']) }}`"
-                            class="hover:bg-accent_grey flex flex-row items-center gap-2 transition-colors hover:cursor-pointer px-2 rounded-lg py-1">
-                            <div class="w-[30px] h-[30px] rounded-full overflow-hidden border border-accent_blue">
-                                <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
-                                    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 130 120"
-                                    enable-background="new 0 0 130 120" xml:space="preserve" fill="#000000">
-                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
-                                    </g>
-                                    <g id="SVGRepo_iconCarrier">
-                                        <g id="Infos">
-                                            <rect id="BG" x="-650" y="-740" fill="#D8D8D8" width="2180"
-                                                height="1700">
-                                            </rect>
-                                        </g>
-                                        <g id="Others"> </g>
-                                        <g id="Europe">
-                                            <g id="Row_5"> </g>
-                                            <g id="Row_4"> </g>
-                                            <g id="Row_3"> </g>
-                                            <g id="Row_2">
-                                                <g>
-                                                    <rect x="87" fill="#DB3A49" width="43" height="120">
-                                                    </rect>
-                                                    <rect x="43" fill="#FFFFFF" width="44" height="120">
-                                                    </rect>
-                                                    <rect fill="#2A66B7" width="43" height="120">
-                                                    </rect>
-                                                </g>
-                                            </g>
-                                            <g id="Row_1"> </g>
-                                        </g>
-                                    </g>
-                                </svg>
 
                             </div>
                             <p class="font-koho text-secondary_blue text-xl">
                                 English
                             </p>
                         </li>
-                        <li @click="window.location.href = `{{ route('change.lang', ['lang' => 'id']) }}`"
-                            class="hover:bg-accent_grey flex flex-row items-center gap-2 transition-colors hover:cursor-pointer px-2 rounded-lg py-1">
-                            <div class="w-[30px] h-[30px] rounded-full overflow-hidden border border-accent_blue">
+                        <li @click="if (currentLang !== 'id') window.location.href = '{{ route('change.lang', ['lang' => 'id']) }}'"
+                            class="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
+                            :class="currentLang === 'id'
+                                ?
+                                'bg-accent_grey text-gray-400 cursor-not-allowed' :
+                                'hover:bg-accent_grey cursor-pointer'">
+                            <div class="border-accent_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
                                 <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"
                                     xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img"
                                     class="iconify iconify--twemoji" preserveAspectRatio="xMidYMid meet"
@@ -311,38 +318,37 @@
                     </ul>
                 </div>
             </div>
-            <div x-data="{open:false}" class="relative">
-                            <div class="rounded-full w-[40px] h-[40px] overflow-hidden border border-secondary_blue p-[2px] transition-opacity duration-300 hover:opacity-50 cursor-pointer" @click="open = !open">
-                                <img src="{{ asset(auth()->user()->profile_photo_path) }}"
-                                alt="Profile Photo" loading="lazy">
-                            </div>
-                            <div x-show="open" @click.away="open = false" class="absolute top-14 right-0"
-                            x-transition:enter="transition ease-out duration-300"
-                            x-transition:enter-start="opacity-0 -translate-y-1 scale-95"
-                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            x-transition:leave="transition ease-in duration-200"
-                            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                            x-transition:leave-end="opacity-0 -translate-y-1 scale-95"
-                            >
-                                <ul class=" bg-primary_white rounded-xl shadow-xl p-2 text-secondary_blue min-w-[150px]">
-                                    <li class="w-full">
-                                        <a href="{{ route('settings.profile') }}"
-                                            class="hover:bg-accent_grey rounded-lg px-2 py-1 transition-colors hover:cursor-pointer inline-flex w-full">
-                                            {{ __('welcome.profile') }}
-                                        </a>
-                                    </li>
-                                    <li class="w-full">
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit"
-                                                class="hover:bg-accent_grey rounded-lg px-2 py-1 transition-colors hover:cursor-pointer inline-flex w-full">
-                                                {{ __('welcome.logout') }}
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+            <div x-data="{ open: false }" class="relative">
+                <div class="border-secondary_blue h-[40px] w-[40px] cursor-pointer overflow-hidden rounded-full border p-[2px] transition-opacity duration-300 hover:opacity-50"
+                    @click="open = !open">
+                    <img src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo" loading="lazy">
+                </div>
+                <div x-show="open" @click.away="open = false" class="absolute right-0 top-14"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 -translate-y-1 scale-95"
+                    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave-end="opacity-0 -translate-y-1 scale-95">
+                    <ul class="bg-primary_white text-secondary_blue min-w-[150px] rounded-xl p-2 shadow-xl">
+                        <li class="w-full">
+                            <a href="{{ route('settings.profile') }}"
+                                class="hover:bg-accent_grey inline-flex w-full rounded-lg px-2 py-1 transition-colors hover:cursor-pointer">
+                                {{ __('welcome.profile') }}
+                            </a>
+                        </li>
+                        <li class="w-full">
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                    class="hover:bg-accent_grey inline-flex w-full rounded-lg px-2 py-1 transition-colors hover:cursor-pointer">
+                                    {{ __('welcome.logout') }}
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </nav>

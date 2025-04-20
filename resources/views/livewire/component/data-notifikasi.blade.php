@@ -8,8 +8,8 @@ new class extends Component {
     public function getNotification()
     {
         try {
-            $users = Auth::user();
-            $data = Notification::where('user_id', $users->id)->get();
+            $user = auth()->user();
+            $data = $user->notifications()->orderBy('created_at', 'desc')->get()->toArray();
             return response()->json(['status' => true, 'data' => $data]);
         } catch (\Throwable $th) {
             Log::error('Data Notifikasi Get Error = ' . $th);
@@ -20,9 +20,13 @@ new class extends Component {
     public function deleteNotification($id)
     {
         try {
-            $data = Notification::find($id);
-            Log::info('Data Notifikasi Delete = ' . $data);
-            $data->delete();
+            $user = auth()->user();
+            $notification = $user->notifications()->where('id', $id)->first();
+            if (!$notification) {
+                $this->dispatch('failed', ['message' => __('notifikasi.not_found')]);
+                return response()->json(['status' => false, 'message' => __('notifikasi.not_found')]);
+            }
+            $notification->delete();
             return response()->json(['status' => true]);
         } catch (\Throwable $th) {
             Log::error('Data Notifikasi Delete Error = ' . $th);
@@ -33,8 +37,13 @@ new class extends Component {
     public function readNotification($id)
     {
         try {
-            $data = Notification::find($id);
-            $data->update(['read' => true]);
+            $user = auth()->user();
+            $notification = $user->unreadNotifications()->where('id', $id)->first();
+            if (!$notification) {
+                $this->dispatch('failed', ['message' => __('notifikasi.not_found')]);
+                return response()->json(['status' => false, 'message' => __('notifikasi.not_found')]);
+            }
+            $notification->markAsRead();
             return response()->json(['status' => true]);
         } catch (\Throwable $th) {
             Log::error('Data Notifikasi Read Error = ' . $th);
@@ -67,16 +76,16 @@ new class extends Component {
     }
 
     public function deleteAllNotification()
-    {
-        try {
-            $user = auth()->user();
-            Notification::where('user_id', $user->id)->delete();
-            return response()->json(['status' => true]);
-        } catch (\Throwable $th) {
-            Log::error('Data Notifikasi Delete All Error = ' . $th);
-            return response()->json(['status' => false]);
-        }
+{
+    try {
+        $user = auth()->user();
+        $user->notifications()->delete();
+        return response()->json(['status' => true]);
+    } catch (\Throwable $th) {
+        Log::error('Data Semua Notifikasi Delete Error = ' . $th);
+        return response()->json(['status' => false]);
     }
+}
 }; ?>
 
 <div>
@@ -96,93 +105,97 @@ new class extends Component {
                 window.dispatchEvent(event);
             }
 
-            window.Echo.private("notifications." + userId)
-                .listen(".notifications", async (e) => {
+            // window.Echo.private("aplications." + userId)
+            //     .notification(async (e) => {
+
+            window.Echo.private(`App.Models.User.${userId}`).notification((notification) => {
+                
                     try {
                         const data = localStorage.getItem('notifications');
                         const now = new Date();
                         if (data == null) {
                             const newData = {
                                 created_at: now.toISOString(),
-                                data: [e.data]
+                                data: [notification.data]
                             }
                             updateNotification(newData);
                         } else {
                             const newData = {
                                 created_at: now.toISOString(),
-                                data: [e.data, ...JSON.parse(data).data]
+                                data: [notification, ...JSON.parse(data).data]
                             }
-                            // localStorage.setItem('notifications', JSON.stringify(newData));
                             updateNotification(newData);
                         }
                     } catch (error) {
                         console.error(error);
                     }
-                })
-                .on("pusher:subscription_succeeded", async () => {
-                    const data = localStorage.getItem('notifications');
-                    const now = new Date();
+                }).on("pusher:subscription_error", async (status) => {
+                const getData = await $wire.getNotification();
+                alert('Error: ' + status);
 
-                    if (data === null) {
+                if (getData.original.status) {
+                    const now = new Date();
+                    const newData = {
+                        created_at: now.toISOString(),
+                        data: getData.original.data
+                    }
+                    localStorage.setItem('notifications', JSON.stringify(newData));
+                    updateNotification(newData);
+                } else {
+                    const now = new Date();
+                    const newData = {
+                        created_at: now.toISOString(),
+                        data: []
+                    }
+                    localStorage.setItem('notifications', JSON.stringify(newData));
+                    updateNotification(newData);
+                }
+            });
+
+            window.Echo.connector.pusher.connection.bind('connected', async () => {
+                const data = localStorage.getItem('notifications');
+                const now = new Date();
+                if (data === null) {
+                    const getData = await $wire.getNotification();
+                    if (getData.original.status) {
+                        const newData = {
+                            created_at: now.toISOString(),
+                            data: getData.original.data
+                        }
+                        updateNotification(newData);
+                    } else {
+                        const newData = {
+                            created_at: now.toISOString(),
+                            data: []
+                        }
+                        updateNotification(newData);
+                    }
+                } else {
+                    const parsedData = JSON.parse(data);
+                    const savedTime = new Date(parsedData.created_at);
+                    const differenceInMinutes = (now - savedTime) / 1000 / 60;
+
+                    if (!(differenceInMinutes < 5)) {
                         const getData = await $wire.getNotification();
+
                         if (getData.original.status) {
                             const newData = {
                                 created_at: now.toISOString(),
                                 data: getData.original.data
                             }
+                            localStorage.setItem('notifications', JSON.stringify(newData));
                             updateNotification(newData);
                         } else {
                             const newData = {
                                 created_at: now.toISOString(),
                                 data: []
                             }
+                            localStorage.setItem('notifications', JSON.stringify(newData));
                             updateNotification(newData);
                         }
-                    } else {
-                        const parsedData = JSON.parse(data);
-                        const savedTime = new Date(parsedData.created_at);
-                        const differenceInMinutes = (now - savedTime) / 1000 / 60;
-
-                        if (!(differenceInMinutes < 5)) {
-                            const getData = await $wire.getNotification();
-                            if (getData.original.status) {
-                                const newData = {
-                                    created_at: now.toISOString(),
-                                    data: getData.original.data
-                                }
-                                localStorage.setItem('notifications', JSON.stringify(newData));
-                                updateNotification(newData);
-                            } else {
-                                const newData = {
-                                    created_at: now.toISOString(),
-                                    data: []
-                                }
-                                localStorage.setItem('notifications', JSON.stringify(newData));
-                                updateNotification(newData);
-                            }
-                        }
                     }
-
-                }).on("pusher:subscription_error", async (status) => {
-                    const getData = await $wire.getNotification();
-                    if (getData.original.status) {
-                        const now = new Date();
-                        const newData = {
-                            created_at: now.toISOString(),
-                            data: getData.original.data
-                        }
-                        localStorage.setItem('notifications', JSON.stringify(newData));
-                        updateNotification(newData);
-                    } else {
-                        const now = new Date();
-                        const newData = {
-                            created_at: now.toISOString(),
-                            data: []
-                        }
-                        localStorage.setItem('notifications', JSON.stringify(newData));
-                        updateNotification(newData);
-                    }
-                });
+                }
+            });
 
             window.addEventListener('notification-delete', async function(event) {
                 const try_delete = await $wire.deleteNotification(event.detail.id);
@@ -200,6 +213,7 @@ new class extends Component {
                 const try_delete = await $wire.deleteAllNotification();
                 if (!try_delete.original.status) {
                     const getData = await $wire.getNotification();
+
                     if (getData.original.status) {
                         const now = new Date();
                         const newData = {
@@ -232,57 +246,12 @@ new class extends Component {
                 }
             });
 
-            // async function initAplicationLetter() {
-            //     const data = localStorage.getItem('aplication-letter');
-            //     if (data == null) {
-            //         const getData = await $wire.getAplicationLetter();
-            //         if (getData.original.status) {
-            //             const create_data = {
-            //                 created_at: new Date().toISOString(),
-            //                 data: getData.original.data
-            //             }
-            //             // localStorage.setItem('aplication-letter', JSON.stringify(create_data));
-            //             updateAplicationLetter(create_data);
-            //         } else {
-            //             const create_data = {
-            //                 created_at: new Date().toISOString(),
-            //                 data: []
-            //             }
-            //             // localStorage.setItem('aplication-letter', JSON.stringify(create_data));
-            //             updateAplicationLetter(create_data);
-            //         }
-            //     } else {
-            //         const parsedData = JSON.parse(data);
-            //         const now = new Date();
-            //         const savedTime = new Date(parsedData.created_at);
-            //         const differenceInMinutes = (now - savedTime) / 1000 / 60;
-
-            //         if (!(differenceInMinutes < 60)) {
-            //             const getData = await $wire.getAplicationLetter();
-            //             if (getData.original.status) {
-            //                 const newData = {
-            //                     created_at: now.toISOString(),
-            //                     data: getData.original.data
-            //                 }
-            //                 // localStorage.setItem('aplication-letter', JSON.stringify(newData));
-            //                 updateAplicationLetter(newData);
-            //             } else {
-            //                 const newData = {
-            //                     created_at: now.toISOString(),
-            //                     data: []
-            //                 }
-            //                 // localStorage.setItem('aplication-letter', JSON.stringify(newData));
-            //                 updateAplicationLetter(newData);
-            //             }
-            //         }
-            //     }
-            // }
-
             window.Echo.private("aplications." + userId)
-                .listen(".aplications", async (e) => {
+                .notification(async (e) => {
                     try {
                         const data = localStorage.getItem('aplication-letter');
                         const now = new Date();
+                        
                         if (data == null) {
                             const newData = {
                                 created_at: now.toISOString(),
@@ -302,7 +271,6 @@ new class extends Component {
                                 parsed.data = parsed.data.filter(item => item.id !== e.data.id);
 
                             }
-
                             const newData = {
                                 created_at: now.toISOString(),
                                 data: parsed.data
@@ -317,7 +285,7 @@ new class extends Component {
                 .on("pusher:subscription_succeeded", async () => {
                     const data = localStorage.getItem('aplication-letter');
                     const now = new Date();
-
+                    const getDatas = await $wire.getAplicationLetter();
                     if (data === null) {
                         const getData = await $wire.getAplicationLetter();
                         if (getData.original.status) {
@@ -359,7 +327,6 @@ new class extends Component {
                     }
 
                 }).on("pusher:subscription_error", async (status) => {
-
                     const getData = await $wire.getAplicationLetter();
                     if (getData.original.status) {
                         const now = new Date();

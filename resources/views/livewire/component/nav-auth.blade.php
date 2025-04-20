@@ -83,15 +83,15 @@ new class extends Component {}; ?>
                     <template x-if="dataNotification?.data?.length > 0">
                         <template x-for="(content, index) in dataNotification?.data" :key="index">
                             <div x-bind:class="{
-                                'bg-yellow-500/10 border-yellow-300': content.read ==
-                                    '0',
-                                'bg-secondary_blue/10  border-secondary_blue/70': content.read == '1'
+                                'bg-yellow-500/10 border-yellow-300': content.read_at ==
+                                    null,
+                                'bg-secondary_blue/10  border-secondary_blue/70': content.read_at != null
                             }"
-                                @click="if (content.read == '0') { readNotification(content.id) }"
+                                @click="if (content.read_at == null) { readNotification(content.id) }"
                                 x-data="{ show: false }" class="relative rounded-xl border p-2">
-                                <h3 x-text="content.title" class="text-secondary_blue font-bold"></h3>
+                                <h3 x-text="content.data.title" class="text-secondary_blue font-bold"></h3>
 
-                                <div x-html="content.body" class="text-secondary_blue max-h-auto mt-3"></div>
+                                <div x-html="content.data.message" class="text-secondary_blue max-h-auto mt-3"></div>
                                 <div x-transition x-text="changeDate(content.created_at)"
                                     class="text-secondary_blue text-right text-sm opacity-50"></div>
                                 <div x-show="content.read == '0'" x-transition
@@ -251,7 +251,7 @@ new class extends Component {}; ?>
                 </li>
 
                 <li>
-                    <a href="{{ route('chat') }}" class="text-secondary_black" wire:navigate
+                    <a href="{{ route('chat') }}" class="text-secondary_black"
                         :class="{
                             'text-secondary_blue border-secondary_blue font-bold pointer-events-none': currentPath === '{{ route('chat') }}',
                             'opacity-50 cursor-not-allowed': isNavigating
@@ -376,9 +376,56 @@ new class extends Component {}; ?>
                     x-transition:leave="transition ease-in duration-200"
                     x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                     x-transition:leave-end="opacity-0 -translate-y-5 scale-95">
-                    <ul class="flex flex-col gap-4 rounded-xl p-5 shadow-xl">
-                        <li @click="window.location.href = `{{ route('change.lang', ['lang' => 'fr']) }}`"
-                            class="hover:bg-accent_grey flex flex-row items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:cursor-pointer">
+                    <ul class="flex flex-col gap-4 rounded-xl px-4 py-2 shadow-xl" x-data="{ currentLang: '{{ Cookie::get('locale', 'fr') }}' }">
+                        <li @click="if (currentLang !== 'fr') window.location.href = '{{ route('change.lang', ['lang' => 'fr']) }}'"
+                            class="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
+                            :class="currentLang === 'fr'
+                                ?
+                                'bg-accent_grey text-gray-400 cursor-not-allowed' :
+                                'hover:bg-accent_grey cursor-pointer'">
+                            <div class="border-accent_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
+                                <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 130 120"
+                                    enable-background="new 0 0 130 120" xml:space="preserve" fill="#000000">
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
+                                    </g>
+                                    <g id="SVGRepo_iconCarrier">
+                                        <g id="Infos">
+                                            <rect id="BG" x="-650" y="-740" fill="#D8D8D8" width="2180"
+                                                height="1700">
+                                            </rect>
+                                        </g>
+                                        <g id="Others"> </g>
+                                        <g id="Europe">
+                                            <g id="Row_5"> </g>
+                                            <g id="Row_4"> </g>
+                                            <g id="Row_3"> </g>
+                                            <g id="Row_2">
+                                                <g>
+                                                    <rect x="87" fill="#DB3A49" width="43" height="120">
+                                                    </rect>
+                                                    <rect x="43" fill="#FFFFFF" width="44" height="120">
+                                                    </rect>
+                                                    <rect fill="#2A66B7" width="43" height="120">
+                                                    </rect>
+                                                </g>
+                                            </g>
+                                            <g id="Row_1"> </g>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </div>
+                            <p class="font-koho text-secondary_blue text-xl">
+                                France
+                            </p>
+                        </li>
+                        <li @click="if (currentLang !== 'en') window.location.href = '{{ route('change.lang', ['lang' => 'en']) }}'"
+                            class="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
+                            :class="currentLang === 'en'
+                                ?
+                                'bg-accent_grey text-gray-400 cursor-not-allowed' :
+                                'hover:bg-accent_grey cursor-pointer'">
                             <div class="border-accent_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
                                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
                                     xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 130 120"
@@ -449,53 +496,18 @@ new class extends Component {}; ?>
                                         </g>
                                     </g>
                                 </svg>
-                            </div>
-                            <p class="font-koho text-secondary_blue text-xl">
-                                France
-                            </p>
-                        </li>
-                        <li @click="window.location.href = `{{ route('change.lang', ['lang' => 'en']) }}`"
-                            class="hover:bg-accent_grey flex flex-row items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:cursor-pointer">
-                            <div class="border-accent_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
-                                <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
-                                    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 130 120"
-                                    enable-background="new 0 0 130 120" xml:space="preserve" fill="#000000">
-                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
-                                    </g>
-                                    <g id="SVGRepo_iconCarrier">
-                                        <g id="Infos">
-                                            <rect id="BG" x="-650" y="-740" fill="#D8D8D8" width="2180"
-                                                height="1700">
-                                            </rect>
-                                        </g>
-                                        <g id="Others"> </g>
-                                        <g id="Europe">
-                                            <g id="Row_5"> </g>
-                                            <g id="Row_4"> </g>
-                                            <g id="Row_3"> </g>
-                                            <g id="Row_2">
-                                                <g>
-                                                    <rect x="87" fill="#DB3A49" width="43" height="120">
-                                                    </rect>
-                                                    <rect x="43" fill="#FFFFFF" width="44" height="120">
-                                                    </rect>
-                                                    <rect fill="#2A66B7" width="43" height="120">
-                                                    </rect>
-                                                </g>
-                                            </g>
-                                            <g id="Row_1"> </g>
-                                        </g>
-                                    </g>
-                                </svg>
 
                             </div>
                             <p class="font-koho text-secondary_blue text-xl">
                                 English
                             </p>
                         </li>
-                        <li @click="window.location.href = `{{ route('change.lang', ['lang' => 'id']) }}`"
-                            class="hover:bg-accent_grey flex flex-row items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:cursor-pointer">
+                        <li @click="if (currentLang !== 'id') window.location.href = '{{ route('change.lang', ['lang' => 'id']) }}'"
+                            class="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
+                            :class="currentLang === 'id'
+                                ?
+                                'bg-accent_grey text-gray-400 cursor-not-allowed' :
+                                'hover:bg-accent_grey cursor-pointer'">
                             <div class="border-accent_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
                                 <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"
                                     xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img"
@@ -532,7 +544,7 @@ new class extends Component {}; ?>
                             stroke="#2867A4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                     </g>
                 </svg>
-                <div x-show="dataNotification?.data?.filter(item => item.read == '0').length > 0"
+                <div x-show="dataNotification?.data?.filter(item => item.read_at == null).length > 0"
                     class="absolute right-1 top-1 z-30 h-[10px] w-[10px] animate-pulse rounded-full bg-red-500"></div>
             </div>
             <!-- <a href="{{ route('settings.profile') }}"
@@ -602,14 +614,12 @@ new class extends Component {}; ?>
                     const totalHeight = el.scrollHeight;
                     const maxLines = 2;
                     this.isOverflowing = totalHeight > (lineHeight * maxLines);
-                    console.log('1', totalHeight, lineHeight, maxLines);
                 });
             },
             firstInit() {
                 this.createListener();
                 this.dataNotification = this.dataNotifications;
                 this.dataAplicationLetter = this.dataAplicationLetters;
-                console.log(this.dataAplicationLetter);
             },
             createListener() {
                 if (this.stopCreateListener) return;
@@ -651,8 +661,6 @@ new class extends Component {}; ?>
                 data.data.splice(index, 1);
                 localStorage.setItem('aplication-letter', JSON.stringify(data));
                 this.dataAplicationLetter = data;
-                console.log(data);
-
                 const event = new CustomEvent('aplication-letter-delete', {
                     detail: {
                         id: id
@@ -662,8 +670,18 @@ new class extends Component {}; ?>
             },
             readNotification(id) {
                 const data = JSON.parse(localStorage.getItem('notifications'));
-                const index = data.data.findIndex(item => item.id === id);
-                data.data[index].read = 1;
+                const index = data.data.findIndex(item => item.id == id);
+                if (index !== -1) {
+                    const now = new Date();
+                    const formattedDate = now.getFullYear() + "-" +
+                        String(now.getMonth() + 1).padStart(2, '0') + "-" +
+                        String(now.getDate()).padStart(2, '0') + " " +
+                        String(now.getHours()).padStart(2, '0') + ":" +
+                        String(now.getMinutes()).padStart(2, '0') + ":" +
+                        String(now.getSeconds()).padStart(2, '0');
+
+                    data.data[index].read_at = formattedDate;
+                }
                 localStorage.setItem('notifications', JSON.stringify(data));
                 this.dataNotification = data;
                 const event = new CustomEvent('notification-read', {
@@ -679,19 +697,7 @@ new class extends Component {}; ?>
             get dataAplicationLetters() {
                 return JSON.parse(localStorage.getItem('aplication-letter'));
             },
-            get countShowNotification() {
-                if (Array.isArray(this.dataNotification.data)) {
-                    const countRead = this.dataNotification.data.filter(item => item.read === 1).length;
-                    return countRead;
-                }
-                return 0;
-            },
-            // changeDate(time) {
-            //     console.log(time);
-            //     return new Date(time).toISOString().split('T')[0];
-            // }
             changeDate(datetime) {
-                // Potong ke format yang bisa dibaca oleh JS
                 const cleanDate = datetime.split('.')[0] + 'Z';
                 const date = new Date(cleanDate);
 

@@ -2,12 +2,14 @@
 
 namespace App\Notifications;
 
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class UserNotification extends Notification
+class UserNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -15,11 +17,9 @@ class UserNotification extends Notification
      * Create a new notification instance.
      */
     private $data = "";
-    private $title = "";
     public function __construct($data)
     {
-        $this->data = $data['data'];
-        $this->title = $data['title'];
+        $this->data = $data;
     }
 
     /**
@@ -30,30 +30,34 @@ class UserNotification extends Notification
     public function via(object $notifiable): array
     {
         // return ['mail'];
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
-    public function toMail(object $notifiable): MailMessage
-    {
-        return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
-    }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(object $notifiable): array
+    public function toDatabase($notifiable)
     {
         return [
-            'title' => $this->title,
-            'data' => $this->data,
+            'message' => $this->data['message'],
+            'title' => $this->data['title'],
         ];
     }
+
+    public function toBroadcast($notifiable)
+    {
+        return new BroadcastMessage( [
+                'data' => [
+                    'message' => $this->data['message'],
+                    'title' => $this->data['title'],
+                ],
+                'read_at' => null,
+                'created_at' => $this->data['created_at'],
+            ],
+        );
+    }
+
+    public function broadcastOn()
+    {
+        return new PrivateChannel('App.Models.User.' . $this->data['user_id']);
+    }
+
+    
 }

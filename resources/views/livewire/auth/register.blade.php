@@ -11,6 +11,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use App\Http\Controllers\NotificationController;
 use App\Models\RandomAvatar;
+use App\Notifications\UserMaiRegisterationlNotification;
 
 
 new #[Layout('components.layouts.auth')] class extends Component {
@@ -20,38 +21,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public string $password_confirmation = '';
     public string $birth_date = '';
     public string $origin = '';
-
-    /**
-     * Handle an incoming registration request.
-     */
-    // public function register(): void
-    // {
-    //     $validated = $this->validate([
-    //         'name' => ['required', 'string', 'max:255'],
-    //         'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-    //         'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
-    //         'birth_date' => ['required', 'date', 'before:today'],
-    //     ]);
-    //     $randomImage = ['profile-1.svg', 'profile-2.svg', 'profile-3.svg'];
-    //     $randomProfile = $randomImage[array_rand($randomImage)];
-    //     $language = Session::get('locale');
-    //     $validated['password'] = Hash::make($validated['password']);
-    //     $user = User::create([
-    //         'name' => $validated['name'],
-    //         'email' => $validated['email'],
-    //         'language' => $language,
-    //         'profile_photo_path' => '/img/profile/' . $randomProfile,
-    //         'password' => $validated['password'],
-    //         'role' => 'guest',
-    //         'birth_date' => $validated['birth_date'],
-    //     ]);
-    //     event(new Registered($user));
-
-    //     Auth::login($user);
-
-    //     // $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
-    //     $this->redirect(route('verification.notice', absolute: true));
-    // }
 
     public function register()
     {
@@ -137,21 +106,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
             Auth::login($user);
             $user = Auth::user();
-
-            $dataNotif = [
-                'title' => __('register.notification_title'),
-                'body' => __('register.notification_message'),
-                'user_id' => $user->id,
-            ];
-
-            try {
-                $notificationController = new NotificationController();
-                $notificationController->sendNotification($dataNotif);
-            } catch (\Throwable $th) {
-                Log::error('ClassroomLearn Error Allowed Teacher Notification: ' . $th->getMessage());
-            }
-
-            $this->redirect(route('verification.notice', absolute: true));
+            $user->notify(new UserMaiRegisterationlNotification());
+            redirect(route('verification.notice', absolute: true));
         } catch (\Throwable $th) {
             $this->dispatch('failed', ['message' => __('profile.default_error')]);
             Log::error('Register: ' . $th->getMessage());

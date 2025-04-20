@@ -29,6 +29,16 @@ class LanguageController extends Controller
 
         // return redirect()->back();
         $locale = $request->lang;
+        try {
+            if (auth()->check()) {
+                $user = auth()->user(); 
+                if ($user->language !== $locale) {
+                    $user->update(['language' => $locale]);
+                }
+            }
+        } catch (\Throwable $th) {
+            Log::error('Language Session'. $th);
+        }
 
         return redirect()->back()->withCookie(cookie('locale', $locale, 43200));
     }

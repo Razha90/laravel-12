@@ -11,42 +11,7 @@
 
 /* @custom-variant dark (&:where(.dark, .dark *)); */
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
-@config "../../tailwind.config.js";
-
-/* @theme {
-    /* --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; */
-    /*
-   
-    --font-sans: "Istok Web", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    --font-koho: "KoHo", ui-sans-serif, system-ui, sans-serif;
-
-    --color-zinc-50: #2D336B;
-    --color-zinc-100: #f5f5f5;
-    --color-zinc-200: #2867A4;
-    --color-zinc-300: #d4d4d4;
-    --color-zinc-400: #F7F7F7;
-    --color-zinc-500: #212121;
-    --color-zinc-600: #2D336B;
-    --color-zinc-700: #2867A4;
-    --color-zinc-800: #F7F7F7;
-    --color-zinc-900: #171717;
-    --color-zinc-950: #0a0a0a;
-
-
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
-    --color-accent-foreground: var(--color-white);
-}
-
-
-@layer theme {
-    .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
-    }
-} */
-
+/* @config "../../tailwind.config.js"; */
 
 
 /* Re-assign Flux's gray of choice... */
@@ -65,6 +30,13 @@
     --color-zinc-800: var(--color-slate-800);
     --color-zinc-900: var(--color-slate-900);
     --color-zinc-950: var(--color-slate-950);
+    --color-primary_white: #F7F7F7;
+    --color-secondary_blue: #2867A4;
+    --color-accent_blue: #2D336B;
+    --color-secondary_black: #212121;
+    --color-accent_grey: #EEEEEE;
+    --color-secondary_green: #388E3C;
+    --color-accent_red : #D1042D;    
 }
 
 @theme {
@@ -80,11 +52,6 @@
         --color-accent-foreground: var(--color-white);
     }
 }
-
-
-
-
-
 
 @layer base {
 

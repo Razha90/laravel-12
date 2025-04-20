@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string(column: 'password')->nullable();
             $table->string(column: 'code');
             $table->boolean(column: 'status')->default(value: true);
-            $table->boolean(column: 'delete')->default(value: false);
+            $table->boolean(column: 'ask_join')->default(value: false);
             $table->timestamps();
         });
     }
