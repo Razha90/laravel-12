@@ -61,6 +61,10 @@
 
             </div>
             <div class="flex flex-row gap-x-6">
+            <style>
+    [x-cloak] { display: none !important; }
+</style>
+
                 <div x-data="{ open: false }" class="relative flex items-center">
                     <div @click="open = !open"
                         class="border-secondary_blue flex cursor-pointer flex-row items-center gap-x-2 rounded-full border px-5 py-1 shadow-xl">
@@ -167,14 +171,8 @@
                             {{ Cookie::get('locale', 'fr') }}
                         </p>
                     </div>
-                    <div x-show="open" @click.away="open = false"
-                        class="bg-primary_white absolute top-12 rounded-2xl shadow-xl"
-                        x-transition:enter="transition ease-out duration-300"
-                        x-transition:enter-start="opacity-0 -translate-y-5 scale-95"
-                        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                        x-transition:leave="transition ease-in duration-200"
-                        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                        x-transition:leave-end="opacity-0 -translate-y-5 scale-95">
+                    <div x-cloak x-show="open" @click.away="open = false"
+                        class="bg-primary_white absolute top-12 rounded-2xl shadow-xl" x-transition>
                         <ul class="flex flex-col gap-4 rounded-xl px-4 py-2 shadow-xl" x-data="{ currentLang: '{{ Cookie::get('locale', 'fr') }}' }">
                             <li @click="if (currentLang !== 'fr') window.location.href = '{{ route('change.lang', ['lang' => 'fr']) }}'"
                                 class="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
@@ -339,7 +337,7 @@
                                             <img src="{{ asset(auth()->user()->profile_photo_path) }}"
                                                 alt="Profile Photo">
                                         </a> -->
-                    <div x-data="{ open: false }" class="relative">
+                    <div x-cloak x-data="{ open: false }" class="relative">
                         <div class="border-secondary_blue h-[40px] w-[40px] cursor-pointer overflow-hidden rounded-full border p-[2px] transition-opacity duration-300 hover:opacity-50"
                             @click="open = !open">
                             <img src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo"

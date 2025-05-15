@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 
-class UserNotification extends Notification implements ShouldQueue
+class NewClassroom extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -16,9 +16,11 @@ class UserNotification extends Notification implements ShouldQueue
      * Create a new notification instance.
      */
     private $data = "";
+    private $message = "";
     public function __construct($data)
     {
         $this->data = $data;
+        $this->message = $data['message'];
     }
 
     /**
@@ -35,7 +37,7 @@ class UserNotification extends Notification implements ShouldQueue
     public function toDatabase($notifiable)
     {
         return [
-            'message' => $this->data['message'],
+            'message' => $this->message,
             'title' => $this->data['title'],
         ];
     }
@@ -44,7 +46,7 @@ class UserNotification extends Notification implements ShouldQueue
     {
         return new BroadcastMessage( [
                 'data' => [
-                    'message' => $this->data['message'],
+                    'message' => $this->message,
                     'title' => $this->data['title'],
                 ],
                 'read_at' => null,

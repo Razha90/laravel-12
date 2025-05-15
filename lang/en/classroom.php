@@ -20,7 +20,7 @@ return [
     'classroom_password_string' => 'Class password must be a string',
     'classroom_closed' => 'Class is closed by the teacher',
     'classroom_join_failed' => 'Failed to join the class, please try again in a moment.',
-    'classroom_password_not_same' => 'Class password does not match the one entered',
+    'classroom_password_not_same' => 'Class password is incorrect!',
     'new' => 'Terbaru',
     'old' => 'Terlama',
     'pending' => 'Pending',

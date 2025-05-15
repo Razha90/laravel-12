@@ -66,7 +66,6 @@ class SaveImageController extends Controller
             return response()->json(['success' => 0, 'message' => 'Internal Server Error'], 500);
         }
     }
-
     public function uploadFile(Request $request)
     {
         try {

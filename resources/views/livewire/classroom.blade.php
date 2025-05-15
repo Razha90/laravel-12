@@ -10,12 +10,17 @@ use Illuminate\support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\NotificationController;
+use Livewire\Attributes\Url;
 
 new #[Layout('components.layouts.app-page')] class extends Component {
     public $classrooms = [];
     public $isLoading = true;
     public $search = '';
     public $desc = 'asc';
+    #[Url]
+    public $code;
+
+    protected $queryString = ['code'];
 
     public function mount()
     {
@@ -142,14 +147,80 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                 }
 
                 if ($check_user->status == 'approved') {
-                    $this->dispatch('success', [
-                        'message' => __('classroom.already_joined'),
-                        'condition' => 'JOINED',
+                    if ($this->code) {
+                        return redirect()->route('classroom');
+                    } else {
+                        $this->dispatch('success', [
+                            'message' => __('classroom.already_joined'),
+                            'condition' => 'JOINED',
+                        ]);
+                    }
+                    return [
+                        'status' => true,
+                    ];
+                }
+            }
+
+            if ($classroom->password !== null && $classroom->password !== '') {
+                if ($password == null) {
+                    $this->dispatch('show-password', [
+                        'code' => $classroom->code,
                     ]);
                     return [
                         'status' => true,
                     ];
                 }
+
+                $validator = Validator::make(
+                    ['password' => $password],
+                    [
+                        'password' => 'required|string|min:8|max:20',
+                    ],
+                    [
+                        'password.required' => __('classroom.classroom_password'),
+                        'password.string' => __('classroom.classroom_password'),
+                        'password.min' => __('classroom.classroom_password'),
+                        'password.max' => __('classroom.classroom_password'),
+                    ],
+                );
+                if ($validator->fails()) {
+                    Log::info('ClassroomMain Password Not Valid', [
+                        'password' => $password,
+                        'classroom_password' => $classroom->password,
+                        'validator' => $validator->errors()->first('password'),
+                    ]); // Log the password for debugging
+                    $this->dispatch('error-code', [
+                        'message' => $validator->errors()->first('password'),
+                        'condition' => 'ERROR',
+                    ]);
+                    return [
+                        'status' => true,
+                    ];
+                }
+
+                if ($classroom->password != $password) {
+                    Log::info('ClassroomMain Password Not Same', [
+                        'password' => $password,
+                        'classroom_password' => $classroom->password,
+                    ]); // Log the password for debugging
+                    $this->dispatch('error-code', [
+                        'message' => __('classroom.classroom_password_not_same'),
+                        'condition' => 'ERROR',
+                    ]);
+                    return [
+                        'status' => true,
+                    ];
+                }
+
+                // if (!Hash::check($password, $classroom->password)) {
+                //     $this->dispatch('error-code', [
+                //         'message' => __('classroom.classroom_password_not_same'),
+                //         'condition' => 'ERROR',
+                //     ]);
+                //     return [
+                //         'status' => true,
+                //     ];
+                // }
             }
 
             if ($classroom->ask_join) {
@@ -184,58 +255,6 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                 ];
             }
 
-            if ($classroom->password !== null && $classroom->password !== '') {
-                if ($password == null) {
-                    $this->dispatch('show-password', [
-                        'code' => $classroom->code,
-                    ]);
-                    return [
-                        'status' => true,
-                    ];
-                }
-
-                $validator = Validator::make(
-                    ['password' => $password],
-                    [
-                        'password' => 'required|string|min:8|max:8',
-                    ],
-                    [
-                        'password.required' => __('classroom.classroom_password'),
-                        'password.string' => __('classroom.classroom_password'),
-                        'password.min' => __('classroom.classroom_password'),
-                        'password.max' => __('classroom.classroom_password'),
-                    ],
-                );
-                if ($validator->fails()) {
-                    $this->dispatch('error-code', [
-                        'message' => $validator->errors()->first('password'),
-                        'condition' => 'ERROR',
-                    ]);
-                    return [
-                        'status' => true,
-                    ];
-                }
-
-                if ($classroom->password != $password) {
-                    $this->dispatch('error-code', [
-                        'message' => __('classroom.classroom_password'),
-                        'condition' => 'ERROR',
-                    ]);
-                    return [
-                        'status' => true,
-                    ];
-                }
-
-                if (!Hash::check($password, $classroom->password)) {
-                    $this->dispatch('error-code', [
-                        'message' => __('classroom.classroom_password_not_same'),
-                        'condition' => 'ERROR',
-                    ]);
-                    return [
-                        'status' => true,
-                    ];
-                }
-            }
             DB::beginTransaction();
             $membership = new ClassroomMember();
             $membership->classroom_id = $classroom->id;
@@ -250,6 +269,8 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                 'message' => __('classroom.join.success'),
             ]);
             DB::commit();
+
+            $this->loadData();
 
             return [
                 'status' => true,
@@ -274,32 +295,88 @@ new #[Layout('components.layouts.app-page')] class extends Component {
 
 <div x-data="play()" class="flex justify-center" x-on:class-response.window="handleEvent($event.detail)">
 
-    <div x-cloak x-data="{ alert: false, message: '' }" x-on:show-password.window="(event) => {
-        alert = true;
-    }"
-        x-show="alert" x-transition id="toast-success"
-        class="absolute bottom-3 left-3 z-30 mb-4 flex w-full max-w-xs items-center rounded-lg bg-white p-4 text-gray-500 shadow-sm dark:bg-gray-800 dark:text-gray-400"
-        role="alert">
-        <div
-            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
-            <svg class="h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                viewBox="0 0 20 20">
-                <path
-                    d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-            </svg>
-            <span class="sr-only">Check icon</span>
+    <div aria-hidden="true" x-data="{
+        open: false,
+        passwordClass: '',
+        loading: false,
+        async sendPassword() {
+            this.loading = true;
+            alert(this.passwordClass);
+            if (this.passwordClass == '') {
+                this.loading = false;
+                this.$dispatch('failed', [{
+                    message: '{{ __('classroom.classroom_password') }}',
+                }]);
+                return;
+            }
+            const data = await this.$wire.joinClass(code, this.passwordClass);
+            this.loading = false;
+        }
+    }" x-cloak
+        x-on:show-password.window="(event) => {
+    open = true
+}"x-show="open"
+        class="animate-fade fixed left-0 right-0 top-0 z-20 flex h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden bg-black/20 backdrop-blur-sm md:inset-0">
+        <div class="relative max-h-full w-full max-w-md rounded-xl bg-white p-2" @click.away = "open = false">
+            <div class="flex flex-row items-center justify-between">
+                <div class="flex flex-row items-center gap-x-3 bg-white p-4">
+                    <div class="flex- bg-secondary_blue/15 items-center justify-center rounded-xl p-1">
+                        <svg class="text-secondary_blue w-[35px]" fill="currentColor" viewBox="0 0 32 32" id="icon"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <defs>
+                                    <style>
+                                        .cls-1 {
+                                            fill: none;
+                                        }
+                                    </style>
+                                </defs>
+                                <path
+                                    d="M21,2a8.9977,8.9977,0,0,0-8.6119,11.6118L2,24v6H8L18.3881,19.6118A9,9,0,1,0,21,2Zm0,16a7.0125,7.0125,0,0,1-2.0322-.3022L17.821,17.35l-.8472.8472-3.1811,3.1812L12.4141,20,11,21.4141l1.3787,1.3786-1.5859,1.586L9.4141,23,8,24.4141l1.3787,1.3786L7.1716,28H4V24.8284l9.8023-9.8023.8472-.8474-.3473-1.1467A7,7,0,1,1,21,18Z">
+                                </path>
+                                <circle cx="22" cy="10" r="2"></circle>
+                                <rect id="_Transparent_Rectangle_" data-name="<Transparent Rectangle>" class="cls-1"
+                                    width="32" height="32"></rect>
+                            </g>
+                        </svg>
+                    </div>
+                    <p class="text-secondary_blue text-2xl font-bold">{{ __('class-learn.class_password') }}</p>
+                </div>
+                <button type="button" @click="open = false"
+                    class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+                    data-modal-hide="default-modal">
+                    <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <div class="flex flex-col items-center justify-center">
+                <p class="text-secondary_blue mb-5 text-base text-base">{{ __('class-learn.class_have_password') }}</p>
+                <input type="password" x-model="passwordClass"
+                    class="border-secondary_blue text-secondary_blue w-[70%] rounded-xl border-2 px-4 py-3 focus:border-blue-500 focus:outline-none"
+                    placeholder="{{ __('classroom.classroom_password') }}......">
+                <button @click="sendPassword"
+                    class="bg-secondary_blue border-secondary_blue text-primary_white hover:bg-primary_white hover:text-secondary_blue mb-5 mt-5 cursor-pointer rounded-full border px-4 py-2 text-lg font-bold transition-all">
+                    <svg aria-hidden="true" x-show="loading"
+                        class="inline h-5 w-5 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+                        viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                            fill="currentColor" />
+                        <path
+                            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                            fill="currentFill" />
+                    </svg>
+                    <span x-show="!loading">{{ __('class-learn.save') }}</span>
+
+                </button>
+            </div>
         </div>
-        <div class="ms-3 text-sm font-normal" x-text="message"></div>
-        <button @click="alert = false" type="button"
-            class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
-            data-dismiss-target="#toast-success" aria-label="Close">
-            <span class="sr-only">Close</span>
-            <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 14 14">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-            </svg>
-        </button>
     </div>
 
     <div x-cloak x-data="{ alert: false }" x-on:ask-join.window="(event) => {
@@ -319,23 +396,21 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                         data-modal-toggle="crud-modal">
                         <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                         </svg>
                         <span class="sr-only">Close modal</span>
                     </button>
                 </div>
                 <div class="flex flex-col items-center gap-y-2 px-4 pb-4">
                     <div>
-                        <svg class="w-[150px]" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-[150px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                             <g id="SVGRepo_iconCarrier">
                                 <path
                                     d="M10 9.66679L11.3846 11.0001L14.5 8.00012M3.02832 10.0001L10.2246 14.8167C10.8661 15.2444 11.1869 15.4582 11.5336 15.5413C11.8399 15.6147 12.1593 15.6147 12.4657 15.5413C12.8124 15.4582 13.1332 15.2444 13.7747 14.8167L20.971 10.0001M10.2981 4.06892L4.49814 7.71139C3.95121 8.05487 3.67775 8.2266 3.4794 8.45876C3.30385 8.66424 3.17176 8.90317 3.09111 9.16112C3 9.45256 3 9.77548 3 10.4213V16.8001C3 17.9202 3 18.4803 3.21799 18.9081C3.40973 19.2844 3.71569 19.5904 4.09202 19.7821C4.51984 20.0001 5.0799 20.0001 6.2 20.0001H17.8C18.9201 20.0001 19.4802 20.0001 19.908 19.7821C20.2843 19.5904 20.5903 19.2844 20.782 18.9081C21 18.4803 21 17.9202 21 16.8001V10.4213C21 9.77548 21 9.45256 20.9089 9.16112C20.8282 8.90317 20.6962 8.66424 20.5206 8.45876C20.3223 8.2266 20.0488 8.05487 19.5019 7.71139L13.7019 4.06891C13.0846 3.68129 12.776 3.48747 12.4449 3.41192C12.152 3.34512 11.848 3.34512 11.5551 3.41192C11.224 3.48747 10.9154 3.68129 10.2981 4.06892Z"
-                                    stroke="#2867A4" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
+                                    stroke="#2867A4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 </path>
                             </g>
                         </svg>
@@ -433,8 +508,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
         </div>
     </div>
 
-
-    <div class="bg-primary_white mt-[12vh] h-[88vh] w-[90%] max-w-[1600px] rounded-xl">
+    <div class="bg-primary_white mt-[12vh] min-h-[800px] w-[90%] max-w-[1600px] rounded-xl">
         <div class="h-full w-full">
             <div class="flex w-full justify-between px-3 py-4">
                 <div class="flex flex-row gap-x-4">
@@ -488,7 +562,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     class="animate-pulse rounded-full border-2 border-red-500 bg-white px-4 py-2 text-center text-base font-medium leading-none text-red-700">
                     {{ __('classroom.not_found') }}....</div>
             </div> -->
-            <template x-if="classrooms.data && !(classrooms.data.length> 0)">
+            <template x-if="classrooms && classrooms.data && !(classrooms.data.length> 0)">
                 <div class="flex items-center justify-center">
                     <div @click="show = true"
                         class="border-secondary_blue mt-10 flex cursor-pointer flex-row items-center gap-x-2 rounded-full border-2 bg-white px-4 py-2 transition-opacity hover:opacity-70">
@@ -516,9 +590,9 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     </div>
                 </div>
             </template>
-            <template x-if="classrooms.data && classrooms.data.length > 0">
+            <template x-if="classrooms && classrooms.data && classrooms.data.length > 0">
                 <div
-                    class="flex h-[90%] flex-row flex-wrap content-start items-start justify-center gap-x-6 gap-y-7 overflow-y-auto">
+                    class="flex h-[90%] flex-row flex-wrap content-start items-start justify-center gap-x-6 gap-y-7">
                     <template x-for="(classroom, item) in classrooms.data" :key="item">
                         <div @click="window.location.href = '/classroom' + '/' + classroom.classroom.id"
                             class="animate-fade group relative h-[250px] w-[360px] cursor-pointer overflow-hidden rounded-xl shadow-xl">
@@ -552,6 +626,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
 
             </template>
         </div>
+        <div class="h-[50px]"></div>
     </div>
 
     <div x-cloak x-show="show" class="fixed inset-0 z-30 flex items-center justify-center bg-black/40"
@@ -623,6 +698,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
             classroomCode: '',
             errorMessage: '',
             initStop: false,
+            code: @entangle('code').live,
             init() {
                 if (this.initStop) return;
                 console.log('kelas', this.classrooms);
@@ -633,6 +709,9 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                         this.errorMessage = '';
                     }
                 })
+                if (this.code) {
+                    this.$wire.joinClass(this.code);
+                }
             },
             debounching() {
                 this.classrooms = null

@@ -4,12 +4,12 @@ use Livewire\Volt\Component;
 use App\Models\Content;
 use Livewire\Attributes\Layout;
 
-new #[Layout('components.layouts.app-page')] class extends Component {
+new #[Layout('components.layouts.app-task')] class extends Component {
     public $id;
     public $task;
     public $content = [];
     public $isLoading = false;
-    protected $listeners = ['savedContent', 'savedPublishing', 'savedDraft'];
+    protected $listeners = ['savedContent', 'savedPublishing'];
     public $model1;
 
     public function mount($id, $task)
@@ -84,13 +84,10 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     return;
                 }
                 $release = $date . ' ' . $time . ':00';
-                Log::info('Sechedule Time: ' . $release);
-
             } else {
                 $release = $this->content[0]['release'];
                 if (empty($release)) {
                     $release = now()->format('Y-m-d H:i:s');
-                    Log::info('Release Time: ' . $release);
                 }
             }
 
@@ -140,18 +137,25 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     $deadline = null;
                 }
 
+                $maxOrder = Content::max('order');
+
                 Content::where('id', $this->task)->update([
                     'visibility' => true,
                     'release' => $release,
                     'deadline' => $deadline,
                     'canUpload' => $canUpload,
                     'isDeadline' => $isDeadline,
+                    'order' => ($maxOrder ?? 0) + 1,
                 ]);
+                $this->dispatch('success', ['message' => __('add-task.succes_published')]);
+                $this->dispatch('initRelease', ['STATUS' => 'PUBLISH', 'DATE' => $release]);
+                return;
             }
-
+            $maxOrder = Content::max('order');
             Content::where('id', $this->task)->update([
                 'visibility' => true,
                 'release' => $release,
+                'order' => ($maxOrder ?? 0) + 1,
             ]);
             $this->dispatch('success', ['message' => __('add-task.succes_published')]);
             $this->dispatch('initRelease', ['STATUS' => 'PUBLISH', 'DATE' => $release]);
@@ -167,12 +171,21 @@ new #[Layout('components.layouts.app-page')] class extends Component {
             Content::where('id', $this->task)->update([
                 'visibility' => false,
                 'release' => null,
+                'order' => null,
+                'deadline' => null,
+                'isDeadline' => false,
             ]);
             $this->dispatch('success', ['message' => __('add-task.succes_saved')]);
             $this->dispatch('initRelease', ['STATUS' => 'DRAFT']);
+            return [
+                'status' => true,
+            ];
         } catch (\Throwable $th) {
             $this->dispatch('failed', ['message' => __('add-task.failed_saved')]);
             Log::error('Update data task, in Add Task' . $th);
+            return [
+                'status' => false,
+            ];
         }
     }
 }; ?>
@@ -350,7 +363,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                 </div>
                 <div class="flex flex-col mt-4">
                     <h2 class="text-xl font-bold mb-2 font-koho">{{ __('add-task.choose_content_type') }}</h2>
-                    <div x-data="{ open: false }" class="relative w-full">
+                    <div x-data="{ open: false }" x-cloak class="relative w-full">
                         <select x-model="type"
                             class="w-full p-2 pr-8 rounded bg-white border border-secondary_blue focus:outline-none focus:ring-2 focus:ring-secondary_blue appearance-none"
                             @focus="open = true" @blur="open = false"
@@ -906,8 +919,14 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     });
                     return;
                 },
-                handleDraft() {
-                    Livewire.dispatch('savedDraft');
+                async handleDraft() {
+                    // Livewire.dispatch('savedDraft');
+                    const data = await this.$wire.savedDraft();
+                    if (data.status) {
+                        this.deadline = null;
+                        this.deadlineTime = null;
+                        this.borderDeadline = false;
+                    }
                 },
                 initType() {
                     this.type = this.content[0].type;
@@ -1037,8 +1056,6 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                             this.time != this.lastTime ||
                             this.borderDeadline != this.lastBorderDeadline);
                     } else {
-                        alert(this.date == this.lastDate);
-                        alert(this.time == this.lastTime);
                         this.showUpdatePublish = this.release == 'PUBLISH' && (
                             this.date != this.lastDate || this.time != this.lastTime);
                     }

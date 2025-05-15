@@ -8,4 +8,6 @@ return [
   'mail.open' => 'Se connecter à l\'application',
   'mail.thanks_2' => 'Merci de vous être inscrit chez nous!',
   'mail.salutation' => 'Cordialement, Notre équipe',
+  'new_classroom.title' => 'Une nouvelle classe a été créée',
+  'new_classroom.message' => 'Une nouvelle classe a été créée. Veuillez vérifier votre nouvelle classe ou vous pouvez cliquer sur le lien suivant: <a href=":link" style="color: blue;">Visitez la nouvelle classe</a>',
 ];

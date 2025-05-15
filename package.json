@@ -28,6 +28,7 @@
         "autoprefixer": "^10.4.20",
         "axios": "^1.7.4",
         "concurrently": "^9.0.1",
+        "editorjs-html": "^4.0.5",
         "editorjs-inline-font-size-tool": "^1.0.1",
         "laravel-vite-plugin": "^1.0",
         "tailwindcss-animated": "^2.0.0",
@@ -40,8 +41,10 @@
         "lightningcss-linux-x64-gnu": "^1.29.1"
     },
     "devDependencies": {
+        "@tailwindcss/typography": "^0.5.16",
         "laravel-echo": "^2.0.2",
         "pusher-js": "^8.4.0",
-        "tailwindcss": "^4.0.7"
+        "tailwindcss": "^4.0.7",
+        "tailwindcss-animate": "^1.0.7"
     }
 }

@@ -20,7 +20,7 @@ return [
     'classroom_password_string' => 'Le mot de passe de la classe doit être une chaîne',
     'classroom_closed' => 'La classe est fermée par l\'enseignant',
     'classroom_join_failed' => 'Échec de la connexion à la classe, essayez à nouveau dans un instant.',
-    'classroom_password_not_same' => 'Le mot de passe de la classe ne correspond pas à celui saisi',
+    'classroom_password_not_same' => 'Le mot de passe de la classe est incorrect !',
     'new' => 'Nouveau',
     'old' => 'Ancien',
     'pending' => 'En attente',

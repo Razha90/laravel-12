@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'csrf' => VerifyCsrfTokenForGet::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'member-classroom' => \App\Http\Middleware\MemberFromClass::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

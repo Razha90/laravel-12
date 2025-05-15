@@ -16,6 +16,8 @@ import InlineCode from '@editorjs/inline-code';
 import TextVariantTune from '@editorjs/text-variant-tune';
 import Marker from '@editorjs/marker';
 import FontSize from 'editorjs-inline-font-size-tool';
+import edtsHTML from 'editorjs-html';
+window.edtsHTML = edtsHTML;
 
 window.Header = Header;
 window.List = List;

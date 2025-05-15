@@ -554,7 +554,7 @@ new class extends Component {}; ?>
                 :class="{ 'pointer-events-none opacity-50': isClicked }">
                 <img src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo">
             </a> -->
-            <div x-data="{ open: false }" class="relative">
+            <div x-cloak x-data="{ open: false }" class="relative">
                 <div class="border-secondary_blue h-[40px] w-[40px] cursor-pointer overflow-hidden rounded-full border p-[2px] transition-opacity duration-300 hover:opacity-50"
                     @click="open = !open">
                     <img src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo" loading="lazy">
@@ -620,6 +620,7 @@ new class extends Component {}; ?>
                 this.createListener();
                 this.dataNotification = this.dataNotifications;
                 this.dataAplicationLetter = this.dataAplicationLetters;
+
             },
             createListener() {
                 if (this.stopCreateListener) return;

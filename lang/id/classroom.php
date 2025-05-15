@@ -20,7 +20,7 @@ return [
     'classroom_password_string' => 'Kata sandi kelas harus berupa string',
     'classroom_closed' => 'Kelas ditutup oleh pengajar',
     'classroom_join_failed' => 'Gagal bergabung dengan kelas, coba sesaat lagi.',
-    'classroom_password_not_same' => 'Kata sandi kelas salah sama dengan yang dimasukkan',
+    'classroom_password_not_same' => 'Kata sandi kelas salah!',
     'new' => 'Terbaru',
     'old' => 'Terlama',
     'pending' => 'Menunggu',

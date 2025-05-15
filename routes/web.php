@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Http\Middleware\EnsureClassOwner;
 
-
 Route::get('lang', [LanguageController::class, 'change'])->name('change.lang');
 
 // Route::post('/send-notification', [NotificationController::class, 'sendNotification'])->name('notifications');
@@ -17,9 +16,9 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+// Route::view('dashboard', 'dashboard')
+//     ->middleware(['auth', 'verified'])
+//     ->name('dashboard');
 
 Route::middleware(['csrf'])->group(function () {
     Route::get('/api/get-name-school', [InfoController::class, 'getSchool'])->name('name-school');
@@ -38,21 +37,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Volt::route('app', 'app-page')->name('my-app');
     Volt::route('classroom', 'classroom')->name('classroom');
-    Volt::route('classroom/{id}', 'classroom-learn')->name('classroom-learn');
 
-    Route::middleware([EnsureClassOwner::class])->group(function () {
-        Volt::route('classroom/{id}/add/{task}', 'task-add')->name('task-add');
+    Route::middleware(['member-classroom'])->group(function () {
+        Volt::route('classroom/{id}', 'classroom-learn')->name('classroom-learn');
+        Volt::route('classroom/{id}/task/{task}', 'classroom-task')->name('classroom-task');
+        Volt::route('classroom/{id}/read/{task}', 'classroom-read')->name('classroom-read');
+        
+        Route::middleware([EnsureClassOwner::class])->group(function () {
+            Volt::route('classroom/{id}/add/{task}', 'task-add')->name('task-add');
+        });
     });
 
     Route::middleware(['admin'])->group(function () {
         Volt::route('admin', 'admin.dashboard')->name('admin');
         Volt::route('admin/aplication', 'admin.aplication')->name('admin.aplication');
         Volt::route('admin/default-avatar', 'admin.default-avatar')->name('admin.avatar');
-        
     });
 
     Volt::route('chat', 'chat')->name('chat');
-    
+
     // Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
     Volt::route('settings/profile', 'settings.my-profile')->name('settings.profile');
 
@@ -60,7 +63,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 Volt::route('not-found', 'error.not-found')->name('not-found');
 Route::fallback(function () {
