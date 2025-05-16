@@ -352,16 +352,14 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
 
     @vite(['resources/js/editor.js'])
 
-    <div x-cloak x-data="{ alert: false, message: '' }"
-        x-on:show-failed.window="(event) => { 
+    <div x-cloak x-data="{ alert: false, message: '' }" x-on:show-failed.window="(event) => { 
         message = event.detail[0].message;
         alert = true;
         setTimeout(() => alert = false, 5000);
         editProfile = true;
         $refs.fileInput.value = '';
         previewImage = classrooms[0].image;
-    }"
-        x-show="alert" x-transition
+    }" x-show="alert" x-transition
         class="animate-fade-up absolute bottom-5 left-5 z-30 mb-4 flex flex-row items-start rounded-lg bg-gray-800 p-4 text-sm text-red-400"
         role="alert">
 
@@ -376,13 +374,11 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
         </div>
     </div>
 
-    <div x-cloak x-data="{ alert: false, message: '' }"
-        x-on:failed-content.window="(event) => { 
+    <div x-cloak x-data="{ alert: false, message: '' }" x-on:failed-content.window="(event) => { 
         message = event.detail[0].message;
         alert = true;
         setTimeout(() => alert = false, 5000);
-    }"
-        x-show="alert" x-transition
+    }" x-show="alert" x-transition
         class="animate-fade-up absolute bottom-5 left-5 z-30 mb-4 flex flex-row items-start rounded-lg bg-gray-800 p-4 text-sm text-red-400"
         role="alert">
 
@@ -407,12 +403,11 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
         <p x-text="error.message"></p>
     </div>
 
-    <div aria-hidden="true" x-data="{ open: false }" x-cloak
-        x-on:shared-modal.window="(event) => {
+    <div aria-hidden="true" x-data="{ open: false }" x-cloak x-on:shared-modal.window="(event) => {
     open = true
-}"x-show="open" x-transition
+}" x-show="open" x-transition
         class="animate-fade fixed left-0 right-0 top-0 z-50 flex h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden bg-black/20 backdrop-blur-sm md:inset-0">
-        <div class="relative max-h-full w-full max-w-2xl rounded-xl bg-white p-2" @click.away = "open = false">
+        <div class="relative max-h-full w-full max-w-2xl rounded-xl bg-white p-2" @click.away="open = false">
             <div class="flex flex-row items-center justify-between">
                 <div class="flex flex-row items-center gap-x-3 bg-white p-4">
                     <div class="bg-secondary_blue flex- items-center justify-center rounded-xl p-1"><svg
@@ -515,18 +510,14 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                 }" class="mb-10 w-full" x-init="initShareClass">
 
                     <div class="mb-5 flex justify-center gap-x-4" x-show="isTeacher">
-                        <button @click="tab = 'share'"
-                            :class="tab === 'share' ?
-                                'text-primary_white text-lg border-2 rounded-xl border-secondary_blue flex items-center justify-center py-2 px-4 bg-secondary_blue hover:bg-secondary_blue/20 hover:text-secondary_blue cursor-pointer transition-all' :
-                                'text-secondary_blue border-2 border-secondary_blue rounded-xl bg-primary_white flex items-center justify-center py-2 px-4 cursor-pointer hover:bg-secondary_blue/20 transition-all text-lg'"
-                            class="pb-2">
+                        <button @click="tab = 'share'" :class="tab === 'share' ?
+        'text-primary_white text-lg border-2 rounded-xl border-secondary_blue flex items-center justify-center py-2 px-4 bg-secondary_blue hover:bg-secondary_blue/20 hover:text-secondary_blue cursor-pointer transition-all' :
+        'text-secondary_blue border-2 border-secondary_blue rounded-xl bg-primary_white flex items-center justify-center py-2 px-4 cursor-pointer hover:bg-secondary_blue/20 transition-all text-lg'" class="pb-2">
                             {{ __('class-learn.share') }}
                         </button>
-                        <button @click="tab = 'setting'"
-                            :class="tab === 'setting' ?
-                                'text-primary_white text-lg border-2 rounded-xl border-secondary_blue flex items-center justify-center py-2 px-4 bg-secondary_blue hover:bg-secondary_blue/20 hover:text-secondary_blue cursor-pointer transition-all' :
-                                'text-secondary_blue border-2 border-secondary_blue rounded-xl bg-primary_white flex items-center justify-center py-2 px-4 cursor-pointer hover:bg-secondary_blue/20 transition-all text-lg'"
-                            class="pb-2">
+                        <button @click="tab = 'setting'" :class="tab === 'setting' ?
+        'text-primary_white text-lg border-2 rounded-xl border-secondary_blue flex items-center justify-center py-2 px-4 bg-secondary_blue hover:bg-secondary_blue/20 hover:text-secondary_blue cursor-pointer transition-all' :
+        'text-secondary_blue border-2 border-secondary_blue rounded-xl bg-primary_white flex items-center justify-center py-2 px-4 cursor-pointer hover:bg-secondary_blue/20 transition-all text-lg'" class="pb-2">
                             {{ __('class-learn.setting') }}
                         </button>
                     </div>
@@ -557,10 +548,12 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                         class="text-secondary_blue text-xl font-bold">{{ __('class-learn.status_class') }}</label>
                                     <div x-show="shareData.status" @click="shareData.status = false"
                                         class="bg-primary_white cursor-pointer rounded-full border-2 border-green-500 px-4 py-px text-lg text-green-500 transition-all hover:bg-green-200">
-                                        {{ __('class-learn.status_active') }}</div>
+                                        {{ __('class-learn.status_active') }}
+                                    </div>
                                     <div x-show="!shareData.status" @click="shareData.status = true"
                                         class="bg-primary_white cursor-pointer rounded-full border-2 border-red-500 px-4 py-px text-lg text-red-500 transition-all hover:bg-red-200">
-                                        {{ __('class-learn.status_inactive') }}</div>
+                                        {{ __('class-learn.status_inactive') }}
+                                    </div>
 
                                 </div>
                                 <div class="flex flex-row items-center justify-center gap-x-2">
@@ -583,25 +576,29 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                 </div>
                                 <div x-show="shareData.ask_join" @click="shareData.ask_join = false"
                                     class="bg-primary_white cursor-pointer rounded-full border-2 border-green-500 px-4 py-px text-lg text-green-500 transition-all hover:bg-green-200">
-                                    {{ __('class-learn.yes') }}</div>
+                                    {{ __('class-learn.yes') }}
+                                </div>
                                 <div x-show="!shareData.ask_join" @click="shareData.ask_join = true"
                                     class="bg-primary_white cursor-pointer rounded-full border-2 border-red-500 px-4 py-px text-lg text-red-500 transition-all hover:bg-red-200">
-                                    {{ __('class-learn.no') }}</div>
+                                    {{ __('class-learn.no') }}
+                                </div>
                             </div>
                             <div class="mt-5 flex flex-col items-center justify-center">
                                 <div class="text-secondary_blue text-lg font-bold">{{ __('class-learn.password') }}
                                 </div>
                                 <div x-show="shareData.is_password" @click="shareData.is_password = false"
                                     class="bg-primary_white cursor-pointer rounded-full border-2 border-green-500 px-4 py-px text-lg text-green-500 transition-all hover:bg-green-200">
-                                    {{ __('class-learn.yes') }}</div>
+                                    {{ __('class-learn.yes') }}
+                                </div>
                                 <div x-show="!shareData.is_password" @click="shareData.is_password = true"
                                     class="bg-primary_white cursor-pointer rounded-full border-2 border-red-500 px-4 py-px text-lg text-red-500 transition-all hover:bg-red-200">
-                                    {{ __('class-learn.no') }}</div>
+                                    {{ __('class-learn.no') }}
+                                </div>
                                 <input
                                     class="text-secondary_blue border-secondary_blue focus:border-secondary_blue mt-2 border-2 px-4 py-2 focus:outline-none"
                                     x-model="shareData.password" x-show="shareData.is_password" maxlength="20" />
-                                <p x-show="errormsg.length > 0" x-text="errormsg"
-                                    class="text-sm italic text-red-500"></p>
+                                <p x-show="errormsg.length > 0" x-text="errormsg" class="text-sm italic text-red-500">
+                                </p>
                             </div>
                             <div class="mt-5 flex justify-center">
                                 <button @Click="sendSaved"
@@ -622,12 +619,11 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
             await this.$wire.getOutClass(classrooms[0].id);
             this.loading = false;
         }
-    }" x-cloak
-        x-on:getout-class.window="(event) => {
+    }" x-cloak x-on:getout-class.window="(event) => {
     open = true
-}"x-show="open"
+}" x-show="open"
         class="animate-fade fixed left-0 right-0 top-0 z-50 flex h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden bg-black/20 backdrop-blur-sm md:inset-0">
-        <div class="relative max-h-full w-full max-w-md rounded-xl bg-white p-2" @click.away = "open = false">
+        <div class="relative max-h-full w-full max-w-md rounded-xl bg-white p-2" @click.away="open = false">
             <div class="flex flex-row items-center justify-between">
                 <div class="flex flex-row items-center gap-x-3 bg-white p-4">
                     <div class="flex- items-center justify-center rounded-xl bg-red-200 p-1">
@@ -685,7 +681,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                 <div class="flex h-[200px] w-full items-center justify-center">
                     <div
                         class="animate-pulse rounded-full bg-blue-900 px-4 py-2 text-center text-base font-medium leading-none text-blue-200">
-                        {{ __('add-class.loading') }}....</div>
+                        {{ __('add-class.loading') }}....
+                    </div>
                 </div>
             </template>
 
@@ -694,7 +691,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                 <div class="flex h-full w-full flex-col items-center justify-center gap-y-4">
                     <div
                         class="animate-pulse rounded-full border-2 border-red-500 bg-white px-4 py-2 text-center text-5xl font-medium leading-none text-red-700">
-                        {{ __('class-learn.not_found') }}....</div>
+                        {{ __('class-learn.not_found') }}....
+                    </div>
                     <p @click="window.location.href = '{{ route('classroom') }}'"
                         class="text-secondary_blue cursor-pointer underline">Kembali</p>
                 </div>
@@ -720,8 +718,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                         <div class="bg-primary_white absolute right-2 top-2 cursor-pointer rounded-full p-3 transition-opacity hover:opacity-70"
                             x-show="isTeacher && !editProfile" @click="initEdit"
                             title="{{ __('class-learn.button_edit') }}">
-                            <svg class="w-[30px]" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
+                            <svg class="w-[30px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                                 <g id="SVGRepo_iconCarrier">
@@ -785,8 +782,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                         <!-- Button Edit Image -->
                         <div class="border-secondary_blue outline-primary_white absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-xl border-4 border-dashed bg-white px-3 py-2 outline-8 transition-colors duration-300 hover:opacity-60"
                             x-show="editProfile && !editImage" @click="openEditImage">
-                            <svg class="w-[35px]" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
+                            <svg class="w-[35px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                                 <g id="SVGRepo_iconCarrier">
@@ -838,12 +834,12 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
                                         </g>
                                         <g id="SVGRepo_iconCarrier">
-                                            <path d="M10 11V17" stroke="#dc2626" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"></path>
-                                            <path d="M14 11V17" stroke="#dc2626" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"></path>
-                                            <path d="M4 7H20" stroke="#dc2626" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M10 11V17" stroke="#dc2626" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"></path>
+                                            <path d="M14 11V17" stroke="#dc2626" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"></path>
+                                            <path d="M4 7H20" stroke="#dc2626" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"></path>
                                             <path
                                                 d="M6 7H12H18V18C18 19.6569 16.6569 21 15 21H9C7.34315 21 6 19.6569 6 18V7Z"
                                                 stroke="#dc2626" stroke-width="2" stroke-linecap="round"
@@ -995,15 +991,64 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
 
                     </div>
 
-                    <div class="border-secondary_blue bg-primary_white outline-primary_white w-full rounded-lg border border-dashed p-3 outline-8"x-show="isTeacher"
-                        wire:click="addContent" wire:target="addContent" wire:loading.attr="disabled"
+                    <div class="border-secondary_blue bg-primary_white outline-primary_white w-full rounded-lg border border-dashed p-3 outline-8"
+                        x-show="isTeacher" wire:click="addContent" wire:target="addContent" wire:loading.attr="disabled"
                         wire:loading.class="opacity-50">
                         <p class="text-secondary_blue text-center text-2xl font-bold">
-                            {{ __('class-learn.add_content') }}</p>
+                            {{ __('class-learn.add_content') }}
+                        </p>
                     </div>
+                    <style>
+                        .codex-editor__redactor {
+                            padding-bottom: 0 !important;
+                            margin-right: 0 !important
+                        }
 
+                        .ce-toolbar__actions--opened {
+                            opacity: 1;
+                            background: white;
+                            padding-inline: 10px;
+                            padding-bottom: 10px;
+                            border-radius: 10px;
+                        }
+
+                        .ce-block {
+                            min-height: 30px;
+                            width: 100%;
+                            font-size: 16px;
+                        }
+
+                        .ce-header {
+                            font-size: inherit !important;
+                            font-weight: bold;
+                        }
+
+                        h1.ce-header {
+                            font-size: 32px !important;
+                        }
+
+                        h2.ce-header {
+                            font-size: 28px !important;
+                        }
+
+                        h3.ce-header {
+                            font-size: 24px !important;
+                        }
+
+                        h4.ce-header {
+                            font-size: 20px !important;
+                        }
+
+                        h5.ce-header {
+                            font-size: 18px !important;
+                        }
+
+                        h6.ce-header {
+                            font-size: 16px !important;
+                        }
+                    </style>
                     <div class="mt-5 flex w-full flex-col gap-y-5">
-                        <template x-for="(content, index) in Object.values(contents)" :key="content.id">
+                        <template x-for="(content, index) in Object.values(contents)" :key="content . id">
                             <div class="flex flex-row items-start gap-x-2">
                                 <template x-if="content.type == 'task'">
                                     <div
@@ -1013,7 +1058,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                 <div class="flex flex-row items-center gap-x-1">
                                                     <flux:icon.clipboard-document-list class="text-gray-500" />
                                                     <flux:text class="text-lg text-gray-500">
-                                                        {{ __('class-learn.task') }}</flux:text>
+                                                        {{ __('class-learn.task') }}
+                                                    </flux:text>
                                                 </div>
                                                 <p x-text="content.title.length > 0 ? content.title : '[ {{ __('class-learn.no_title') }} ]'"
                                                     class="line-clamp-1 text-xl text-gray-500"></p>
@@ -1023,7 +1069,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                     <div class="flex flex-row items-center gap-x-1">
                                                         <flux:icon.clock class="text-gray-500" />
                                                         <flux:text class="text-lg text-gray-500">
-                                                            {{ __('class-learn.deadline') }}</flux:text>
+                                                            {{ __('class-learn.deadline') }}
+                                                        </flux:text>
                                                     </div>
                                                     <div class="w-full text-center">
                                                         <p class="text-gray-500"
@@ -1033,14 +1080,17 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                             </template>
                                             <template x-if="content.visibility == '0'">
                                                 <div class="px-3">
-                                                    <p class="bg-secondary_blue/20 text-secondary_blue rounded-xl px-3 py-1">
-                                                        {{ __('add-task.draft') }}</p>
+                                                    <p
+                                                        class="bg-secondary_blue/20 text-secondary_blue rounded-xl px-3 py-1">
+                                                        {{ __('add-task.draft') }}
+                                                    </p>
                                                 </div>
                                             </template>
                                             <template x-if="content.visibility == '1' && isTeacher">
                                                 <div class="px-3">
                                                     <p class="bg-green-500/20 text-green-500 rounded-xl px-3 py-1">
-                                                        {{ __('class-learn.publish') }}</p>
+                                                        {{ __('class-learn.publish') }}
+                                                    </p>
                                                 </div>
                                             </template>
                                         </div>
@@ -1055,21 +1105,25 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                     <div
                                         class="text-secondary_blue flex w-full justify-center gap-x-2 rounded-2xl border border-gray-300 p-3 min-h-[80px] relative">
                                         <template x-if="content.visibility == '0'">
-                                                <div class="px-3 absolute top-3 right-3">
-                                                    <p class="bg-secondary_blue/20 text-secondary_blue rounded-xl px-3 py-1">
-                                                        {{ __('add-task.draft') }}</p>
-                                                </div>
-                                            </template>
-                                            <template x-if="content.visibility == '1' && isTeacher">
-                                                <div class="px-3 absolute top-3 right-3">
-                                                    <p class="bg-green-500/20 text-green-500 rounded-xl px-3 py-1">
-                                                        {{ __('class-learn.publish') }}</p>
-                                                </div>
-                                            </template>
-                                        <div class="prose prose:xl prose-h2:mb-0 prose-h2:mt-2 prose-h1:mb-0 w-2xl max-w-2xl prose-p:mb-0 prose-p:mt-0"
+                                            <div class="px-3 absolute top-3 right-3">
+                                                <p
+                                                    class="bg-secondary_blue/20 text-secondary_blue rounded-xl px-3 py-1">
+                                                    {{ __('add-task.draft') }}
+                                                </p>
+                                            </div>
+                                        </template>
+                                        <template x-if="content.visibility == '1' && isTeacher">
+                                            <div class="px-3 absolute top-3 right-3">
+                                                <p class="bg-green-500/20 text-green-500 rounded-xl px-3 py-1">
+                                                    {{ __('class-learn.publish') }}
+                                                </p>
+                                            </div>
+                                        </template>
+                                        <!-- <div class="prose prose:xl prose-h2:mb-0 prose-h2:mt-2 prose-h1:mb-0 w-2xl max-w-2xl prose-p:mb-0 prose-p:mt-0"
                                             x-html='editorHtml(content.content)'>
-
-                                        </div>
+                                        </div> -->
+                                        <div :id="'editor-' + index" x-init="readEditor(index, content.content)"
+                                            class="w-full text-secondary_black"></div>
                                     </div>
                                 </template>
                                 <template x-if="content.type == 'material'">
@@ -1080,7 +1134,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                 <div class="flex flex-row items-center gap-x-1">
                                                     <flux:icon.book-open class="text-gray-500" />
                                                     <flux:text class="text-lg text-gray-500">
-                                                        {{ __('class-learn.material_read') }}</flux:text>
+                                                        {{ __('class-learn.material_read') }}
+                                                    </flux:text>
                                                 </div>
                                                 <p x-text="content.title.length > 0 ? content.title : '[ {{ __('class-learn.no_title') }} ]'"
                                                     class="line-clamp-1 text-xl text-gray-500"></p>
@@ -1090,21 +1145,22 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                     <div class="flex flex-row items-center gap-x-1">
                                                         <flux:icon.bolt class="text-gray-500" />
                                                         <flux:text class="text-lg text-gray-500">
-                                                            {{ __('class-learn.progress') }}</flux:text>
+                                                            {{ __('class-learn.progress') }}
+                                                        </flux:text>
                                                     </div>
-                                                    <div x-data="circularProgress(75)" class="relative h-[50px] w-[50px]">
+                                                    <div x-data="circularProgress(75)"
+                                                        class="relative h-[50px] w-[50px]">
                                                         <svg class="h-full w-full -rotate-90 transform"
                                                             viewBox="0 0 50 50">
                                                             <circle class="text-gray-300" stroke-width="4"
-                                                                stroke="currentColor" fill="transparent" r="22"
-                                                                cx="25" cy="25" />
+                                                                stroke="currentColor" fill="transparent" r="22" cx="25"
+                                                                cy="25" />
 
                                                             <circle class="text-blue-500 transition-all duration-300"
                                                                 stroke-width="4" stroke-dasharray="138.2"
                                                                 :stroke-dashoffset="138.2 - (percent / 100) * 138.2"
                                                                 stroke-linecap="round" stroke="currentColor"
-                                                                fill="transparent" r="22" cx="25"
-                                                                cy="25" />
+                                                                fill="transparent" r="22" cx="25" cy="25" />
                                                         </svg>
                                                         <div
                                                             class="absolute inset-0 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -1122,14 +1178,17 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                             </template>
                                             <template x-if="content.visibility == '0'">
                                                 <div class="px-3">
-                                                    <p class="bg-secondary_blue/20 text-secondary_blue rounded-xl px-3 py-1">
-                                                        {{ __('add-task.draft') }}</p>
+                                                    <p
+                                                        class="bg-secondary_blue/20 text-secondary_blue rounded-xl px-3 py-1">
+                                                        {{ __('add-task.draft') }}
+                                                    </p>
                                                 </div>
                                             </template>
                                             <template x-if="content.visibility == '1' && isTeacher">
                                                 <div class="px-3">
                                                     <p class="bg-green-500/20 text-green-500 rounded-xl px-3 py-1">
-                                                        {{ __('class-learn.publish') }}</p>
+                                                        {{ __('class-learn.publish') }}
+                                                    </p>
                                                 </div>
                                             </template>
                                         </div>
@@ -1147,8 +1206,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                 <button x-show="Number(content.order) != minOrder"
                                                     @click="downContent(content.id)"
                                                     class="text-secondary_blue border-secondary_blue/20 hover:border-secondary_blue/80 hover:bg-secondary_blue/30 flex w-[50px] cursor-pointer flex-col items-center rounded-xl border p-2 transition-all">
-                                                    <svg class="w-[25px] -rotate-90" viewBox="0 0 24 24"
-                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <svg class="w-[25px] -rotate-90" viewBox="0 0 24 24" fill="none"
+                                                        xmlns="http://www.w3.org/2000/svg">
                                                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
                                                             stroke-linejoin="round"></g>
@@ -1163,8 +1222,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                     <button x-show="Number(content.order) != maxOrder"
                                                         @click="upContent(content.id)"
                                                         class="text-secondary_blue border-secondary_blue/20 hover:border-secondary_blue/80 hover:bg-secondary_blue/30 flex w-[50px] cursor-pointer flex-col items-center rounded-xl border p-2 transition-all">
-                                                        <svg class="w-[25px] rotate-90" viewBox="0 0 24 24"
-                                                            fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <svg class="w-[25px] rotate-90" viewBox="0 0 24 24" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
                                                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                                             <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
                                                                 stroke-linejoin="round"></g>
@@ -1193,21 +1252,21 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                                 stroke="currentColor" stroke-width="1.5"
                                                                 stroke-linecap="round" stroke-linejoin="round">
                                                             </path>
-                                                            <path d="M21 21H12" stroke="currentColor"
-                                                                stroke-width="1.5" stroke-linecap="round"
-                                                                stroke-linejoin="round"></path>
+                                                            <path d="M21 21H12" stroke="currentColor" stroke-width="1.5"
+                                                                stroke-linecap="round" stroke-linejoin="round"></path>
                                                         </g>
                                                     </svg>
                                                 </div>
                                                 <p>{{ __('class-learn.button_edit') }}</p>
                                             </button>
-                                            <button x-data="{ asking: false, deleteContent(id) { $wire.deleteContent(id) } }"
+                                            <button
+                                                x-data="{ asking: false, deleteContent(id) { $wire.deleteContent(id) } }"
                                                 class="text-accent_red/80 bg-accent_red/20 hover:bg-accent_red/60 hover:text-primary_white animate-fade flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-xl p-3 transition-all"
                                                 @click="asking=true" @click.away="asking=false">
                                                 <div x-show="!asking">
-                                                    <svg class="h-[25px] w-[25px]" viewBox="0 0 1024 1024"
-                                                        class="icon" version="1.1"
-                                                        xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                                                    <svg class="h-[25px] w-[25px]" viewBox="0 0 1024 1024" class="icon"
+                                                        version="1.1" xmlns="http://www.w3.org/2000/svg"
+                                                        fill="currentColor">
                                                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
                                                             stroke-linejoin="round"></g>
@@ -1222,10 +1281,12 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                     </svg>
                                                 </div>
                                                 <p x-show="!asking" class="animate-fade">
-                                                    {{ __('class-learn.button_delete') }}</p>
+                                                    {{ __('class-learn.button_delete') }}
+                                                </p>
                                                 <p class="h-full w-full p-3" @click="deleteContent(content.id)"
                                                     x-show="asking" @click="">
-                                                    {{ __('class-learn.yes') }}</p>
+                                                    {{ __('class-learn.yes') }}
+                                                </p>
                                             </button>
 
                                         </div>
@@ -1247,6 +1308,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
         </div>
     </div>
 </flux:main>
+
 <script>
     function starting() {
         return {
@@ -1255,7 +1317,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
             isLoading: @entangle('isLoading').live,
             isTeacher: @entangle('isTeacher'),
             contents: @entangle('contents').live,
-            idClassrooom: @entangle('id'),
+            idClassrooom: @entangle ('id'),
             editProfile: false,
             savedTemp: {},
             savedEditImage: {},
@@ -1268,6 +1330,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
             stopUpDown: false,
             errorMax: "{{ __('class-learn.image.max') }}",
             errorImage: "{{ __('class-learn.image.image') }}",
+            token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             error: {
                 condition: false,
                 message: "",
@@ -1279,9 +1342,265 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
             get minOrder() {
                 return Math.min(
                     ...Object.values(this.contents)
-                    .map(c => Number(c.order))
-                    .filter(order => order >= 1)
+                        .map(c => Number(c.order))
+                        .filter(order => order >= 1)
                 );
+            },
+            readEditor(id, data) {
+                const parsedData = JSON.parse(data);
+
+                const editorjsconfig = {};
+                new EditorJS({
+                    holder: 'editor-' + id,
+                    data: parsedData,
+                    readOnly: true,
+                    i18n: {
+                        direction: 'ltr',
+                    },
+                    tools: {
+                        layout: {
+                            class: EditorJSLayout.LayoutBlockTool,
+                            config: {
+                                EditorJS,
+                                editorjsconfig,
+                                enableLayoutEditing: false,
+                                enableLayoutSaving: true,
+                                initialData: {
+                                    itemContent: {
+                                        1: {
+                                            blocks: [],
+                                        },
+                                    },
+                                    layout: {
+                                        type: "container",
+                                        id: "",
+                                        className: "",
+                                        style: "border: 1px solid #000000; ",
+                                        children: [
+                                            {
+                                                type: "item",
+                                                id: "",
+                                                className: "",
+                                                style: "border: 1px solid #000000; display: inline-block; ",
+                                                itemContentId: "1",
+                                            },
+                                        ],
+                                    },
+                                },
+                            },
+                        },
+                        twoColumns: {
+                            class: EditorJSLayout.LayoutBlockTool,
+                            config: {
+                                EditorJS,
+                                editorjsconfig,
+                                enableLayoutEditing: false,
+                                enableLayoutSaving: false,
+                                initialData: {
+                                    itemContent: {
+                                        1: {
+                                            blocks: [],
+                                        },
+                                        2: {
+                                            blocks: [],
+                                        }
+                                    },
+                                    layout: {
+                                        type: "container",
+                                        id: "",
+                                        className: "",
+                                        style:
+                                            "border: 1px solid #000000; display: flex; justify-content: space-around; padding: 16px; ",
+                                        children: [
+                                            {
+                                                type: "item",
+                                                id: "",
+                                                className: "",
+                                                style: "border: 1px solid #000000; padding: 8px; ",
+                                                itemContentId: "1",
+                                            },
+                                            {
+                                                type: "item",
+                                                id: "",
+                                                className: "",
+                                                style: "border: 1px solid #000000; padding: 8px; ",
+                                                itemContentId: "2",
+                                            },
+                                        ],
+                                    },
+                                },
+                            },
+                            shortcut: "CMD+2",
+                            toolbox: {
+                                icon: `
+                                    <svg xmlns='http://www.w3.org/2000/svg' width="16" height="16" viewBox='0 0 512 512'>
+                                        <rect x='128' y='128' width='336' height='336' rx='57' ry='57' fill='none' stroke='currentColor' stroke-linejoin='round' stroke-width='32'/>
+                                        <path d='M383.5 128l.5-24a56.16 56.16 0 00-56-56H112a64.19 64.19 0 00-64 64v216a56.16 56.16 0 0056 56h24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32'/>
+                                    </svg>
+                                    `,
+                                title: "2 columns",
+                            },
+                        },
+                        style: EditorJSStyle.StyleInlineTool,
+                        paragraph: {
+                            class: ParagraphAlignment,
+                            config: {
+                                inlineToolbar: true,
+                                placeholder: '{{ __('add-task.paragraph') }}'
+                            }
+                        },
+                        header: {
+                            class: HeaderAlignment,
+                            config: {
+                                placeholder: '{{ __('add-task.header') }}',
+                                levels: [1, 2, 3, 4, 5, 6],
+                                defaultLevel: 3
+                            }
+                        },
+                        list: {
+                            class: List,
+                            placeholder: '{{ __('add-task.list') }}'
+                        },
+                        image: {
+                            class: ImageTool,
+                            config: {
+                                types: "image/*",
+                                additionalRequestHeaders: {
+                                    "Authorization": `Bearer ${this.token}`,
+                                    "Content-Type": "application/json"
+                                },
+                                captionPlaceholder: "{{ __('add-task.caption') }}",
+                                buttonContent: "{{ __('add-task.choose_image') }}",
+                                features: {
+                                    border: true,
+                                    background: true,
+                                    stretched: true,
+                                    caption: 'optional',
+                                },
+                                uploader: {
+                                    async uploadByFile(file) {
+                                        const formData = new FormData();
+                                        formData.append('image', file);
+                                        formData.append('content_id', idContent);
+                                        const response = await fetch('{{ route('upload-image') }}', {
+                                            method: 'POST',
+                                            body: formData,
+                                            headers: {
+                                                'X-CSRF-TOKEN': this.token,
+                                            },
+                                        });
+
+                                        return response.json();
+                                    }
+
+                                }
+
+                            },
+                        },
+                        raw: {
+                            class: RawTool,
+                            config: {
+                                placeholder: '{{ __('add-task.code') }}'
+                            }
+                        },
+                        code: {
+                            class: CodeTool,
+                            config: {
+                                placeholder: '{{ __('add-task.code') }}'
+                            }
+                        },
+                        linkTool: {
+                            class: LinkTool,
+                            config: {
+                                endpoint: '{{ route('info') }}',
+                                headers: {
+                                    'X-CSRF-TOKEN': this.token,
+                                    'Content-Type': 'application/json'
+                                }
+                            }
+                        },
+                        embed: {
+                            class: Embed,
+                            config: {
+                                services: {
+                                    youtube: true,
+                                    facebook: true,
+                                    instagram: true,
+                                    twitter: true,
+                                    twitch: true,
+                                    "twitch-channel": true,
+                                    miro: true,
+                                    vimeo: true,
+                                    gfycat: true,
+                                    imgur: true,
+                                    vine: true,
+                                    aparat: true,
+                                    "yandex-music-track": true,
+                                    "yandex-music-album": true,
+                                    "yandex-music-playlist": true,
+                                    coub: true,
+                                    codepen: true,
+                                    pinterest: true,
+                                    github: true
+                                }
+                            }
+                        },
+                        ColorPicker: {
+                            class: window.ColorPicker,
+                        },
+                        attaches: {
+                            class: AttachesTool,
+                            config: {
+                                uploader: {
+                                    async uploadByFile(file) {
+                                        const formData = new FormData();
+                                        formData.append('file', file);
+                                        formData.append('content_id', idContent);
+                                        const response = await fetch('{{ route('upload-file') }}', {
+                                            method: 'POST',
+                                            body: formData,
+                                            headers: {
+                                                'X-CSRF-TOKEN': this.token,
+                                            },
+                                        });
+                                        return response.json();
+                                    },
+                                }
+                            }
+                        },
+                        table: {
+                            class: Table,
+                            inlineToolbar: true,
+                            config: {
+                                rows: 2,
+                                cols: 3,
+                                maxRows: 5,
+                                maxCols: 5,
+                            },
+                        },
+                        quote: {
+                            class: Quote,
+                            config: {
+                                defaultType: "quotationMark",
+                            },
+                            shortcut: "CMD+SHIFT+O",
+                        },
+                        underline: Underline,
+                        delimiter: Delimiter,
+                        inlineCode: {
+                            class: InlineCode,
+                            shortcut: 'CMD+SHIFT+M',
+                        },
+                        textVariant: TextVariantTune,
+                        title: Title,
+                        Marker: {
+                            class: Marker,
+                            shortcut: 'CMD+SHIFT+M',
+                        }
+                    },
+                    tunes: ['textVariant']
+                });
+
             },
             editorHtml(data) {
                 const parsedData = JSON.parse(data);
@@ -1300,7 +1619,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
       <div class="my-4 p-4 border rounded bg-gray-100 text-sm flex flex-row items-center gap-x-px">
       <svg class="w-[35px] h-[35px] text-secondary_blue" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M16.19 2H7.81C4.17 2 2 4.17 2 7.81V16.18C2 19.83 4.17 22 7.81 22H16.18C19.82 22 21.99 19.83 21.99 16.19V7.81C22 4.17 19.83 2 16.19 2ZM16.37 14.35L14.15 16.57C13.61 17.11 12.91 17.37 12.21 17.37C11.51 17.37 10.8 17.1 10.27 16.57C9.75 16.05 9.46 15.36 9.46 14.63C9.46 13.9 9.75 13.2 10.27 12.69L11.68 11.28C11.97 10.99 12.45 10.99 12.74 11.28C13.03 11.57 13.03 12.05 12.74 12.34L11.33 13.75C11.09 13.99 10.96 14.3 10.96 14.63C10.96 14.96 11.09 15.28 11.33 15.51C11.82 16 12.61 16 13.1 15.51L15.32 13.29C16.59 12.02 16.59 9.96 15.32 8.69C14.05 7.42 11.99 7.42 10.72 8.69L8.3 11.11C7.79 11.62 7.51 12.29 7.51 13C7.51 13.71 7.79 14.39 8.3 14.89C8.59 15.18 8.59 15.66 8.3 15.95C8.01 16.24 7.53 16.24 7.24 15.95C6.44 15.18 6 14.13 6 13.01C6 11.89 6.43 10.84 7.22 10.05L9.64 7.63C11.49 5.78 14.51 5.78 16.36 7.63C18.22 9.48 18.22 12.5 16.37 14.35Z" fill="currentColor"></path> </g></svg>
       <a href="${file.url}" target="_blank" rel="noopener noreferrer" class="text-secondary_blue text-base line-clamp-1">
-            ${ title || file.url}
+            ${title || file.url}
         </a>
       </div>
     `;

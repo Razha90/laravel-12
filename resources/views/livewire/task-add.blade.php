@@ -302,10 +302,10 @@ new #[Layout('components.layouts.app-task')] class extends Component {
         </div>
 
         <!-- Title Zero Modal -->
-        <div x-cloak x-data="{ alert: false }" x-show="alert"
-            x-on:show-modal-="(event) => { 
+        <div x-cloak x-data="{ alert: false }" x-show="alert" x-on:show-modal-="(event) => { 
         alert = true;
-    }" aria-hidden="true"
+    }"
+            aria-hidden="true"
             class="overflow-y-auto overflow-x-hidden fixed z-50 flex justify-center items-center w-full md:inset-0 h-[100%] max-h-full bg-black/40">
             <div class="relative p-4 w-full max-w-2xl max-h-full">
                 <!-- Modal content -->
@@ -665,22 +665,107 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                         parsedData = initialData;
                     }
 
+                    const editorjsconfig = {};
                     const editor = new EditorJS({
                         holder: "editorjs",
                         data: parsedData,
                         i18n: {
                             direction: 'ltr',
                         },
-                        tools: {
+                        tools: { 
+                            layout: {
+                                class: EditorJSLayout.LayoutBlockTool,
+                                config: {
+                                    EditorJS,
+                                    editorjsconfig,
+                                    enableLayoutEditing: false,
+                                    enableLayoutSaving: true,
+                                    initialData: {
+                                    itemContent: {
+                                        1: {
+                                        blocks: [],
+                                        },
+                                    },
+                                    layout: {
+                                        type: "container",
+                                        id: "",
+                                        className: "",
+                                        style: "border: 1px solid #000000; ",
+                                        children: [
+                                        {
+                                            type: "item",
+                                            id: "",
+                                            className: "",
+                                            style: "border: 1px solid #000000; display: inline-block; ",
+                                            itemContentId: "1",
+                                        },
+                                        ],
+                                    },
+                                    },
+                                },
+                                },
+                            twoColumns: {
+                                class: EditorJSLayout.LayoutBlockTool,
+                                config: {
+                                    EditorJS,
+                                    editorjsconfig,
+                                    enableLayoutEditing: false,
+                                    enableLayoutSaving: false,
+                                    initialData: {
+                                    itemContent: {
+                                        1: {
+                                        blocks: [],
+                                        },
+                                        2: {
+                                        blocks: [],
+                                        }
+                                    },
+                                    layout: {
+                                        type: "container",
+                                        id: "",
+                                        className: "",
+                                        style:
+                                        "border: 1px solid #000000; display: flex; justify-content: space-around; padding: 16px; ",
+                                        children: [
+                                        {
+                                            type: "item",
+                                            id: "",
+                                            className: "",
+                                            style: "border: 1px solid #000000; padding: 8px; ",
+                                            itemContentId: "1",
+                                        },
+                                        {
+                                            type: "item",
+                                            id: "",
+                                            className: "",
+                                            style: "border: 1px solid #000000; padding: 8px; ",
+                                            itemContentId: "2",
+                                        },
+                                        ],
+                                    },
+                                    },
+                                },
+                                shortcut: "CMD+2",
+                                toolbox: {
+                                    icon: `
+                                    <svg xmlns='http://www.w3.org/2000/svg' width="16" height="16" viewBox='0 0 512 512'>
+                                        <rect x='128' y='128' width='336' height='336' rx='57' ry='57' fill='none' stroke='currentColor' stroke-linejoin='round' stroke-width='32'/>
+                                        <path d='M383.5 128l.5-24a56.16 56.16 0 00-56-56H112a64.19 64.19 0 00-64 64v216a56.16 56.16 0 0056 56h24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32'/>
+                                    </svg>
+                                    `,
+                                    title: "2 columns",
+                                },
+                                },
+                            style: EditorJSStyle.StyleInlineTool,
                             paragraph: {
-                                class: Paragraph,
+                                class: ParagraphAlignment,
                                 config: {
                                     inlineToolbar: true,
                                     placeholder: '{{ __('add-task.paragraph') }}'
                                 }
                             },
                             header: {
-                                class: Header,
+                                class: HeaderAlignment,
                                 config: {
                                     placeholder: '{{ __('add-task.header') }}',
                                     levels: [1, 2, 3, 4, 5, 6],
@@ -775,6 +860,9 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                                     }
                                 }
                             },
+                            ColorPicker: {
+                                class: window.ColorPicker,
+                                },
                             attaches: {
                                 class: AttachesTool,
                                 config: {
@@ -805,7 +893,13 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                                     maxCols: 5,
                                 },
                             },
-                            quote: Quote,
+                            quote: {
+                                class: Quote,
+                                config: {
+                                    defaultType: "quotationMark",
+                                },
+                                shortcut: "CMD+SHIFT+O",
+                            },
                             underline: Underline,
                             delimiter: Delimiter,
                             inlineCode: {
@@ -816,7 +910,26 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                             Marker: {
                                 class: Marker,
                                 shortcut: 'CMD+SHIFT+M',
-                            }
+                            },
+                            title: Title,
+                            AnyButton: {
+                                class: AnyButton,
+                                inlineToolbar: false,
+                                config:{
+                                    textValidation: (text) => {
+                                        if (text.length <= 0) {
+                                            return false;
+                                        }
+                                        return true;
+                                    },
+                                    linkValidation: (text) => {
+                                        if (text.length <= 0) {
+                                            return false;
+                                        }
+                                        return true;
+                                    }
+                                }
+                            },
                         },
                         tunes: ['textVariant'],
                         onChange: async () => {
@@ -824,8 +937,6 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                             this.saveNew = false;
                         },
                     });
-
-
                     document.addEventListener('keydown', async (event) => {
                         if (event.ctrlKey && (event.key === 's' || event.key === 'S')) {
                             event.preventDefault();
