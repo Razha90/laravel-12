@@ -24,7 +24,7 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
                 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
             ]);
 
-            $filename = $this->image->store(path: 'images/profile', options: 'public');
+            $filename = $this->image->store(path: 'images/profile/default', options: 'public');
             $filename = str_replace('public/', '', $filename);
             $image = Storage::url($filename);
 

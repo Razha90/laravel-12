@@ -193,17 +193,17 @@ new #[Layout('components.layouts.app-task')] class extends Component {
 <div>
     @vite(['resources/js/editor.js'])
 
-    <header class="z-30 w-full bg-secondary_blue py-3 min-h-[70px]  px-[10%] fixed">
-        <nav class="flex flex-row justify-between max-w-[1500px] w-full h-full items-center">
+    <header class="bg-secondary_blue fixed z-30 min-h-[70px] w-full px-[10%] py-3">
+        <nav class="flex h-full w-full max-w-[1500px] flex-row items-center justify-between">
             <div>
-                <button class="flex flex-row text-primary_white text-2xl font-bold items-center gap-x-2"
+                <button class="text-primary_white flex flex-row items-center gap-x-2 text-2xl font-bold"
                     @click="if (document.referrer.startsWith(window.location.origin)) {
                                 history.back();
                             } else {
                                 window.location.href = '{{ route('classroom-learn', ['id' => $id]) }}';
                             }
                         ">
-                    <svg class="w-9 h-9" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#F7F7F7">
+                    <svg class="h-9 w-9" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#F7F7F7">
                         <polyline fill="none" points="7.6 7 2.5 12 7.6 17" stroke="#F7F7F7" stroke-linecap="round"
                             stroke-linejoin="round" stroke-width="2"></polyline>
                         <line fill="none" stroke="#F7F7F7" stroke-linecap="round" stroke-linejoin="round"
@@ -212,10 +212,10 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                     <p>{{ __('add-class.back') }}</p>
                 </button>
             </div>
-            <div class="flex flex-row gap-x-4 items-center">
+            <div class="flex flex-row items-center gap-x-4">
 
                 <a wire:navigate href="{{ route('settings.profile') }}"
-                    class="w-[45px] h-[45px] overflow-hidden rounded-full border border-secondary_blue p-1  hover:opacity-50 transition-opacity"
+                    class="border-secondary_blue h-[45px] w-[45px] overflow-hidden rounded-full border p-1 transition-opacity hover:opacity-50"
                     x-data="{ isClicked: false }"
                     @click.prevent="if (!isClicked) { isClicked = true; window.location.href = '{{ route('settings.profile') }}'; }"
                     :class="{ 'pointer-events-none opacity-50': isClicked }">
@@ -226,7 +226,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
         </nav>
     </header>
 
-    <main x-data="cmsContent()" x-init="init()" class="relative min-h-[500px] w-full min-w-[500px] h-[92vh]">
+    <main x-data="cmsContent()" x-init="init()" class="relative h-[92vh] min-h-[500px] w-full min-w-[500px]">
         <div x-cloak="" x-data="{ alert: false, message: '' }"
             x-on:show-failed.window="(event) => { 
         message = event.detail.message;
@@ -234,10 +234,10 @@ new #[Layout('components.layouts.app-task')] class extends Component {
         setTimeout(() => alert = false, 5000);
     }"
             x-show="alert" x-transition
-            class="flex items-start left-5 bottom-0 flex-row p-4 text-sm rounded-lg bg-gray-800 animate-fade-up text-red-500 absolute z-30"
+            class="animate-fade-up absolute bottom-0 left-5 z-30 flex flex-row items-start rounded-lg bg-gray-800 p-4 text-sm text-red-500"
             role="alert">
 
-            <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+            <svg class="me-3 inline h-4 w-4 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor" viewBox="0 0 20 20">
                 <path
                     d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
@@ -258,20 +258,20 @@ new #[Layout('components.layouts.app-task')] class extends Component {
 
     }"
             aria-hidden="true"
-            class="overflow-y-auto overflow-x-hidden fixed z-50 flex justify-center items-center w-full md:inset-0 h-[100%] max-h-full bg-black/40">
-            <div class="relative p-4 w-full max-w-2xl max-h-full">
+            class="fixed z-50 flex h-[100%] max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black/40 md:inset-0">
+            <div class="relative max-h-full w-full max-w-2xl p-4">
                 <!-- Modal content -->
-                <div class="relative bg-white rounded-lg shadow-sm ">
+                <div class="relative rounded-lg bg-white shadow-sm">
                     <!-- Modal header -->
                     <div
-                        class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
-                        <h3 class="text-xl font-semibold text-gray-900 " x-text="warning">
+                        class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600">
+                        <h3 class="text-xl font-semibold text-gray-900" x-text="warning">
 
                         </h3>
                         <button type="button" @click="() => {alert = false;}"
-                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center "
+                            class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900"
                             data-modal-hide="default-modal">
-                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 14 14">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                     stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
@@ -280,20 +280,20 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                         </button>
                     </div>
                     <!-- Modal body -->
-                    <div class="p-4 md:p-5 space-y-4">
-                        <p class="text-base leading-relaxed text-gray-500 " x-text="message">
+                    <div class="space-y-4 p-4 md:p-5">
+                        <p class="text-base leading-relaxed text-gray-500" x-text="message">
                         </p>
                     </div>
                     <!-- Modal footer -->
-                    <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b ">
+                    <div class="flex items-center rounded-b border-t border-gray-200 p-4 md:p-5">
                         <button data-modal-hide="default-modal" type="button" x-show="condition == 'SAVE'"
-                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                            class="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300"
                             @click="() => {clickSave(); rememberSave = false; alert=false;}">{{ __('add-task.button_ok') }}</button>
                         <button data-modal-hide="default-modal" type="button" x-show="condition == 'SAVE'"
-                            class="py-2.5 px-5 ms-3 text-sm font-medium text-red-500 focus:outline-none bg-white rounded-lg border border-red-400 hover:bg-red-500 hover:text-white focus:z-10 focus:ring-4 focus:ring-red-400 "
+                            class="ms-3 rounded-lg border border-red-400 bg-white px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-500 hover:text-white focus:z-10 focus:outline-none focus:ring-4 focus:ring-red-400"
                             @click="() => {alert = false; rememberSave=true}">{{ __('add-task.button_cancel') }}</button>
                         <button data-modal-hide="default-modal" type="button" x-show="condition == 'TITLE'"
-                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                            class="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300"
                             @click="() => {alert = false;}">{{ __('add-task.button_ready') }}</button>
 
                     </div>
@@ -306,20 +306,20 @@ new #[Layout('components.layouts.app-task')] class extends Component {
         alert = true;
     }"
             aria-hidden="true"
-            class="overflow-y-auto overflow-x-hidden fixed z-50 flex justify-center items-center w-full md:inset-0 h-[100%] max-h-full bg-black/40">
-            <div class="relative p-4 w-full max-w-2xl max-h-full">
+            class="fixed z-50 flex h-[100%] max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black/40 md:inset-0">
+            <div class="relative max-h-full w-full max-w-2xl p-4">
                 <!-- Modal content -->
-                <div class="relative bg-white rounded-lg shadow-sm ">
+                <div class="relative rounded-lg bg-white shadow-sm">
                     <!-- Modal header -->
                     <div
-                        class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
-                        <h3 class="text-xl font-semibold text-gray-900 ">
+                        class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600">
+                        <h3 class="text-xl font-semibold text-gray-900">
                             {{ __('add-task.warning_title_saved') }}
                         </h3>
                         <button type="button" @click="() => {alert = false; rememberSave = false}"
-                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center "
+                            class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900"
                             data-modal-hide="default-modal">
-                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                 fill="none" viewBox="0 0 14 14">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                     stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
@@ -328,18 +328,18 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                         </button>
                     </div>
                     <!-- Modal body -->
-                    <div class="p-4 md:p-5 space-y-4">
-                        <p class="text-base leading-relaxed text-gray-500 ">
+                    <div class="space-y-4 p-4 md:p-5">
+                        <p class="text-base leading-relaxed text-gray-500">
                             {{ __('add-task.warning_saved') }}
                         </p>
                     </div>
                     <!-- Modal footer -->
-                    <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b ">
+                    <div class="flex items-center rounded-b border-t border-gray-200 p-4 md:p-5">
                         <button data-modal-hide="default-modal" type="button"
-                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                            class="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300"
                             @click="() => {clickSave(); rememberSave = false; alert=false;}">{{ __('add-task.button_ok') }}</button>
                         <button data-modal-hide="default-modal" type="button"
-                            class="py-2.5 px-5 ms-3 text-sm font-medium text-red-500 focus:outline-none bg-white rounded-lg border border-red-400 hover:bg-red-500 hover:text-white focus:z-10 focus:ring-4 focus:ring-red-400 "
+                            class="ms-3 rounded-lg border border-red-400 bg-white px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-500 hover:text-white focus:z-10 focus:outline-none focus:ring-4 focus:ring-red-400"
                             @click="() => {alert = false}">{{ __('add-task.button_cancel') }}</button>
                     </div>
                 </div>
@@ -347,8 +347,8 @@ new #[Layout('components.layouts.app-task')] class extends Component {
         </div>
 
         <template x-if="isLoading && content.length > 0">
-            <div class="w-1/4 bg-gray-100 p-4 rounded-lg h-full shadow-xl fixed mt-[70px]">
-                <div class="w-full flex justify-end">
+            <div class="fixed mt-[70px] h-full w-1/4 rounded-lg bg-gray-100 p-4 shadow-xl">
+                <div class="flex w-full justify-end">
                     <button x-bind:disabled="saveNew" @click="clickSave"
                         :class="{
                             'opacity-50 cursor-not-allowed border-gray-400 bg-gray-300 text-gray-500': (saveNew || !
@@ -361,11 +361,11 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                                 saved) ? saved ? '{{ __('add-task.saved') }}': '{{ __('add-task.saving') }}' : '{{ __('add-task.save') }}....' ">
                     </button>
                 </div>
-                <div class="flex flex-col mt-4">
-                    <h2 class="text-xl font-bold mb-2 font-koho">{{ __('add-task.choose_content_type') }}</h2>
+                <div class="mt-4 flex flex-col">
+                    <h2 class="font-koho mb-2 text-xl font-bold">{{ __('add-task.choose_content_type') }}</h2>
                     <div x-data="{ open: false }" x-cloak class="relative w-full">
                         <select x-model="type"
-                            class="w-full p-2 pr-8 rounded bg-white border border-secondary_blue focus:outline-none focus:ring-2 focus:ring-secondary_blue appearance-none"
+                            class="border-secondary_blue focus:ring-secondary_blue w-full appearance-none rounded border bg-white p-2 pr-8 focus:outline-none focus:ring-2"
                             @focus="open = true" @blur="open = false"
                             @change="() => {open = false; saveNew = false; checkChangeDeadline();}">
                             <option value="task">{{ __('add-class.task') }}</option>
@@ -373,7 +373,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                             <option value="material">{{ __('add-task.material') }}</option>
                         </select>
                         <div
-                            class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-secondary_blue">
+                            class="text-secondary_blue pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 transform">
                             <span x-show="!open">▼</span>
                             <span x-show="open">...</span>
                         </div>
@@ -384,20 +384,20 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                 </div>
 
                 <!-- Deadline -->
-                <div x-show="type == 'task'" class="mt-3 bg-accent_grey p-3 rounded-2xl animate-fade">
-                    <h2 class="text-xl font-koho font-bold">{{ __('add-task.deadline') }}</h2>
+                <div x-show="type == 'task'" class="bg-accent_grey animate-fade mt-3 rounded-2xl p-3">
+                    <h2 class="font-koho text-xl font-bold">{{ __('add-task.deadline') }}</h2>
                     <div class="flex flex-row items-center gap-x-2">
                         <input type="checkbox" x-model="borderDeadline" name="border-deadline"
                             @change="checkChangeDeadline">
-                        <label class="opacity-70 text-base h-5"
+                        <label class="h-5 text-base opacity-70"
                             for="border-deadline">{{ __('add-task.deadline_title') }}</label>
-                        <div x-data="{ showTooltip: false }" class="inline-block ml-2 relative h-5">
+                        <div x-data="{ showTooltip: false }" class="relative ml-2 inline-block h-5">
                             <span @mouseenter="showTooltip = true" @mouseleave="showTooltip = false"
                                 class="cursor-pointer text-blue-500">
                                 ℹ️
                             </span>
                             <div x-show="showTooltip" x-transition
-                                class="absolute left-0 top-full mt-1 w-48 bg-gray-800 text-white text-xs rounded-md p-2 shadow-lg">
+                                class="absolute left-0 top-full mt-1 w-48 rounded-md bg-gray-800 p-2 text-xs text-white shadow-lg">
                                 {{ __('add-task.deadline_title_detail') }}
                             </div>
                         </div>
@@ -405,27 +405,27 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                     <div class="mt-3">
                         <input type="date" x-model="deadline" name="deadline" x-bind:min="today"
                             :disabled="!borderDeadline" :class="!borderDeadline ? 'opacity-50 cursor-not-allowed' : ''"
-                            class="border rounded p-2 transition-all bg-white"
+                            class="rounded border bg-white p-2 transition-all"
                             @change="() => {validateDeadlineTime();checkChangeDeadline()}">
 
                         <input type="time" x-model="deadlineTime" name="deadlineTime"
                             x-bind:min="isToday ? currentTime : '00:00'" :disabled="!borderDeadline"
                             :class="!borderDeadline ? 'opacity-50 cursor-not-allowed' : ''"
-                            class="border rounded p-2 transition-all bg-white"
+                            class="rounded border bg-white p-2 transition-all"
                             @change="() => {validateDeadlineTime();checkChangeDeadline()}">
 
-                        <p x-show="deadlineError" class="text-red-500 text-sm mt-1">
+                        <p x-show="deadlineError" class="mt-1 text-sm text-red-500">
                             {{ __('add-task.deadline_timeout') }}
                         </p>
                     </div>
-                    <div class="flex flex-row items-center gap-x-2 mt-3">
+                    <div class="mt-3 flex flex-row items-center gap-x-2">
                         <input type="checkbox" x-model="canUpload" name="canUpload" :disabled="!borderDeadline"
                             :class="!borderDeadline ? 'opacity-50 cursor-not-allowed' : ''"
                             @change="checkChangeDeadline">
 
-                        <label class="opacity-70 text-base h-5"
+                        <label class="h-5 text-base opacity-70"
                             for="canUpload">{{ __('add-task.can_upload') }}</label>
-                        <div x-data="{ showTooltip: false }" class="inline-block ml-2 relative h-5">
+                        <div x-data="{ showTooltip: false }" class="relative ml-2 inline-block h-5">
                             <span @mouseenter="showTooltip = true" @mouseleave="showTooltip = false"
                                 class="cursor-pointer text-blue-500">
                                 ℹ️
@@ -433,7 +433,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
 
                             <!-- Tooltip -->
                             <div x-show="showTooltip" x-transition
-                                class="absolute left-0 top-full mt-1 w-48 bg-gray-800 text-white text-xs rounded-md p-2 shadow-lg">
+                                class="absolute left-0 top-full mt-1 w-48 rounded-md bg-gray-800 p-2 text-xs text-white shadow-lg">
                                 {{ __('add-task.detail_can_upload') }}
                             </div>
                         </div>
@@ -441,11 +441,11 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                 </div>
 
                 <!-- Release Time -->
-                <div class="flex flex-col gap-y-3 bg-accent_grey rounded-lg p-2 mt-6">
-                    <div class="flex flex-row items-center gap-x-2 ">
+                <div class="bg-accent_grey mt-6 flex flex-col gap-y-3 rounded-lg p-2">
+                    <div class="flex flex-row items-center gap-x-2">
                         <input type="checkbox" x-model="isSchedule" @change="initTimeAndDate" name="isSchedule">
                         <label for="isSchedule">{{ __('add-task.release_time') }}</label>
-                        <div x-data="{ showTooltip: false }" class="inline-block ml-2 relative">
+                        <div x-data="{ showTooltip: false }" class="relative ml-2 inline-block">
                             <span @mouseenter="showTooltip = true" @mouseleave="showTooltip = false"
                                 class="cursor-pointer text-blue-500">
                                 ℹ️
@@ -453,7 +453,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
 
                             <!-- Tooltip -->
                             <div x-show="showTooltip" x-transition
-                                class="absolute left-0 top-full mt-1 w-48 bg-gray-800 text-white text-xs rounded-md p-2 shadow-lg">
+                                class="absolute left-0 top-full mt-1 w-48 rounded-md bg-gray-800 p-2 text-xs text-white shadow-lg">
                                 {{ __('add-task.detail_release') }}
                             </div>
                         </div>
@@ -462,7 +462,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                     <div class="flex flex-col">
                         <label for="date">{{ __('add-task.add_date') }}</label>
                         <input x-bind:min="today" type="date" x-model="date" name="date"
-                            :disabled="!isSchedule" class="border rounded p-2 transition-all"
+                            :disabled="!isSchedule" class="rounded border p-2 transition-all"
                             @change='checkChangeDeadline'
                             :class="isSchedule ? 'bg-white text-black border-gray-300' :
                                 'bg-gray-200 text-gray-500 border-gray-400 cursor-not-allowed'">
@@ -471,33 +471,33 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                     <div class="flex flex-col">
                         <label for="time">{{ __('add-task.add_time') }}</label>
                         <input type="time" x-model="time" name="time" :disabled="!isSchedule"
-                            @change='checkChangeDeadline' class="border rounded p-2 transition-all"
+                            @change='checkChangeDeadline' class="rounded border p-2 transition-all"
                             :class="isSchedule ? 'bg-white text-black border-gray-300' :
                                 'bg-gray-200 text-gray-500 border-gray-400 cursor-not-allowed'">
                     </div>
                 </div>
 
                 <!-- publish -->
-                <div x-data="{ publish: '{{ __('add-task.publish') }}', update_publish: '{{ __('add-task.update_published') }}', draft: '{{ __('add-task.draft') }}' }" class="flex justify-center mt-5">
+                <div x-data="{ publish: '{{ __('add-task.publish') }}', update_publish: '{{ __('add-task.update_published') }}', draft: '{{ __('add-task.draft') }}' }" class="mt-5 flex justify-center">
                     <button x-show="release == 'DRAFT'" x-on:click="handlePublish" x-text="publish" type="button"
-                        class="text-primary_white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-lg px-5 py-2.5 me-2 mb-2  focus:outline-none text-center"></button>
+                        class="text-primary_white mb-2 me-2 rounded-lg bg-blue-700 px-5 py-2.5 text-center text-lg font-medium hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300"></button>
                     <button x-show="release == 'PUBLISH'" x-on:click="handleDraft" x-text="draft" type="button"
-                        class="text-primary_white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-lg px-6 py-2 me-2 mb-2  focus:outline-none text-center"></button>
+                        class="text-primary_white mb-2 me-2 rounded-lg bg-red-700 px-6 py-2 text-center text-lg font-medium hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300"></button>
                     <button x-show="showUpdatePublish" x-on:click="handlePublish" x-text="update_publish"
                         type="button"
-                        class="text-primary_white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-lg px-6 py-2 me-2 mb-2  focus:outline-none text-center"></button>
+                        class="text-primary_white mb-2 me-2 rounded-lg bg-blue-700 px-6 py-2 text-center text-lg font-medium hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-red-300"></button>
                 </div>
             </div>
 
         </template>
-        <div class="w-3/4 flex flex-col items-center px-[5%] ml-[25%] pt-[80px]">
+        <div class="ml-[25%] flex w-3/4 flex-col items-center px-[5%] pt-[80px]">
 
             <template x-if="isLoading && content.length == 0">
-                <div class="w-full h-full flex justify-center items-center flex-col gap-y-3 ">
-                    <p class="text-4xl font-koho text-gray-700 font-bold">
+                <div class="flex h-full w-full flex-col items-center justify-center gap-y-3">
+                    <p class="font-koho text-4xl font-bold text-gray-700">
                         {{ __('add-task.not_found') }}
                     </p>
-                    <p class="underline text-secondary_blue"
+                    <p class="text-secondary_blue underline"
                         @click="if (document.referrer.startsWith(window.location.origin)) {
                                 history.back();
                             } else {
@@ -509,17 +509,17 @@ new #[Layout('components.layouts.app-task')] class extends Component {
             </template>
 
             <div x-show="isLoading && content.length > 0"
-                class="w-full h-auto px-4 pt-3 pb-3 bg-primary_white rounded-xl mt-5">
+                class="bg-primary_white mt-5 h-auto w-full rounded-xl px-4 pb-3 pt-3">
                 <input type="text" x-init="initTitle" x-model="title" x-on:input="saveNew = false"
-                    class="w-full border-none rounded-xl text-2xl p-4 max-w[650px] bg-white"
+                    class="max-w[650px] w-full rounded-xl border-none bg-white p-4 text-2xl"
                     placeholder="{{ __('add-task.title') }}">
                 <div class="bg-white" id="editorjs" wire:ignore></div>
             </div>
 
             <div x-show="(type == 'task') && isLoading && content.length > 0"
-                class="w-full p-3 bg-primary_white mt-4 animate-fade">
+                class="bg-primary_white animate-fade mt-4 w-full p-3">
                 <div
-                    class="rounded-xl border border-dashed border-secondary_blue w-full flex flex-row items-center p-3">
+                    class="border-secondary_blue flex w-full flex-row items-center rounded-xl border border-dashed p-3">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[40px]">
                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -548,7 +548,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                                 fill="#2867A4"></path>
                         </g>
                     </svg>
-                    <p class="text-2xl ml-2 text-secondary_blue font-bold">{{ __('add-class.upload') }}</p>
+                    <p class="text-secondary_blue ml-2 text-2xl font-bold">{{ __('add-class.upload') }}</p>
                 </div>
             </div>
 
@@ -610,7 +610,8 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                 title: "",
                 saveNew: true,
                 selectionPos: false,
-                idContent: @entangle('task').live,
+                idContent: @entangle('task'),
+                idClass: @entangle('id'),
                 date: null,
                 time: null,
                 lastDate: null,
@@ -634,7 +635,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                     if (this.selectionPos) return;
                     this.selectionPos = true;
                     if (this.content.length > 0) {
-                        this.initEditor(this.content[0].content, this.idContent);
+                        this.initEditor(this.content[0].content, this.idContent, this.idClass);
                         this.initRelease();
                         this.initDeadline();
                         this.initType();
@@ -646,7 +647,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                         });
                     }
                 },
-                initEditor(initialData, idContent) {
+                initEditor(initialData, idContent, idClass) {
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     let parsedData;
                     if (!initialData) {
@@ -664,7 +665,6 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                     } else {
                         parsedData = initialData;
                     }
-
                     const editorjsconfig = {};
                     const editor = new EditorJS({
                         holder: "editorjs",
@@ -672,7 +672,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                         i18n: {
                             direction: 'ltr',
                         },
-                        tools: { 
+                        tools: {
                             layout: {
                                 class: EditorJSLayout.LayoutBlockTool,
                                 config: {
@@ -681,29 +681,27 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                                     enableLayoutEditing: false,
                                     enableLayoutSaving: true,
                                     initialData: {
-                                    itemContent: {
-                                        1: {
-                                        blocks: [],
+                                        itemContent: {
+                                            1: {
+                                                blocks: [],
+                                            },
                                         },
-                                    },
-                                    layout: {
-                                        type: "container",
-                                        id: "",
-                                        className: "",
-                                        style: "border: 1px solid #000000; ",
-                                        children: [
-                                        {
-                                            type: "item",
+                                        layout: {
+                                            type: "container",
                                             id: "",
                                             className: "",
-                                            style: "border: 1px solid #000000; display: inline-block; ",
-                                            itemContentId: "1",
+                                            style: "border: 1px solid #000000; ",
+                                            children: [{
+                                                type: "item",
+                                                id: "",
+                                                className: "",
+                                                style: "border: 1px solid #000000; display: inline-block; ",
+                                                itemContentId: "1",
+                                            }, ],
                                         },
-                                        ],
-                                    },
                                     },
                                 },
-                                },
+                            },
                             twoColumns: {
                                 class: EditorJSLayout.LayoutBlockTool,
                                 config: {
@@ -712,37 +710,35 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                                     enableLayoutEditing: false,
                                     enableLayoutSaving: false,
                                     initialData: {
-                                    itemContent: {
-                                        1: {
-                                        blocks: [],
+                                        itemContent: {
+                                            1: {
+                                                blocks: [],
+                                            },
+                                            2: {
+                                                blocks: [],
+                                            }
                                         },
-                                        2: {
-                                        blocks: [],
-                                        }
-                                    },
-                                    layout: {
-                                        type: "container",
-                                        id: "",
-                                        className: "",
-                                        style:
-                                        "border: 1px solid #000000; display: flex; justify-content: space-around; padding: 16px; ",
-                                        children: [
-                                        {
-                                            type: "item",
+                                        layout: {
+                                            type: "container",
                                             id: "",
                                             className: "",
-                                            style: "border: 1px solid #000000; padding: 8px; ",
-                                            itemContentId: "1",
+                                            style: "border: 1px solid #000000; display: flex; justify-content: space-around; padding: 16px; ",
+                                            children: [{
+                                                    type: "item",
+                                                    id: "",
+                                                    className: "",
+                                                    style: "border: 1px solid #000000; padding: 8px; ",
+                                                    itemContentId: "1",
+                                                },
+                                                {
+                                                    type: "item",
+                                                    id: "",
+                                                    className: "",
+                                                    style: "border: 1px solid #000000; padding: 8px; ",
+                                                    itemContentId: "2",
+                                                },
+                                            ],
                                         },
-                                        {
-                                            type: "item",
-                                            id: "",
-                                            className: "",
-                                            style: "border: 1px solid #000000; padding: 8px; ",
-                                            itemContentId: "2",
-                                        },
-                                        ],
-                                    },
                                     },
                                 },
                                 shortcut: "CMD+2",
@@ -755,7 +751,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                                     `,
                                     title: "2 columns",
                                 },
-                                },
+                            },
                             style: EditorJSStyle.StyleInlineTool,
                             paragraph: {
                                 class: ParagraphAlignment,
@@ -773,10 +769,14 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                                 }
                             },
                             list: {
-                                class: List,
-                                placeholder: '{{ __('add-task.list') }}'
+                                class: window.EditorjsList,
+                                inlineToolbar: true,
+                                placeholder: '{{ __('add-task.list') }}',
+                                config: {
+                                    defaultStyle: 'unordered'
+                                },
                             },
-                            image: {
+                            image_upload: {
                                 class: ImageTool,
                                 config: {
                                     types: "image/*",
@@ -797,6 +797,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                                             const formData = new FormData();
                                             formData.append('image', file);
                                             formData.append('content_id', idContent);
+                                            formData.append('classroom_id', idClass);
                                             const response = await fetch('{{ route('upload-image') }}', {
                                                 method: 'POST',
                                                 body: formData,
@@ -804,13 +805,21 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                                                     'X-CSRF-TOKEN': token,
                                                 },
                                             });
-
                                             return response.json();
                                         }
 
                                     }
 
                                 },
+                            },
+                            image: {
+                                class: InlineImage,
+                                inlineToolbar: true,
+                                config: {
+                                    embed: {
+                                        display: true,
+                                    },
+                                }
                             },
                             raw: {
                                 class: RawTool,
@@ -836,6 +845,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                             },
                             embed: {
                                 class: Embed,
+                                inlineToolbar: true,
                                 config: {
                                     services: {
                                         youtube: true,
@@ -862,7 +872,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                             },
                             ColorPicker: {
                                 class: window.ColorPicker,
-                                },
+                            },
                             attaches: {
                                 class: AttachesTool,
                                 config: {
@@ -871,6 +881,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                                             const formData = new FormData();
                                             formData.append('file', file);
                                             formData.append('content_id', idContent);
+                                            formData.append('classroom_id', idClass);
                                             const response = await fetch('{{ route('upload-file') }}', {
                                                 method: 'POST',
                                                 body: formData,
@@ -915,7 +926,7 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                             AnyButton: {
                                 class: AnyButton,
                                 inlineToolbar: false,
-                                config:{
+                                config: {
                                     textValidation: (text) => {
                                         if (text.length <= 0) {
                                             return false;
@@ -928,15 +939,48 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                                         }
                                         return true;
                                     }
+                                },
+                            },
+                            nestedchecklist: EditorjsNestedChecklist,
+                            Math: {
+                                class: EJLaTeX,
+                                shortcut: 'CMD+SHIFT+M',
+                                config: {
+                                    css: '.math-input-wrapper { padding: 5px; }'
+                                }
+                            },
+                            mermaid: MermaidTool,
+                            telegramPost: TelegramPost,
+                            indentTune: {
+                                class: IndentTune,
+                                version: EditorJS.version,
+                            },
+                        },
+                        i18n: {
+                            messages: {
+                                tools: {
+                                    "AnyButton": {
+                                        'Button Text': 'Button',
+                                        'Link Url': 'Add Link',
+                                        'Set': "Add",
+                                        'Default Button': "Button",
+                                    }
                                 }
                             },
                         },
-                        tunes: ['textVariant'],
+                        // tunes: ['textVariant'],
+                        tunes: ['indentTune'],
                         onChange: async () => {
                             this.data = await editor.save();
                             this.saveNew = false;
                         },
+                        onReady: () => {
+                            MermaidTool.config({ 'theme': 'neutral' });
+                            new Undo({ editor });
+                            new DragDrop(editor);
+                        }
                     });
+                    
                     document.addEventListener('keydown', async (event) => {
                         if (event.ctrlKey && (event.key === 's' || event.key === 'S')) {
                             event.preventDefault();

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Livewire\Attributes\Validate;
 use App\Models\Classroom;
 use App\Models\ClassroomMember;
+use App\Http\Controllers\DeleteImage;
 
 new #[Layout('components.layouts.classroom-learn')] class extends Component {
     use WithFileUploads;
@@ -202,10 +203,9 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
             if (auth()->user()->id == $this->classrooms[0]['user_id']) {
                 $this->isTeacher = true;
                 $this->secureIsTeacher = true;
-                // $data = Content::where('classroom_id', $this->id)->get();
-                $data = Content::where('classroom_id', $this->id)->orderByRaw('ISNULL(`order`), `order` DESC, `created_at` DESC')->get();
+                $data = Content::with('tasks')->where('classroom_id', $this->id)->orderByRaw('ISNULL(`order`), `order` DESC, `created_at` DESC')->get();
             } else {
-                $data = Content::where('classroom_id', $this->id)->where('visibility', true)->orderByRaw('ISNULL(`order`), `order` DESC, `created_at` DESC')->get();
+                $data = Content::with('tasks')->where('classroom_id', $this->id)->where('visibility', true)->orderByRaw('ISNULL(`order`), `order` DESC, `created_at` DESC')->get();
             }
             $this->contents = $data->toArray();
         } catch (\Throwable $th) {
@@ -285,6 +285,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
             }
             $content = Content::find($id);
             if ($content) {
+                $deleteImage = new DeleteImage();
+                $deleteImage->deleteByContentId($content->id);
                 $content->delete();
                 $this->dispatch('success', ['message' => __('class-learn.success')]);
                 $this->loadContent();
@@ -352,14 +354,16 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
 
     @vite(['resources/js/editor.js'])
 
-    <div x-cloak x-data="{ alert: false, message: '' }" x-on:show-failed.window="(event) => { 
+    <div x-cloak x-data="{ alert: false, message: '' }"
+        x-on:show-failed.window="(event) => { 
         message = event.detail[0].message;
         alert = true;
         setTimeout(() => alert = false, 5000);
         editProfile = true;
         $refs.fileInput.value = '';
         previewImage = classrooms[0].image;
-    }" x-show="alert" x-transition
+    }"
+        x-show="alert" x-transition
         class="animate-fade-up absolute bottom-5 left-5 z-30 mb-4 flex flex-row items-start rounded-lg bg-gray-800 p-4 text-sm text-red-400"
         role="alert">
 
@@ -374,11 +378,13 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
         </div>
     </div>
 
-    <div x-cloak x-data="{ alert: false, message: '' }" x-on:failed-content.window="(event) => { 
+    <div x-cloak x-data="{ alert: false, message: '' }"
+        x-on:failed-content.window="(event) => { 
         message = event.detail[0].message;
         alert = true;
         setTimeout(() => alert = false, 5000);
-    }" x-show="alert" x-transition
+    }"
+        x-show="alert" x-transition
         class="animate-fade-up absolute bottom-5 left-5 z-30 mb-4 flex flex-row items-start rounded-lg bg-gray-800 p-4 text-sm text-red-400"
         role="alert">
 
@@ -405,7 +411,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
 
     <div aria-hidden="true" x-data="{ open: false }" x-cloak x-on:shared-modal.window="(event) => {
     open = true
-}" x-show="open" x-transition
+}"
+        x-show="open" x-transition
         class="animate-fade fixed left-0 right-0 top-0 z-50 flex h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden bg-black/20 backdrop-blur-sm md:inset-0">
         <div class="relative max-h-full w-full max-w-2xl rounded-xl bg-white p-2" @click.away="open = false">
             <div class="flex flex-row items-center justify-between">
@@ -510,14 +517,18 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                 }" class="mb-10 w-full" x-init="initShareClass">
 
                     <div class="mb-5 flex justify-center gap-x-4" x-show="isTeacher">
-                        <button @click="tab = 'share'" :class="tab === 'share' ?
-        'text-primary_white text-lg border-2 rounded-xl border-secondary_blue flex items-center justify-center py-2 px-4 bg-secondary_blue hover:bg-secondary_blue/20 hover:text-secondary_blue cursor-pointer transition-all' :
-        'text-secondary_blue border-2 border-secondary_blue rounded-xl bg-primary_white flex items-center justify-center py-2 px-4 cursor-pointer hover:bg-secondary_blue/20 transition-all text-lg'" class="pb-2">
+                        <button @click="tab = 'share'"
+                            :class="tab === 'share' ?
+                                'text-primary_white text-lg border-2 rounded-xl border-secondary_blue flex items-center justify-center py-2 px-4 bg-secondary_blue hover:bg-secondary_blue/20 hover:text-secondary_blue cursor-pointer transition-all' :
+                                'text-secondary_blue border-2 border-secondary_blue rounded-xl bg-primary_white flex items-center justify-center py-2 px-4 cursor-pointer hover:bg-secondary_blue/20 transition-all text-lg'"
+                            class="pb-2">
                             {{ __('class-learn.share') }}
                         </button>
-                        <button @click="tab = 'setting'" :class="tab === 'setting' ?
-        'text-primary_white text-lg border-2 rounded-xl border-secondary_blue flex items-center justify-center py-2 px-4 bg-secondary_blue hover:bg-secondary_blue/20 hover:text-secondary_blue cursor-pointer transition-all' :
-        'text-secondary_blue border-2 border-secondary_blue rounded-xl bg-primary_white flex items-center justify-center py-2 px-4 cursor-pointer hover:bg-secondary_blue/20 transition-all text-lg'" class="pb-2">
+                        <button @click="tab = 'setting'"
+                            :class="tab === 'setting' ?
+                                'text-primary_white text-lg border-2 rounded-xl border-secondary_blue flex items-center justify-center py-2 px-4 bg-secondary_blue hover:bg-secondary_blue/20 hover:text-secondary_blue cursor-pointer transition-all' :
+                                'text-secondary_blue border-2 border-secondary_blue rounded-xl bg-primary_white flex items-center justify-center py-2 px-4 cursor-pointer hover:bg-secondary_blue/20 transition-all text-lg'"
+                            class="pb-2">
                             {{ __('class-learn.setting') }}
                         </button>
                     </div>
@@ -597,7 +608,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                 <input
                                     class="text-secondary_blue border-secondary_blue focus:border-secondary_blue mt-2 border-2 px-4 py-2 focus:outline-none"
                                     x-model="shareData.password" x-show="shareData.is_password" maxlength="20" />
-                                <p x-show="errormsg.length > 0" x-text="errormsg" class="text-sm italic text-red-500">
+                                <p x-show="errormsg.length > 0" x-text="errormsg"
+                                    class="text-sm italic text-red-500">
                                 </p>
                             </div>
                             <div class="mt-5 flex justify-center">
@@ -621,7 +633,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
         }
     }" x-cloak x-on:getout-class.window="(event) => {
     open = true
-}" x-show="open"
+}"
+        x-show="open"
         class="animate-fade fixed left-0 right-0 top-0 z-50 flex h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden bg-black/20 backdrop-blur-sm md:inset-0">
         <div class="relative max-h-full w-full max-w-md rounded-xl bg-white p-2" @click.away="open = false">
             <div class="flex flex-row items-center justify-between">
@@ -718,7 +731,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                         <div class="bg-primary_white absolute right-2 top-2 cursor-pointer rounded-full p-3 transition-opacity hover:opacity-70"
                             x-show="isTeacher && !editProfile" @click="initEdit"
                             title="{{ __('class-learn.button_edit') }}">
-                            <svg class="w-[30px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg class="w-[30px]" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                                 <g id="SVGRepo_iconCarrier">
@@ -782,7 +796,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                         <!-- Button Edit Image -->
                         <div class="border-secondary_blue outline-primary_white absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-xl border-4 border-dashed bg-white px-3 py-2 outline-8 transition-colors duration-300 hover:opacity-60"
                             x-show="editProfile && !editImage" @click="openEditImage">
-                            <svg class="w-[35px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg class="w-[35px]" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                                 <g id="SVGRepo_iconCarrier">
@@ -834,12 +849,12 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
                                         </g>
                                         <g id="SVGRepo_iconCarrier">
-                                            <path d="M10 11V17" stroke="#dc2626" stroke-width="2" stroke-linecap="round"
-                                                stroke-linejoin="round"></path>
-                                            <path d="M14 11V17" stroke="#dc2626" stroke-width="2" stroke-linecap="round"
-                                                stroke-linejoin="round"></path>
-                                            <path d="M4 7H20" stroke="#dc2626" stroke-width="2" stroke-linecap="round"
-                                                stroke-linejoin="round"></path>
+                                            <path d="M10 11V17" stroke="#dc2626" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M14 11V17" stroke="#dc2626" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M4 7H20" stroke="#dc2626" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"></path>
                                             <path
                                                 d="M6 7H12H18V18C18 19.6569 16.6569 21 15 21H9C7.34315 21 6 19.6569 6 18V7Z"
                                                 stroke="#dc2626" stroke-width="2" stroke-linecap="round"
@@ -992,8 +1007,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                     </div>
 
                     <div class="border-secondary_blue bg-primary_white outline-primary_white w-full rounded-lg border border-dashed p-3 outline-8"
-                        x-show="isTeacher" wire:click="addContent" wire:target="addContent" wire:loading.attr="disabled"
-                        wire:loading.class="opacity-50">
+                        x-show="isTeacher" wire:click="addContent" wire:target="addContent"
+                        wire:loading.attr="disabled" wire:loading.class="opacity-50">
                         <p class="text-secondary_blue text-center text-2xl font-bold">
                             {{ __('class-learn.add_content') }}
                         </p>
@@ -1046,9 +1061,13 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                         h6.ce-header {
                             font-size: 16px !important;
                         }
+
+                        .link-tool__content {
+                            color: black !important;
+                        }
                     </style>
                     <div class="mt-5 flex w-full flex-col gap-y-5">
-                        <template x-for="(content, index) in Object.values(contents)" :key="content . id">
+                        <template x-for="(content, index) in Object.values(contents)" :key="content.id">
                             <div class="flex flex-row items-start gap-x-2">
                                 <template x-if="content.type == 'task'">
                                     <div
@@ -1064,35 +1083,38 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                 <p x-text="content.title.length > 0 ? content.title : '[ {{ __('class-learn.no_title') }} ]'"
                                                     class="line-clamp-1 text-xl text-gray-500"></p>
                                             </div>
-                                            <template x-if="content.visibility == '1' && !isTeacher">
-                                                <div class="flex w-[135px] flex-col items-center justify-start">
-                                                    <div class="flex flex-row items-center gap-x-1">
-                                                        <flux:icon.clock class="text-gray-500" />
-                                                        <flux:text class="text-lg text-gray-500">
-                                                            {{ __('class-learn.deadline') }}
-                                                        </flux:text>
+                                            <div class="flex flex-row items-center gap-x-2">
+                                                <template x-if="content.visibility == '1'">
+                                                    <div class="flex w-[135px] flex-col items-center justify-start">
+                                                        <div class="flex flex-row items-center gap-x-1">
+                                                            <flux:icon.clock class="text-gray-500" />
+                                                            <flux:text class="text-lg text-gray-500">
+                                                                {{ __('class-learn.deadline') }}
+                                                            </flux:text>
+                                                        </div>
+                                                        <div class="w-full text-center">
+                                                            <p class="text-gray-500"
+                                                                x-text="getRemainingTime(content.deadline)"></p>
+                                                        </div>
                                                     </div>
-                                                    <div class="w-full text-center">
-                                                        <p class="text-gray-500"
-                                                            x-text="getRemainingTime(content.deadline)"></p>
+                                                </template>
+                                                <template x-if="content.visibility == '0'">
+                                                    <div class="px-3">
+                                                        <p
+                                                            class="bg-secondary_blue/20 text-secondary_blue rounded-xl !px-3 py-1">
+                                                            {{ __('add-task.draft') }}
+                                                        </p>
                                                     </div>
-                                                </div>
-                                            </template>
-                                            <template x-if="content.visibility == '0'">
-                                                <div class="px-3">
-                                                    <p
-                                                        class="bg-secondary_blue/20 text-secondary_blue rounded-xl px-3 py-1">
-                                                        {{ __('add-task.draft') }}
-                                                    </p>
-                                                </div>
-                                            </template>
-                                            <template x-if="content.visibility == '1' && isTeacher">
-                                                <div class="px-3">
-                                                    <p class="bg-green-500/20 text-green-500 rounded-xl px-3 py-1">
-                                                        {{ __('class-learn.publish') }}
-                                                    </p>
-                                                </div>
-                                            </template>
+                                                </template>
+                                                <template x-if="content.visibility == '1' && isTeacher">
+                                                    <div class="px-3">
+                                                        <p
+                                                            class="rounded-xl bg-green-500/20 !px-3 py-1 text-green-500">
+                                                            {{ __('class-learn.publish') }}
+                                                        </p>
+                                                    </div>
+                                                </template>
+                                            </div>
                                         </div>
                                         <div class="flex items-center">
                                             <flux:button @click="goTaskPage(content.id)" icon="eye">
@@ -1103,27 +1125,24 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                 </template>
                                 <template x-if="content.type == 'notification'">
                                     <div
-                                        class="text-secondary_blue flex w-full justify-center gap-x-2 rounded-2xl border border-gray-300 p-3 min-h-[80px] relative">
+                                        class="text-secondary_blue relative flex min-h-[80px] w-full justify-center gap-x-2 rounded-2xl border border-gray-300 p-3">
                                         <template x-if="content.visibility == '0'">
-                                            <div class="px-3 absolute top-3 right-3">
+                                            <div class="absolute right-3 top-3 z-10 px-3">
                                                 <p
-                                                    class="bg-secondary_blue/20 text-secondary_blue rounded-xl px-3 py-1">
+                                                    class="bg-secondary_blue/20 text-secondary_blue rounded-xl !px-3 py-1">
                                                     {{ __('add-task.draft') }}
                                                 </p>
                                             </div>
                                         </template>
                                         <template x-if="content.visibility == '1' && isTeacher">
-                                            <div class="px-3 absolute top-3 right-3">
-                                                <p class="bg-green-500/20 text-green-500 rounded-xl px-3 py-1">
+                                            <div class="absolute right-3 top-3 z-10 px-3">
+                                                <p class="rounded-xl bg-green-500/20 !px-3 py-1 text-green-500">
                                                     {{ __('class-learn.publish') }}
                                                 </p>
                                             </div>
                                         </template>
-                                        <!-- <div class="prose prose:xl prose-h2:mb-0 prose-h2:mt-2 prose-h1:mb-0 w-2xl max-w-2xl prose-p:mb-0 prose-p:mt-0"
-                                            x-html='editorHtml(content.content)'>
-                                        </div> -->
                                         <div :id="'editor-' + index" x-init="readEditor(index, content.content)"
-                                            class="w-full text-secondary_black"></div>
+                                            class="!text-secondary_black w-full"></div>
                                     </div>
                                 </template>
                                 <template x-if="content.type == 'material'">
@@ -1148,19 +1167,19 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                             {{ __('class-learn.progress') }}
                                                         </flux:text>
                                                     </div>
-                                                    <div x-data="circularProgress(75)"
-                                                        class="relative h-[50px] w-[50px]">
+                                                    <div x-data="circularProgress(Number(content.tasks[0]?.value || 0))" class="relative h-[50px] w-[50px]">
                                                         <svg class="h-full w-full -rotate-90 transform"
                                                             viewBox="0 0 50 50">
                                                             <circle class="text-gray-300" stroke-width="4"
-                                                                stroke="currentColor" fill="transparent" r="22" cx="25"
-                                                                cy="25" />
+                                                                stroke="currentColor" fill="transparent" r="22"
+                                                                cx="25" cy="25" />
 
                                                             <circle class="text-blue-500 transition-all duration-300"
                                                                 stroke-width="4" stroke-dasharray="138.2"
                                                                 :stroke-dashoffset="138.2 - (percent / 100) * 138.2"
                                                                 stroke-linecap="round" stroke="currentColor"
-                                                                fill="transparent" r="22" cx="25" cy="25" />
+                                                                fill="transparent" r="22" cx="25"
+                                                                cy="25" />
                                                         </svg>
                                                         <div
                                                             class="absolute inset-0 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -1179,14 +1198,14 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                             <template x-if="content.visibility == '0'">
                                                 <div class="px-3">
                                                     <p
-                                                        class="bg-secondary_blue/20 text-secondary_blue rounded-xl px-3 py-1">
+                                                        class="bg-secondary_blue/20 text-secondary_blue rounded-xl !px-3 py-1">
                                                         {{ __('add-task.draft') }}
                                                     </p>
                                                 </div>
                                             </template>
                                             <template x-if="content.visibility == '1' && isTeacher">
                                                 <div class="px-3">
-                                                    <p class="bg-green-500/20 text-green-500 rounded-xl px-3 py-1">
+                                                    <p class="rounded-xl bg-green-500/20 !px-3 py-1 text-green-500">
                                                         {{ __('class-learn.publish') }}
                                                     </p>
                                                 </div>
@@ -1206,8 +1225,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                 <button x-show="Number(content.order) != minOrder"
                                                     @click="downContent(content.id)"
                                                     class="text-secondary_blue border-secondary_blue/20 hover:border-secondary_blue/80 hover:bg-secondary_blue/30 flex w-[50px] cursor-pointer flex-col items-center rounded-xl border p-2 transition-all">
-                                                    <svg class="w-[25px] -rotate-90" viewBox="0 0 24 24" fill="none"
-                                                        xmlns="http://www.w3.org/2000/svg">
+                                                    <svg class="w-[25px] -rotate-90" viewBox="0 0 24 24"
+                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
                                                             stroke-linejoin="round"></g>
@@ -1222,8 +1241,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                     <button x-show="Number(content.order) != maxOrder"
                                                         @click="upContent(content.id)"
                                                         class="text-secondary_blue border-secondary_blue/20 hover:border-secondary_blue/80 hover:bg-secondary_blue/30 flex w-[50px] cursor-pointer flex-col items-center rounded-xl border p-2 transition-all">
-                                                        <svg class="w-[25px] rotate-90" viewBox="0 0 24 24" fill="none"
-                                                            xmlns="http://www.w3.org/2000/svg">
+                                                        <svg class="w-[25px] rotate-90" viewBox="0 0 24 24"
+                                                            fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                                             <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
                                                                 stroke-linejoin="round"></g>
@@ -1252,21 +1271,21 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                                 stroke="currentColor" stroke-width="1.5"
                                                                 stroke-linecap="round" stroke-linejoin="round">
                                                             </path>
-                                                            <path d="M21 21H12" stroke="currentColor" stroke-width="1.5"
-                                                                stroke-linecap="round" stroke-linejoin="round"></path>
+                                                            <path d="M21 21H12" stroke="currentColor"
+                                                                stroke-width="1.5" stroke-linecap="round"
+                                                                stroke-linejoin="round"></path>
                                                         </g>
                                                     </svg>
                                                 </div>
                                                 <p>{{ __('class-learn.button_edit') }}</p>
                                             </button>
-                                            <button
-                                                x-data="{ asking: false, deleteContent(id) { $wire.deleteContent(id) } }"
+                                            <button x-data="{ asking: false, deleteContent(id) { $wire.deleteContent(id) } }"
                                                 class="text-accent_red/80 bg-accent_red/20 hover:bg-accent_red/60 hover:text-primary_white animate-fade flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-xl p-3 transition-all"
                                                 @click="asking=true" @click.away="asking=false">
                                                 <div x-show="!asking">
-                                                    <svg class="h-[25px] w-[25px]" viewBox="0 0 1024 1024" class="icon"
-                                                        version="1.1" xmlns="http://www.w3.org/2000/svg"
-                                                        fill="currentColor">
+                                                    <svg class="h-[25px] w-[25px]" viewBox="0 0 1024 1024"
+                                                        class="icon" version="1.1"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="currentColor">
                                                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
                                                             stroke-linejoin="round"></g>
@@ -1317,7 +1336,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
             isLoading: @entangle('isLoading').live,
             isTeacher: @entangle('isTeacher'),
             contents: @entangle('contents').live,
-            idClassrooom: @entangle ('id'),
+            idClassrooom: @entangle('id'),
             editProfile: false,
             savedTemp: {},
             savedEditImage: {},
@@ -1342,8 +1361,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
             get minOrder() {
                 return Math.min(
                     ...Object.values(this.contents)
-                        .map(c => Number(c.order))
-                        .filter(order => order >= 1)
+                    .map(c => Number(c.order))
+                    .filter(order => order >= 1)
                 );
             },
             readEditor(id, data) {
@@ -1376,15 +1395,13 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                         id: "",
                                         className: "",
                                         style: "border: 1px solid #000000; ",
-                                        children: [
-                                            {
-                                                type: "item",
-                                                id: "",
-                                                className: "",
-                                                style: "border: 1px solid #000000; display: inline-block; ",
-                                                itemContentId: "1",
-                                            },
-                                        ],
+                                        children: [{
+                                            type: "item",
+                                            id: "",
+                                            className: "",
+                                            style: "border: 1px solid #000000; display: inline-block; ",
+                                            itemContentId: "1",
+                                        }, ],
                                     },
                                 },
                             },
@@ -1409,10 +1426,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                         type: "container",
                                         id: "",
                                         className: "",
-                                        style:
-                                            "border: 1px solid #000000; display: flex; justify-content: space-around; padding: 16px; ",
-                                        children: [
-                                            {
+                                        style: "border: 1px solid #000000; display: flex; justify-content: space-around; padding: 16px; ",
+                                        children: [{
                                                 type: "item",
                                                 id: "",
                                                 className: "",
@@ -1458,10 +1473,14 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                             }
                         },
                         list: {
-                            class: List,
-                            placeholder: '{{ __('add-task.list') }}'
+                            class: window.EditorjsList,
+                            inlineToolbar: true,
+                            placeholder: '{{ __('add-task.list') }}',
+                            config: {
+                                defaultStyle: 'unordered'
+                            },
                         },
-                        image: {
+                        image_upload: {
                             class: ImageTool,
                             config: {
                                 types: "image/*",
@@ -1496,6 +1515,15 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                 }
 
                             },
+                        },
+                        image: {
+                            class: InlineImage,
+                            inlineToolbar: true,
+                            config: {
+                                embed: {
+                                    display: true,
+                                }
+                            }
                         },
                         raw: {
                             class: RawTool,
@@ -1592,41 +1620,65 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                             shortcut: 'CMD+SHIFT+M',
                         },
                         textVariant: TextVariantTune,
-                        title: Title,
                         Marker: {
                             class: Marker,
                             shortcut: 'CMD+SHIFT+M',
-                        }
+                        },
+                        title: Title,
+                        AnyButton: {
+                            class: AnyButton,
+                            inlineToolbar: false,
+                            config: {
+                                textValidation: (text) => {
+                                    if (text.length <= 0) {
+                                        return false;
+                                    }
+                                    return true;
+                                },
+                                linkValidation: (text) => {
+                                    if (text.length <= 0) {
+                                        return false;
+                                    }
+                                    return true;
+                                }
+                            },
+                        },
+                        nestedchecklist: EditorjsNestedChecklist,
+                        Math: {
+                            class: EJLaTeX,
+                            shortcut: 'CMD+SHIFT+M',
+                            config: {
+                                css: '.math-input-wrapper { padding: 5px; }'
+                            }
+                        },
+                        mermaid: MermaidTool,
+                        telegramPost: TelegramPost,
+                        indentTune: {
+                            class: IndentTune,
+                            version: EditorJS.version,
+                        },
                     },
-                    tunes: ['textVariant']
+                    i18n: {
+                        messages: {
+                            tools: {
+                                "AnyButton": {
+                                    'Button Text': 'Button',
+                                    'Link Url': 'Add Link',
+                                    'Set': "Add",
+                                    'Default Button': "Button",
+                                }
+                            }
+                        },
+                    },
+                    onReady: () => {
+                        MermaidTool.config({
+                            'theme': 'neutral'
+                        });
+                    },
+                    // tunes: ['textVariant']
+                    tunes: ['indentTune'],
                 });
 
-            },
-            editorHtml(data) {
-                const parsedData = JSON.parse(data);
-                // const edjsParser = window.edtsHTML();
-                const edjsParser = window.edtsHTML({
-                    raw: (block) => {
-                        return block.data?.html || '';
-                    },
-                    attaches: (block) => {
-                        const {
-                            file,
-                            title,
-                        } = block.data;
-                        console.log(block);
-                        return `
-      <div class="my-4 p-4 border rounded bg-gray-100 text-sm flex flex-row items-center gap-x-px">
-      <svg class="w-[35px] h-[35px] text-secondary_blue" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M16.19 2H7.81C4.17 2 2 4.17 2 7.81V16.18C2 19.83 4.17 22 7.81 22H16.18C19.82 22 21.99 19.83 21.99 16.19V7.81C22 4.17 19.83 2 16.19 2ZM16.37 14.35L14.15 16.57C13.61 17.11 12.91 17.37 12.21 17.37C11.51 17.37 10.8 17.1 10.27 16.57C9.75 16.05 9.46 15.36 9.46 14.63C9.46 13.9 9.75 13.2 10.27 12.69L11.68 11.28C11.97 10.99 12.45 10.99 12.74 11.28C13.03 11.57 13.03 12.05 12.74 12.34L11.33 13.75C11.09 13.99 10.96 14.3 10.96 14.63C10.96 14.96 11.09 15.28 11.33 15.51C11.82 16 12.61 16 13.1 15.51L15.32 13.29C16.59 12.02 16.59 9.96 15.32 8.69C14.05 7.42 11.99 7.42 10.72 8.69L8.3 11.11C7.79 11.62 7.51 12.29 7.51 13C7.51 13.71 7.79 14.39 8.3 14.89C8.59 15.18 8.59 15.66 8.3 15.95C8.01 16.24 7.53 16.24 7.24 15.95C6.44 15.18 6 14.13 6 13.01C6 11.89 6.43 10.84 7.22 10.05L9.64 7.63C11.49 5.78 14.51 5.78 16.36 7.63C18.22 9.48 18.22 12.5 16.37 14.35Z" fill="currentColor"></path> </g></svg>
-      <a href="${file.url}" target="_blank" rel="noopener noreferrer" class="text-secondary_blue text-base line-clamp-1">
-            ${title || file.url}
-        </a>
-      </div>
-    `;
-                    }
-                });
-                const html = edjsParser.parse(parsedData);
-                return html;
             },
             async upContent(id) {
                 if (this.stopUpDown) return;
@@ -1665,6 +1717,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                 window.location.href = myUrl;
             },
             getRemainingTime(deadlineString) {
+                if (!deadlineString) return '--:--';
                 const deadline = new Date(deadlineString);
                 const now = new Date();
                 const diffMs = deadline - now;

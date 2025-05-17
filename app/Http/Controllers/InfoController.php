@@ -36,6 +36,7 @@ class InfoController extends Controller
             ]);
     
         } catch (\Exception $e) {
+            Log::error('InfoController getInfoUrl, '.$e->getMessage());
             return response()->json(['success' => 0, 'message' => 'Failed to fetch metadata'], 500);
         }
     }

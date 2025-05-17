@@ -26,6 +26,11 @@ class Classroom extends Model
         return $this->hasMany(ClassroomMember::class);
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(ImagesContent::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

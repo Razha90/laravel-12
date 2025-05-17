@@ -1,7 +1,7 @@
 <?php
 // english
 return [
-   'not_found' => 'Not Found',
+    'not_found' => 'Not Found',
     'back' => 'Back',
     'saved' => 'Saved',
     'saving' => 'Saving',
@@ -21,7 +21,7 @@ return [
     'add_date' => 'Date',
     'add_time' => 'Time',
     'release_time' => 'Release Time',
-    'detail_release'=> 'Release Time is the time when the content will appear on the front page.',
+    'detail_release' => 'Release Time is the time when the content will appear on the front page.',
     'publish' => 'Publish',
     'draft' => 'Draft',
     'schedule' => 'Schedule',
@@ -38,15 +38,15 @@ return [
     'failed_title' => 'Title must not be less than 3 characters',
     'button_ready' => 'Ok',
     'warning_for_title' => 'Warning for title',
-    'deadline_title'=> 'Deadline for Submission',
-    'deadline_title_detail'=> 'Deadline is the time when the task will be closed, if you disable the task deadline feature will not have a submission limit.',
+    'deadline_title' => 'Deadline for Submission',
+    'deadline_title_detail' => 'Deadline is the time when the task will be closed, if you disable the task deadline feature will not have a submission limit.',
     'detail_can_upload' => 'Other users can upload tasks, exceeding the submission deadline',
     'can_upload' => 'Allow Upload Submission Deadline',
     'deadline' => 'Deadline',
     'deadline_timeout' => 'Time must not be less than current time!',
     'date_must' => 'Date must be filled',
     'date_must_detail' => 'Date and time must be filled if you choose schedule',
-    'time_min'=> 'Time must not be less than 10 minutes!',
+    'time_min' => 'Time must not be less than 10 minutes!',
     'deadline_required' => 'Deadline must be filled',
     'can_upload_required' => 'Allow upload deadline must be filled',
     'is_deadline_required' => 'Deadline must be filled',
@@ -55,6 +55,13 @@ return [
     'deadline_format' => 'Date format is invalid',
     'type_required' => 'Content type must be filled',
     'type_string' => 'Content type must be a string',
-
+    'answer' => 'Answer',
+    'upload' => 'Upload',
+    'updated' => 'updated',
+    'failed_task' => 'Failed to upload task, please wait a moment.',
+    'server_error' => 'Server error, please try again later.',
+    'success_task' => 'Successfully uploaded task.',
+    'expired_task' => 'Task expired',
+    'congratulation' => 'Congratulations, you have completed this task',
 
 ];

@@ -617,8 +617,8 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                                     <p class="truncate text-base text-white"
                                         x-text="'{{ __('classroom.by') }} ' + classroom.classroom.user.name"></p>
                                 </template>
-                                <p x-text="classroom.classroom.description"
-                                    class="mt-3 line-clamp-5 text-sm text-white"></p>
+                                <!-- <p x-text="classroom.classroom.description"
+                                    class="mt-3 line-clamp-5 text-sm text-white"></p> -->
                             </div>
                         </div>
                     </template>

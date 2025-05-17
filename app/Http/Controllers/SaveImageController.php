@@ -11,7 +11,6 @@ class SaveImageController extends Controller
 {
     public function upload(Request $request)
     {
-        Log::info('saveImageController Upload Image');
         try {
             if (!$request->hasFile('image')) {
                 return response()->json(['success' => 0, 'message' => 'No file uploaded'], 400);
@@ -50,6 +49,7 @@ class SaveImageController extends Controller
                     'name' => $file->getClientOriginalName(),
                     'path' => asset("storage/$path"),
                     'content_id' => $request->content_id,
+                    'classroom_id' => $request->classroom_id,
                 ]);
             } catch (\Throwable $th) {
                 Log::error('saveImageController Upload Image' . $th);
@@ -104,6 +104,7 @@ class SaveImageController extends Controller
                     'name' => $file->getClientOriginalName(),
                     'path' => asset("storage/$path"),
                     'content_id' => $request->content_id,
+                    'classroom_id' => $request->classroom_id,
                 ]);
             } catch (\Throwable $th) {
                 Log::error('saveImageController Upload Image' . $th);

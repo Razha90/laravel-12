@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('images_content', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('path');
+        Schema::create('tasks', function (Blueprint $table) {
+            $table->uuid('id')->primary();
             $table->foreignId('content_id')->constrained('contents')->onDelete('cascade');
-            $table->foreignId('classroom_id')->constrained('classrooms')->onDelete('cascade');
+            $table->text('answer')->nullable();
+            $table->integer(column: 'reading')->nullable();
+            $table->integer('value')->nullable();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('images_content');
+        Schema::dropIfExists('task');
     }
 };

@@ -109,35 +109,6 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                 'status' => 'pending',
             ]);
 
-
-            // event(new AplicationNotification($newAplicationLetter, $user->id));
-
-            // $dataNotif = [
-            //     'title' => 'Request Letter Submission Successful',
-            //     'body' =>
-            //         '<p><strong>Role:</strong> ' .
-            //         e($data['role']) .
-            //         '</p>
-            //     <p><strong>Full Name:</strong> ' .
-            //         e($data['name']) .
-            //         '</p>
-            //     <p><strong>Message:</strong> ' .
-            //         nl2br(e($data['message'])) .
-            //         '</p>
-            //     <p><strong>Origin:</strong> ' .
-            //         e($data['origin']) .
-            //         '</p>
-            //     <p><strong>Status:</strong> Pending</p>',
-            //     'user_id' => $user->id,
-            // ];
-
-            // try {
-            //     $notificationController = new NotificationController();
-            //     $notificationController->sendNotification($dataNotif);
-            // } catch (\Throwable $th) {
-            //     Log::error('ClassroomLearn Error Allowed Teacher Notification: ' . $th->getMessage());
-            // }
-
             $this->dispatch('success', ['message' => __('profile.letter_send')]);
         } catch (\Throwable $th) {
             $this->dispatch('failed', ['message' => __('profile.letter_not_send')]);
@@ -201,7 +172,9 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
     protected function deletedImage($file_old)
     {
         try {
-            // Hilangkan '/storage/' dari path karena Laravel menyimpan file di 'public/images/...'
+            if (str_contains($file_old, 'profile/default')) {
+                return;
+            }
             $filePath = str_replace('/storage/', '', $file_old);
 
             if (Storage::disk('public')->exists($filePath)) {
@@ -227,6 +200,8 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                     $randomProfile = $randomAvatars->random();
                 } while ($randomProfile->path === $user->profile_photo_path);
             }
+
+            $this->deletedImage($user->profile_photo_path);
 
             $user->update([
                 'profile_photo_path' => $randomProfile->path,

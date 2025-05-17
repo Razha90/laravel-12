@@ -18,4 +18,9 @@ class Content extends Model
     {
         return $this->hasMany(ImagesContent::class);
     }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
 }
