@@ -478,7 +478,6 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                 const data = await response.json();
                                 this.dummySchools = data.data.map(school => school.sekolah);
                                 this.schools = this.dummySchools.slice(0, 10);
-                                console.log(this.schools);
                             } catch (error) {
                                 this.schools = [];
                                 this.dummySchools = [];
@@ -532,12 +531,12 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
         </div>
     </div>
 
-    <div class="flex h-screen w-full items-end justify-center" x-data="loadData">
+    <div class="flex h-screen min-h-[900px] w-full items-end justify-center" x-data="loadData">
         <div
             class="bg-primary_white animate-fade-down h-[85vh] max-h-[85vh] w-full max-w-[1600px] rounded-t-2xl px-4 py-2 shadow-2xl">
-            <h2 class="text-secondary_blue text-3xl my-[1%] font-bold h-[4%] px-10">{{ __('profile.my_profile') }}</h2>
-            <div class="flex flex-row h-[92%]">
-                <div class="flex h-full w-[25%] flex-col items-center gap-y-7 py-3">
+            <h2 class="text-secondary_blue text-3xl my-[1%] font-bold h-[4%] px-10 welcome:text-left text-center">{{ __('profile.my_profile') }}</h2>
+            <div class="flex welcome:flex-row flex-col h-[92%]">
+                <div class="flex welcome:h-full welcome:w-[25%] w-full flex-col items-center gap-y-7 py-3">
                     <div x-data="{ doubleShow: false }" class="relative h-[200px] w-[200px]">
                         <div class="bg-accent_grey h-[200px] w-[200px] overflow-auto rounded-full shadow-2xl"
                             @mouseenter="doubleShow = true" :class="{ 'opacity-75': doubleShow }">
@@ -592,7 +591,7 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                     </div>
                 </div>
                 <flux:separator vertical variant="subtle" class="px-0.5" />
-                <div class="h-full w-[75%] overflow-auto px-5 pb-20 pt-5">
+                <div class="h-full welcome:w-[75%] w-full overflow-auto px-5 pb-20 pt-5">
                     <div x-data="{ edit: false, name: '{{ auth()->user()->name }}', updatedName: '{{ auth()->user()->name }}' }"
                         x-on:name-check.window="(event) => {
                         if (event.detail[0].condition) {
@@ -738,7 +737,6 @@ new #[Layout('components.layouts.app-flux')] class extends Component {
                                             const data = await response.json();
                                             this.dummySchools = data.data.map(school => school.sekolah);
                                             this.schools = this.dummySchools.slice(0, 10);
-                                            console.log(this.schools);
                                         } catch (error) {
                                             this.schools = [];
                                             this.dummySchools = [];

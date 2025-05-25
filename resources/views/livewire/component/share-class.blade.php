@@ -7,7 +7,6 @@ new class extends Component {
 }; ?>
 
 <div aria-hidden="true" x-data="initShareClass" x-cloak x-on:shared-modal.window="(event) => {
-    console.log(classroom);
     open = true
 }"x-show="open"
     class="animate-fade fixed left-0 right-0 top-0 z-50 flex h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden bg-black/20 backdrop-blur-sm md:inset-0">
@@ -58,7 +57,6 @@ new class extends Component {
                 copyPaste() {
                     navigator.clipboard.writeText(this.cleanUrl)
                         .then(() => {
-                            console.log('Teks berhasil dicopy ke clipboard!');
                             this.$dispatch('success', [{ message: '{{ __('class-learn.copy_sucess') }}' }]);
                         })
                         .catch(err => {

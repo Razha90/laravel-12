@@ -508,9 +508,9 @@ new #[Layout('components.layouts.app-page')] class extends Component {
         </div>
     </div>
 
-    <div class="bg-primary_white mt-[12vh] min-h-[800px] w-[90%] max-w-[1600px] rounded-xl">
+    <div class="bg-primary_white mt-[12vh] min-h-[800px] class:w-[90%] class:w-full max-w-[1600px] class:rounded-xl rounded-none">
         <div class="h-full w-full">
-            <div class="flex w-full justify-between px-3 py-4">
+            <div class="flex w-full flex-wrap gap-4 justify-around px-3 py-4">
                 <div class="flex flex-row gap-x-4">
                     <div class="relative w-full">
                         <input type="text" wire:model.live.debounce.500ms="search" x-on:input="debounching"
@@ -552,16 +552,6 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                     <span>{{ __('classroom.add_class') }}</span>
                 </button>
             </div>
-            <!-- <div x-show="classrooms == null" class="flex h-[200px] w-full items-center justify-center">
-                <div
-                    class="animate-pulse rounded-full bg-blue-900 px-4 py-2 text-center text-base font-medium leading-none text-blue-200">
-                    {{ __('add-class.loading') }}....</div>
-            </div>
-            <div x-show="classrooms.length == 0" class="flex h-[200px] w-full items-center justify-center">
-                <div
-                    class="animate-pulse rounded-full border-2 border-red-500 bg-white px-4 py-2 text-center text-base font-medium leading-none text-red-700">
-                    {{ __('classroom.not_found') }}....</div>
-            </div> -->
             <template x-if="classrooms && classrooms.data && !(classrooms.data.length> 0)">
                 <div class="flex items-center justify-center">
                     <div @click="show = true"
@@ -591,8 +581,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                 </div>
             </template>
             <template x-if="classrooms && classrooms.data && classrooms.data.length > 0">
-                <div
-                    class="flex h-[90%] flex-row flex-wrap content-start items-start justify-center gap-x-6 gap-y-7">
+                <div class="flex h-[90%] flex-row flex-wrap content-start items-start justify-center gap-x-6 gap-y-7">
                     <template x-for="(classroom, item) in classrooms.data" :key="item">
                         <div @click="window.location.href = '/classroom' + '/' + classroom.classroom.id"
                             class="animate-fade group relative h-[250px] w-[360px] cursor-pointer overflow-hidden rounded-xl shadow-xl">
@@ -617,8 +606,6 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                                     <p class="truncate text-base text-white"
                                         x-text="'{{ __('classroom.by') }} ' + classroom.classroom.user.name"></p>
                                 </template>
-                                <!-- <p x-text="classroom.classroom.description"
-                                    class="mt-3 line-clamp-5 text-sm text-white"></p> -->
                             </div>
                         </div>
                     </template>
@@ -701,7 +688,6 @@ new #[Layout('components.layouts.app-page')] class extends Component {
             code: @entangle('code').live,
             init() {
                 if (this.initStop) return;
-                console.log('kelas', this.classrooms);
                 this.initStop = true;
                 this.classroomUrl = '{{ route('classroom-learn', ['id' => '__ID__']) }}';
                 this.$watch('classroomCode', (value) => {

@@ -76,7 +76,6 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
 }; ?>
 
 <flux:main class="bg-white" x-data="initAvatar" x-init="init">
-
     <div x-show="showImage" x-cloak
         class="bg-secondary_black/20 animate-fade fixed left-0 right-0 top-0 z-30 flex h-screen max-h-screen w-full items-center justify-center overflow-y-auto overflow-x-hidden backdrop-blur-sm md:inset-0">
         <div class="relative max-h-full w-full max-w-2xl p-4" @click.away="showImage = false">
@@ -102,13 +101,14 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
             </div>
         </div>
     </div>
+    <flux:sidebar.toggle class="text-secondary_blue! lg:hidden" icon="bars-2" inset="left" />
 
     <flux:heading size="xl" level="1" class="text-secondary_blue! font-sans">
         {{ __('admin.default_avatar') }}
     </flux:heading>
-    <div class="mt-4 flex flex-row flex-wrap gap-x-4">
+    <div class="mt-4 flex flex-row flex-wrap gap-5">
         <template x-show="images.length != 0" x-for="(image, index) in images" :key="index">
-            <div class="relative h-[100px] w-[100px]" @mouseenter="show = true" @mouseleave="show = false"
+            <div class="border border-secondary_blue shadow-xl rounded-full relative h-[100px] w-[100px]" @mouseenter="show = true" @mouseleave="show = false"
                 @click="show = true" x-data="{ show: false }" @click.away="show = false">
                 <div class="relative h-[100px] w-[100px] overflow-hidden rounded-full">
                     <div class="absolute inset-0 z-10 h-full w-full bg-transparent" x-show="show"
@@ -137,7 +137,6 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
             showImage: false,
             pathImage: "",
             init() {
-                console.log(this.images);
             },
             openFile() {
                 this.$refs.fileInput.click();

@@ -1,253 +1,182 @@
 <?php
 
 use Livewire\Volt\Component;
+use App\Models\Comment;
 
 new class extends Component {
-    //
-}; ?>
-<div>
+    public $classroomId;
+    public $contentId;
+    public $comments;
+    public $error;
+    public function mount()
+    {
+        $segments = request()->segments();
+        $this->classroomId = $segments[1];
+        $this->contentId = $segments[3];
+        $this->getComment();
+    }
 
-</div>
-<script>
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const editorjsconfig = {};
-        console.log('editorjsconfig', window.EditorJSLayout);
-        window.tools = {
-            layout: {
-                class: window.EditorJSLayout.LayoutBlockTool,
-                config: {
-                    EditorJS,
-                    editorjsconfig,
-                    enableLayoutEditing: false,
-                    enableLayoutSaving: true,
-                    initialData: {
-                        itemContent: {
-                            1: {
-                                blocks: [],
-                            },
-                        },
-                        layout: {
-                            type: "container",
-                            id: "",
-                            className: "",
-                            style: "border: 1px solid #000000; ",
-                            children: [
-                                {
-                                    type: "item",
-                                    id: "",
-                                    className: "",
-                                    style: "border: 1px solid #000000; display: inline-block; ",
-                                    itemContentId: "1",
-                                },
-                            ],
-                        },
-                    },
-                },
-            },
-            twoColumns: {
-                class: window.EditorJSLayout.LayoutBlockTool,
-                config: {
-                    EditorJS,
-                    editorjsconfig,
-                    enableLayoutEditing: false,
-                    enableLayoutSaving: false,
-                    initialData: {
-                        itemContent: {
-                            1: {
-                                blocks: [],
-                            },
-                            2: {
-                                blocks: [],
-                            }
-                        },
-                        layout: {
-                            type: "container",
-                            id: "",
-                            className: "",
-                            style:
-                                "border: 1px solid #000000; display: flex; justify-content: space-around; padding: 16px; ",
-                            children: [
-                                {
-                                    type: "item",
-                                    id: "",
-                                    className: "",
-                                    style: "border: 1px solid #000000; padding: 8px; ",
-                                    itemContentId: "1",
-                                },
-                                {
-                                    type: "item",
-                                    id: "",
-                                    className: "",
-                                    style: "border: 1px solid #000000; padding: 8px; ",
-                                    itemContentId: "2",
-                                },
-                            ],
-                        },
-                    },
-                },
-                shortcut: "CMD+2",
-                toolbox: {
-                    icon: `
-                                    <svg xmlns='http://www.w3.org/2000/svg' width="16" height="16" viewBox='0 0 512 512'>
-                                        <rect x='128' y='128' width='336' height='336' rx='57' ry='57' fill='none' stroke='currentColor' stroke-linejoin='round' stroke-width='32'/>
-                                        <path d='M383.5 128l.5-24a56.16 56.16 0 00-56-56H112a64.19 64.19 0 00-64 64v216a56.16 56.16 0 0056 56h24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32'/>
-                                    </svg>
-                                    `,
-                    title: "2 columns",
-                },
-            },
-            style: EditorJSStyle.StyleInlineTool,
-            paragraph: {
-                class: Paragraph,
-                config: {
-                    inlineToolbar: true,
-                    placeholder: '{{ __('add-task.paragraph') }}'
-                }
-            },
-            header: {
-                class: Header,
-                config: {
-                    placeholder: '{{ __('add-task.header') }}',
-                    levels: [1, 2, 3, 4, 5, 6],
-                    defaultLevel: 3
-                }
-            },
-            list: {
-                class: List,
-                placeholder: '{{ __('add-task.list') }}'
-            },
-            imageGallery: window.ImageGallery,
-            image: {
-                class: ImageTool,
-                config: {
-                    types: "image/*",
-                    additionalRequestHeaders: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    },
-                    captionPlaceholder: "{{ __('add-task.caption') }}",
-                    buttonContent: "{{ __('add-task.choose_image') }}",
-                    features: {
-                        border: true,
-                        background: true,
-                        stretched: true,
-                        caption: 'optional',
-                    },
-                    uploader: {
-                        async uploadByFile(file) {
-                            const formData = new FormData();
-                            formData.append('image', file);
-                            formData.append('content_id', idContent);
-                            const response = await fetch('{{ route('upload-image') }}', {
-                                method: 'POST',
-                                body: formData,
-                                headers: {
-                                    'X-CSRF-TOKEN': token,
-                                },
-                            });
-
-                            return response.json();
-                        }
-
-                    }
-
-                },
-            },
-            raw: {
-                class: RawTool,
-                config: {
-                    placeholder: '{{ __('add-task.code') }}'
-                }
-            },
-            code: {
-                class: CodeTool,
-                config: {
-                    placeholder: '{{ __('add-task.code') }}'
-                }
-            },
-            linkTool: {
-                class: LinkTool,
-                config: {
-                    endpoint: '{{ route('info') }}',
-                    headers: {
-                        'X-CSRF-TOKEN': token,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            },
-            embed: {
-                class: Embed,
-                config: {
-                    services: {
-                        youtube: true,
-                        facebook: true,
-                        instagram: true,
-                        twitter: true,
-                        twitch: true,
-                        "twitch-channel": true,
-                        miro: true,
-                        vimeo: true,
-                        gfycat: true,
-                        imgur: true,
-                        vine: true,
-                        aparat: true,
-                        "yandex-music-track": true,
-                        "yandex-music-album": true,
-                        "yandex-music-playlist": true,
-                        coub: true,
-                        codepen: true,
-                        pinterest: true,
-                        github: true
-                    }
-                }
-            },
-            ColorPicker: {
-                class: window.ColorPicker,
-            },
-            attaches: {
-                class: AttachesTool,
-                config: {
-                    uploader: {
-                        async uploadByFile(file) {
-                            const formData = new FormData();
-                            formData.append('file', file);
-                            formData.append('content_id', idContent);
-                            const response = await fetch('{{ route('upload-file') }}', {
-                                method: 'POST',
-                                body: formData,
-                                headers: {
-                                    'X-CSRF-TOKEN': token,
-                                },
-                            });
-                            return response.json();
-                        },
-                    }
-                }
-            },
-            table: {
-                class: Table,
-                inlineToolbar: true,
-                config: {
-                    rows: 2,
-                    cols: 3,
-                    maxRows: 5,
-                    maxCols: 5,
-                },
-            },
-            quote: Quote,
-            underline: Underline,
-            delimiter: Delimiter,
-            inlineCode: {
-                class: InlineCode,
-                shortcut: 'CMD+SHIFT+M',
-            },
-            textVariant: TextVariantTune,
-            Marker: {
-                class: Marker,
-                shortcut: 'CMD+SHIFT+M',
+    public function getComment()
+    {
+        try {
+            $comment = Comment::with('user', 'content')->where('content_id', $this->contentId)->get();
+            if ($comment->isEmpty()) {
+            } else {
+                $this->comments = $comment->toArray();
             }
+        } catch (\Throwable $th) {
+            Log::error('Error fetching comments: ' . $th->getMessage());
+            $this->error = 'An error occurred while fetching comments.';
         }
+    }
 
-    });
+    public function addComment($comment)
+    {
+        try {
+            Comment::create([
+                'content_id' => $this->contentId,
+                'user_id' => auth()->user()->id,
+                'comment' => $comment,
+            ]);
+            $this->getComment();
+        } catch (\Throwable $th) {
+            Log::error('Error adding comment: ' . $th->getMessage());
+            $this->dispatch('failed', [
+                'message' => __('error.server_error'),
+            ]);
+        }
+    }
+
+    public function deleteComment($id)
+    {
+        try {
+            $comment = Comment::find($id);
+            if ($comment) {
+                $comment->isDeleted = true;
+                $comment->save();
+                $this->getComment();
+            } else {
+                $this->dispatch('failed', [
+                    'message' => __('error.server_error'),
+                ]);
+            }
+        } catch (\Throwable $th) {
+            Log::error('Error deleting comment: ' . $th->getMessage());
+            $this->dispatch('failed', [
+                'message' => __('error.server_error'),
+            ]);
+        }
+    }
+}; ?>
+
+<div x-data="editorComment" class="mt-10" x-init="initComment">
+    @vite(['resources/js/moment.js'])
+
+    <template x-if="comments">
+        <div class="text-secondary_blue mx-auto max-w-[650px]">
+            <h2 class="animate-fade-up mb-5 text-center text-2xl font-bold">{{ __('add-task.kolom_comment') }}</h2>
+            <div class="max-h-[500px] overflow-y-auto px-2">
+                <template x-for="(item, index) in comments" :key="index">
+                    <div class="mb-5 flex max-h-[600px] gap-2.5" x-data="{ dropdown: false }"
+                        :class="item.user.id == '{{ auth()->user()->id }}' ? 'flex-row-reverse' : 'flex-row'">
+                        <img class="h-8 w-8 rounded-full" :src="item.user.profile_photo_path" :alt="item.user.name">
+                        <div
+                            class="leading-1.5 flex w-full max-w-[320px] flex-col rounded-e-xl rounded-es-xl border-gray-200 bg-gray-100 p-4">
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                <span class="text-secondary_blue/70 line-clamp-1 text-sm font-semibold"
+                                    x-text="item.user.name"></span>
+                                <span class="line-clamp-1 text-sm font-normal text-gray-500"
+                                    x-text="changeDate(item.created_at)"></span>
+                            </div>
+                            <p class="py-2.5 text-sm font-normal text-gray-500"
+                                x-text="item.isDeleted == '1' ? '[{{ __('add-task.comment_delete') }}]' : item.comment">
+                            </p>
+                        </div>
+                        <button @click="dropdown = !dropdown"
+                            class="inline-flex items-center self-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-50"
+                            type="button">
+                            <svg class="h-4 w-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                fill="currentColor" viewBox="0 0 4 15">
+                                <path
+                                    d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                            </svg>
+                        </button>
+                        <div x-show="dropdown" x-transition @click.away="dropdown = false"
+                            class="z-10 w-40 divide-y divide-gray-100 rounded-lg bg-white shadow-sm">
+                            <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownMenuIconButton">
+                                <li>
+                                    <p @click="deleteComment(item.id); dropdown = false"
+                                        class="block !px-4 py-2 text-red-500 hover:bg-red-100">{{ __('admin.delete') }}
+                                    </p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+    <div class="animate-fade-up mt-10">
+        <h2 class="text-secondary_blue text-bold mx-auto max-w-[650px] pl-5 text-left text-2xl">
+            {{ __('add-task.comment') }}
+        </h2>
+        <div class="mx-auto mb-4 max-w-[650px] rounded-lg border border-gray-200 bg-gray-50">
+            <div class="rounded-t-lg bg-white px-4 py-2">
+                <label for="comment" class="sr-only">Your comment</label>
+                <textarea id="comment" rows="4" x-model="comment" @keyup.enter="addComment"
+                    class="w-full border-0 bg-white px-0 text-sm text-gray-900 focus:ring-0"
+                    placeholder="{{ __('add-task.try_write_comment') }}" required></textarea>
+            </div>
+            <div class="flex items-center justify-between border-t border-gray-200 px-3 py-2">
+                <button type="button" @click="addComment"
+                    class="inline-flex items-center rounded-lg bg-blue-700 px-4 py-2.5 text-center text-xs font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-200">
+                    {{ __('add-task.add_comment') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function editorComment() {
+        return {
+            classroomId: @entangle('classroomId'),
+            contentId: @entangle('contentId'),
+            comments: @entangle('comments').live,
+            error: @entangle('error'),
+            comment: null,
+            initComment() {
+                if (this.error) {
+                    this.$dispatch('failed', [{
+                        message: this.error,
+                    }])
+                }
+            },
+            addComment() {
+                if (this.comment) {
+                    this.$wire.addComment(this.comment).then(() => {
+                        this.comment = null;
+                        this.$dispatch('success', [{
+                            message: '{{ __('add-task.success_comment') }}',
+                        }])
+                    })
+                } else {
+                    this.$dispatch('failed', [{
+                        message: '{{ __('add-task.please_add_comment') }}',
+                    }])
+                }
+            },
+            changeDate(createdAt) {
+                const formattedTime = moment(createdAt).fromNow();
+                return formattedTime;
+            },
+            deleteComment(id) {
+                this.$wire.deleteComment(id).then(() => {
+                    this.$dispatch('success', [{
+                        message: '{{ __('add-task.success_delete_comment') }}',
+                    }])
+                })
+            },
+        }
+    }
 </script>

@@ -11,53 +11,46 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class AplicationNotification implements ShouldBroadcast, ShouldQueue
+class Chatting implements ShouldBroadcast, ShouldQueue
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
-     */ public $message = [];
-    public $user_id = null;
-
-    /**
-     * Create a new event instance.
      */
-    public function __construct($message, $user_id)
+    public $chat;
+    public function __construct($chat)
     {
-        try {
-            $this->message = $message;
-            $this->user_id = $user_id;
-        } catch (\Throwable $th) {
-            Log::error('aplication Event Error: ' . $th->getMessage());
-        }
+        Log::info('Chatting event created with chat data: ' . 'receiver' . $chat['receiver_id'] . ' me' . auth()->user()->id);
+        $this->chat = $chat;
     }
 
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return Channel
+     * @return array<int, \Illuminate\Broadcasting\Channel>
      */
-    public function broadcastOn(): Channel
+
+
+    public function broadcastOn(): array
     {
-        return new PrivateChannel('aplications.' . $this->user_id);
+        return [
+            new PrivateChannel('chat.' . $this->chat['receiver_id']),
+            new PrivateChannel('chat.' . $this->chat['sender_id']),
+        ];
     }
 
-    /**
-     * The event's broadcast name.
-     */
     public function broadcastAs(): string
     {
-        return 'aplications';
+        return 'chatting';
     }
 
-    /**
-     * Get the data to broadcast.
-     */
     public function broadcastWith(): array
     {
         return [
-            'data' => $this->message,
+            'data' => $this->chat,
         ];
     }
+
+
 }

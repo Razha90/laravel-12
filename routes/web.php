@@ -45,6 +45,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         Route::middleware([EnsureClassOwner::class])->group(function () {
             Volt::route('classroom/{id}/add/{task}', 'task-add')->name('task-add');
+            Volt::route('classroom/{id}/reward/{task}', 'classroom-reward')->name('classroom-reward');
         });
     });
 

@@ -1,11 +1,111 @@
 <?php
 
 use Livewire\Volt\Component;
+use App\Models\ClassroomMember;
+use App\Events\Chatting;
 
-new class extends Component {}; ?>
+new class extends Component {
+    public $students_get;
+    public $classroomId;
+    public function mount()
+    {
+        $segments = request()->segments();
+        $this->classroomId = $segments[1];
+        $this->loadMembersClass();
+    }
+    public function loadMembersClass()
+    {
+        try {
+            $this->students_get = ClassroomMember::with('user')
+                ->where('classroom_id', $this->classroomId)
+                ->get()
+                ->sortByDesc(function ($member) {
+                    return $member->user->role == 'teacher';
+                })
+                ->values()
+                ->toArray();
+        } catch (\Throwable $th) {
+            Log::error('ClassroomLearn Eroor Load Members Class' . $th);
+            $this->dispatch('failed', ['message' => __('class-learn.error_server')]);
+            return;
+        }
+    }
 
-<div class="w-full">
-    <div class="bg-secondary_blue mt-3 border-accent_blue flex cursor-pointer flex-row items-center justify-center gap-x-1 rounded-xl border-2 p-1 transition-all hover:opacity-70"
+}; ?>
+
+<div class="flex h-full w-full flex-col" x-data="initSideBar" x-init="initSide">
+    <style>
+        *::-webkit-scrollbar {
+            height: 2px;
+            width: 2px;
+        }
+
+        *::-webkit-scrollbar-track {
+            border-radius: 5px;
+            background-color: #DFE9EB;
+        }
+
+        *::-webkit-scrollbar-track:hover {
+            background-color: #B8C0C2;
+        }
+
+        *::-webkit-scrollbar-track:active {
+            background-color: #B8C0C2;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            border-radius: 5px;
+            background-color: #397524;
+        }
+
+        *::-webkit-scrollbar-thumb:hover {
+            background-color: #62A34B;
+        }
+
+        *::-webkit-scrollbar-thumb:active {
+            background-color: #62A34B;
+        }
+    </style>
+    <h2 class="pb-2 text-left text-xl">{{ __('add-task.member') }}</h2>
+    <div x-show="!allStudent" class="animate-pulse">
+        <div class="mb-4 h-5 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
+        <div class="mb-4 h-5 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
+    </div>
+    <template x-if="allStudent">
+        <div x-ref="studentScroll" class="flex h-full max-h-[70%] flex-col gap-y-2 overflow-y-auto pr-2"
+            x-init="handleUserProfile" @scroll="handleScroll">
+            <template x-for="(data, index) in sortStudent" :key="index">
+                <div class="flex flex-row items-center justify-between">
+                    <div class="flex flex-row items-center gap-x-2">
+                        <div>
+                            <img :src="data.user.profile_photo_path" :alt="data.name"
+                                class="h-[35px] w-[35px] rounded-full" />
+                        </div>
+                        <div class="flex flex-col items-start">
+                            <p class="line-clamp-1 !py-0" x-text="data.user.name"></p>
+                            <p class="text-primary_white/50 !py-0 text-sm"
+                                x-text="data.role == 'member' ? '{{ __('add-task.student') }}' : '{{ __('add-task.teacher') }}' ">
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-primary_white hover:text-primary_white/50 cursor-pointer transition-colors"
+                        @click="sendEvent(data.user_id)" x-init="console.log(data)" x-show="userId != data.user_id">
+                        <svg class="w-[25px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <path
+                                    d="M17 3.33782C15.5291 2.48697 13.8214 2 12 2C6.47715 2 2 6.47715 2 12C2 13.5997 2.37562 15.1116 3.04346 16.4525C3.22094 16.8088 3.28001 17.2161 3.17712 17.6006L2.58151 19.8267C2.32295 20.793 3.20701 21.677 4.17335 21.4185L6.39939 20.8229C6.78393 20.72 7.19121 20.7791 7.54753 20.9565C8.88837 21.6244 10.4003 22 12 22C17.5228 22 22 17.5228 22 12C22 10.1786 21.513 8.47087 20.6622 7"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </template>
+    <div class="flex-1"></div>
+    <div class="bg-secondary_blue border-accent_blue mt-3 flex cursor-pointer flex-row items-center justify-center gap-x-1 rounded-xl border-2 p-1 transition-all hover:opacity-70"
         @click="$dispatch('shared-modal')">
         <div class="bg-secondary_blue flex- items-center justify-center rounded-xl p-1"><svg
                 class="text-primary_white w-[25px]" viewBox="0 0 24 24" fill="none"
@@ -67,3 +167,56 @@ new class extends Component {}; ?>
         </div>
     </div>
 </div>
+
+<script>
+    function initSideBar() {
+        return {
+            allStudent: @entangle('students_get').live,
+            sortStudent: null,
+            perPage: 10,
+            currentPage: 5,
+            classroomId: @entangle('classroomId'),
+            userId: '{{ auth()->user()->id }}',
+            sendEvent(id, data) {
+                const event = new CustomEvent('user-chat', {
+                    detail: {
+                        sender_id: this.userId,
+                        receiver_id: id
+                    }
+                });
+                document.dispatchEvent(event);
+            },
+            initSide() {
+                this.students = this.allStudent;
+            },
+            loadMore() {
+                if (this.perPage >= this.allStudent.length) {
+                    return;
+                }
+                const start = this.sortStudent.length;
+                const end = this.perPage * this.currentPage;
+                const nextStudents = this.allStudent.slice(start, end);
+                this.sortStudent = [...this.sortStudent, ...nextStudents];
+            },
+            handleUserProfile() {
+                this.handlePerPage();
+                this.sortStudent = this.allStudent.slice(0, this.perPage);
+            },
+            handlePerPage() {
+                const height = this.$refs.studentScroll.offsetHeight;
+                this.perPage = Math.floor(height / 50) + 3;
+            },
+            handleScroll() {
+                const scrollEl = this.$refs.studentScroll;
+                const checkIfScrolledToBottom = () => {
+                    const isBottom =
+                        scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1;
+                    if (isBottom) {
+                        this.loadMore();
+                    }
+                };
+                checkIfScrolledToBottom();
+            }
+        }
+    }
+</script>

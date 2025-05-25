@@ -78,6 +78,7 @@
             </svg>
         </button>
     </div>
+    <livewire:component.chat />
 </body>
 
 </html>

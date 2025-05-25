@@ -68,5 +68,10 @@ return [
     'up' => 'Haut',
     'down' => 'Bas',
     'publish' => 'Publier',
+    'delete_class' => 'Supprimer la classe',
+    'confirm_delete' => 'Êtes-vous sûr de vouloir supprimer ce cours!',
+    'delete_class_success' => 'Classe supprimée avec succès',
+    'delete_class_failed' => 'Échec de la suppression de la classe',
+    'already_delete' => 'La classe a déjà été supprimée',
 
 ];

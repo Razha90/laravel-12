@@ -2,104 +2,75 @@
 
 use Livewire\Volt\Component;
 use Livewire\Attributes\Layout;
-use App\Models\Content;
-use Illuminate\Support\Facades\Log;
 use App\Models\Task;
 use App\Models\Classroom;
 
 new #[Layout('components.layouts.classroom-learn')] class extends Component {
-    public $idClassroom;
-    public $idTask;
-    public $datas;
-    public $material;
-    public $teacher = false;
+    public $classId;
+    public $contentId;
+    public $getTask;
+    public $classroom;
+    public $error = null;
+
     public function mount($id, $task)
     {
-        $this->idClassroom = $id;
-        $this->idTask = $task;
-        $this->isTeacher();
-        $this->loadMaterial();
+        $this->classId = $id;
+        $this->contentId = $task;
+        $this->loadData();
+        $this->getClassroom();
     }
 
-    public function loadContent($id)
+    public function loadData()
     {
         try {
-            $this->datas = Content::find($id)->toArray();
-            return [
-                'status' => true,
-            ];
+            $data = Task::with('user')->where('content_id', $this->contentId)->get();
+            $this->getTask = $data->toArray();
         } catch (\Throwable $th) {
-            Log::error('ClassroomLearn Eroor Load Content ' . $th);
-            return [
-                'status' => false,
-            ];
+            Log::error('Error loading data: ' . $th->getMessage());
         }
     }
 
-    public function isTeacher()
+    public function getClassroom()
     {
         try {
-            $classroom = Classroom::find($this->idClassroom);
-            $user = auth()->user()->id;
-            if ($classroom->user_id == $user) {
-                $this->teacher = true;
-            } else {
-                $this->teacher = false;
-            }
+            $data = Classroom::where('id', $this->classId)->get();
+            $this->classroom = $data->toArray();
         } catch (\Throwable $th) {
-            Log::error('ClassroomLearn Eroor Load Teacher ' . $th);
+            $this->error = __('error.not_found');
+            Log::error('ClassroomLearn Eroor Load Data' . $th);
         }
     }
 
-    public function loadMaterial()
+    public function addValueReading($id, $value)
     {
         try {
-            $user = auth()->user()->id;
-            $this->material = Task::where('content_id', $this->idTask)->where('user_id', $user)->first();
-            if ($this->material) {
-                $this->material = $this->material->toArray();
-            } else {
-                $this->material = null;
-            }
-        } catch (\Throwable $th) {
-            Log::error('ClassroomLearn Eroor Load Material ' . $th);
-        }
-    }
-
-    public function setScore($id, $score)
-    {
-        try {
-            if ($score >= 101) {
-                $this->dispatch('failed', [
-                    'message' => __('add-task.failed_saved'),
+            $task = Task::find($id);
+            if ($task) {
+                $task->reading = $value;
+                $task->save();
+                $this->loadData();
+                $this->dispatch('success', [
+                    'message' => __('add-task.success')
                 ]);
                 return;
             }
-            $user = auth()->user()->id;
-            $task = Task::where('content_id', $id)->where('user_id', $user)->first();
-            if ($task) {
-                $task->update([
-                    'value' => $score,
-                ]);
-            } else {
-                Task::create([
-                    'user_id' => $user,
-                    'content_id' => $id,
-                    'value' => $score,
-                ]);
-            }
-        } catch (\Throwable $th) {
-            Log::error('ClassroomLearn Eroor Set Score ' . $th);
             $this->dispatch('failed', [
-                'message' => __('add-task.failed_saved'),
+                'message' => __('error.server_error')
             ]);
+        } catch (\Throwable $th) {
+            Log::error('Error adding value: ' . $th->getMessage());
+            $this->dispatch('failed', [
+                'message' => __('error.server_error')
+            ]);
+            return;
         }
+
     }
 }; ?>
 
 <flux:main class="relative bg-white">
-    <div class="mb-5 flex flex-row items-center justify-between" x-data="{
-        idClassroom: @entangle('idClassroom'),
+    <div class="flex flex-row items-center justify-between" x-data="{
+        idClassroom: @entangle('classId'),
         get urlBack() {
             const path = window.location.pathname;
             const segments = path.split('/');
@@ -109,7 +80,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
             return '/classroom';
         }
     }">
-        <div class="flex">
+        <div class="mb-3 flex">
             <a :href="urlBack"
                 class="text-secondary_blue animate-fade hover:text-secondary_blue/50 flex cursor-pointer flex-row gap-x-1 transition-colors">
                 <svg class="w-[35px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -130,148 +101,262 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
     </div>
     @vite(['resources/js/editor.js'])
 
-    <div x-data="classTask" x-init="firstInit" x-ref="editors" @scroll="calculate"
-        class="max-h-screen min-h-[300px] overflow-y-auto">
-
-        <template x-if="loading && !datas">
-            <div class="w-full animate-pulse">
-                <div class="mb-4 h-10 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
-                <div class="mb-4 ml-[10%] h-5 w-[75%] rounded-full bg-gray-200 dark:bg-gray-700"></div>
+    <div x-data="initClassReward" x-init="initReward">
+        <template x-if="!tasks && !getStudents">
+            <div class="animate-fade animate-pulse">
                 <div class="mb-4 h-5 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
                 <div class="mb-4 h-5 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
                 <div class="mb-4 h-5 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
                 <div class="mb-4 h-5 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
                 <div class="mb-4 h-5 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
                 <div class="mb-4 h-5 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
-            </div>
-        </template>
-        <template x-if="!loading">
-            <div>
-                <h1 x-text="datas.title" class="text-secondary_blue mb-10 text-center text-3xl font-bold"></h1>
-                <style>
-                    .codex-editor__redactor {
-                        padding-bottom: 0 !important;
-                        margin-right: 0 !important
-                    }
-
-                    .ce-toolbar__actions--opened {
-                        opacity: 1;
-                        background: white;
-                        padding-inline: 10px;
-                        padding-bottom: 10px;
-                        border-radius: 10px;
-                    }
-
-                    .ce-block {
-                        min-height: 30px;
-                        width: 100%;
-                        font-size: 16px;
-                    }
-
-                    .ce-header {
-                        font-size: inherit !important;
-                        font-weight: bold;
-                    }
-
-                    h1.ce-header {
-                        font-size: 32px !important;
-                    }
-
-                    h2.ce-header {
-                        font-size: 28px !important;
-                    }
-
-                    h3.ce-header {
-                        font-size: 24px !important;
-                    }
-
-                    h4.ce-header {
-                        font-size: 20px !important;
-                    }
-
-                    h5.ce-header {
-                        font-size: 18px !important;
-                    }
-
-                    h6.ce-header {
-                        font-size: 16px !important;
-                    }
-
-                    .link-tool__content {
-                        color: black !important;
-                    }
-                </style>
-                <div wire:ignore x-init="readEditor('editor', datas.content)" id="editor" class="!text-secondary_black w-full"></div>
-                <div x-intersect="calculate()"></div>
             </div>
         </template>
         <style>
-            #answer .ce-block__content {
-                background: #F2F2F2 !important;
+            .codex-editor__redactor {
+                padding-bottom: 0 !important;
+                margin-right: 0 !important
+            }
+
+            .ce-toolbar__actions--opened {
+                opacity: 1;
+                background: white;
                 padding-inline: 10px;
-                padding-top: 10px;
                 padding-bottom: 10px;
+                border-radius: 10px;
+            }
+
+            .ce-block {
+                min-height: 30px;
+                width: 100%;
+                font-size: 16px;
+            }
+
+            .ce-header {
+                font-size: inherit !important;
+                font-weight: bold;
+            }
+
+            h1.ce-header {
+                font-size: 32px !important;
+            }
+
+            h2.ce-header {
+                font-size: 28px !important;
+            }
+
+            h3.ce-header {
+                font-size: 24px !important;
+            }
+
+            h4.ce-header {
+                font-size: 20px !important;
+            }
+
+            h5.ce-header {
+                font-size: 18px !important;
+            }
+
+            h6.ce-header {
+                font-size: 16px !important;
+            }
+
+            .link-tool__content {
+                color: black !important;
             }
         </style>
-    </div>
-    <livewire:component.editor />
+        <template x-if="tasks && getStudents">
+            <div class="mt-10 flex flex-col gap-y-2">
+                <h1 class="text-secondary_blue line-clamp-1 text-2xl font-bold">{{ __('add-task.title_task') }} : <span
+                        x-text="classroom[0].title"></span> </h1>
+                <template x-for="(data, index) in sortStudent" :key="data.id">
+                    <div x-data="{
+                        checker: checkAnswer(data.user.id),
+                        showing: false,
+                        valueReading: searchValueTas(data.user.id),
+                        renderedEditors: {},
+                        initValues() {
+                            this.$watch('tasks', () => {
+                                this.valueReading = searchValueTas(data.user.id);
+                            });
+                        },
+                        showEditor(id, data) {
+                            this.showing = !this.showing;
+                            if (!this.renderedEditors[id]) {
+                                this.$nextTick(() => {
+                                    readEditor(id, data);
+                                    this.renderedEditors[id] = true;
+                                });
+                            }
+                        }
+                    }" class="w-full rounded-xl bg-white p-3 shadow-md transition-all"
+                        :class="showing ? 'hover:bg-primary-white' : 'hover:bg-gray-100'" @click.away="showing = false" x-init="initValues">
+                        <div class="flex flex-row gap-x-5">
+                            <div class="flex w-[150px] max-w-[150px] flex-row items-center gap-x-2">
+                                <div class="border-secondary_blue overflow-hidden rounded-full border shadow-md">
+                                    <img wire:igonre :src="data.user.profile_photo_path" alt="Avatar"
+                                        class="h-10 w-10 rounded-full object-cover">
+                                </div>
+                                <p class="text-secondary_blue line-clamp-1" x-text="data.user.name"></p>
+                            </div>
+                            <div class="text-secondary_blue text-center">
+                                <p class="text-secondary_blue/70 text-md">{{ __('add-task.status') }}</p>
+                                <p x-text="checker ? '{{ __('add-task.ready') }}' : '{{ __('add-task.not_ready') }}'"
+                                    :class="checker ? 'text-green-400' : 'text-red-400'"></p>
+                            </div>
+                            <div class="text-secondary_blue flex flex-col items-center">
+                                <p class="text-secondary_blue/70">{{ __('add-task.task_value') }}</p>
+                                <p x-text="valueReading ? valueReading : '{{ __('add-task.give_value') }}' "></p>
+                            </div>
+                            <div class="flex-1 text-right" x-show="checker"
+                                @click="showEditor(data.id, searchAnswer(data.user_id))">
+                                <flux:button icon="eye">
+                                    {{ __('class-learn.detail') }}
+                                </flux:button>
+                            </div>
 
+                        </div>
+                        <div x-transition x-show="showing"
+                            class="text-secondary_blue border-secondary_blue/20 mt-5 h-auto w-full border-t pt-3">
+                            <div wire:ignore :id="data.id"></div>
+                            <div class="mt-5 flex w-full justify-center" x-data="{ value:valueReading, addValueRead(id, value) {
+                                const datas = this.searchId(id);
+                                if (datas) {
+                                    this.$wire.addValueReading(datas, value);
+                                } else {
+                                    this.$dispatch('failed', [{
+                                        'message': '{{ __('error.server_error') }}'
+                                    }]);
+                                }
+                            } }">
+                                <div class="w-xl max-w-xl">
+                                    <label for="search"
+                                        class="sr-only mb-2 text-sm font-medium text-gray-900">{{ __('add-task.give_value') }}</label>
+                                    <div class="relative">
+                                        <div
+                                            class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3">
+                                            <svg class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" fill="none"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
+                                                    stroke-linejoin="round"></g>
+                                                <g id="SVGRepo_iconCarrier">
+                                                    <path
+                                                        d="M6 8V5C6 4.44772 6.44772 4 7 4H17C17.5523 4 18 4.44772 18 5V19C18 19.5523 17.5523 20 17 20H7C6.44772 20 6 19.5523 6 19V16M6 12H13M13 12L10.5 9.77778M13 12L10.5 14.2222"
+                                                        stroke="currentColor" stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                    </path>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                        <input type="number" x-model.number="value"
+                                            @input="value = Math.min(100, Math.max(0, value))" min="0"
+                                            max="100" step="5"
+                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 ps-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                                            placeholder="{{ __('add-task.give_value') }}" required />
+                                        <button @click="addValueRead(data.user_id, value)"
+                                            class="absolute bottom-2.5 end-2.5 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300">{{ __('add-class.add') }}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+
+        <template x-if="pagination && pagination.length > 1">
+            <ul class="mt-10 inline-flex h-10 w-full justify-center -space-x-px text-center text-base">
+                <template x-for="item in pagination" :key="item">
+                    <li>
+                        <button @click="page = item"
+                            :class="page == item ?
+                                'flex items-center justify-center px-4 h-10 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' :
+                                'flex h-10 items-center justify-center border border-gray-300 bg-white px-4 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700'"
+                            x-text="item"></button>
+                    </li>
+                </template>
+            </ul>
+        </template>
+    </div>
 </flux:main>
+
 <script>
-    function classTask() {
+    function initClassReward() {
         return {
-            idClassroom: @entangle('idClassroom'),
-            idTask: @entangle('idTask'),
-            datas: @entangle('datas').live,
-            material: @entangle('material'),
-            loading: true,
-            isTeacher: @entangle('teacher').live,
+            idContent: @entangle('contentId'),
+            idClassroom: @entangle('classId'),
+            tasks: @entangle('getTask').live,
+            error: @entangle('error'),
+            classroom: @entangle('classroom'),
             token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            readLoad: false,
-            score: 0,
-            timeout: null,
-            calculate() {
-                if (this.timeout) {
-                    clearTimeout(this.timeout);
-                }
-                this.timeout = setTimeout(() => {
-                    if (this.score == 100) {
-                        return;
-                    }
-                    const el = this.$refs.editors;
-                    const scrollTop = el.scrollTop;
-                    const scrollHeight = el.scrollHeight - el.clientHeight;
-                    if (scrollHeight == 0) {
-                        this.score = 100;
-                        return;
-                    }
-                    const percent = Math.round((scrollTop / scrollHeight) * 100);
-                    if (this.score >= percent) {
-                        return;
-                    }
-                    this.score = percent;
-                }, 500);
+            getStudents: [],
+            sortStudent: [],
+            page: 1,
+            per_page: 15,
+            pagination: [],
+            searchValueTas(userId) {
+                const task = this.tasks.find(task => task?.user_id == userId);
+                return task && task.reading ? task.reading : null;
             },
-            async firstInit() {
-                const data = await this.$wire.loadContent(this.idTask);
-                if (data.status) {
-                    this.loading = false;
-                    this.score = Number(this.material?.value ?? 0);
-                    this.$watch('score', (value) => {
-                        this.$wire.setScore(this.idTask, value);
-                        this.$dispatch('success', [{
-                            message: '{{ __('add-task.congratulation') }}',
+            searchId(userId) {
+                const task = this.tasks.find(task => task?.user_id == userId);
+                return task && task.id ? task.id : null;
+            },
+            initReward() {
+                this.getStudents = this.students.filter(item => item.role === "member");;
+                this.sortStudent = this.paginate();
+                this.pagination = this.createPagination();
+                this.$watch('page', (val) => {
+                    this.sortStudent = this.paginate();
+                });
+                if (this.error) {
+                    setTimeout(() => {
+                        this.$dispatch('failed', [{
+                            'message': this.error
                         }]);
-                    });
+                    }, 500);
                 }
+            },
+            paginate() {
+                const start = (this.page - 1) * this.per_page;
+                const end = start + this.per_page;
+                return this.getStudents.slice(start, end);
+            },
+            createPagination() {
+                const current = this.page;
+                const total = this.getStudents.length;
+                const itemsPerPage = this.per_page;
+                const totalPages = Math.ceil(total / itemsPerPage);
+                const delta = 2;
+                let start = Math.max(1, current - delta);
+                let end = Math.min(totalPages, current + delta);
+                if (current <= delta) {
+                    end = Math.min(totalPages, end + (delta - current + 1));
+                } else if (current + delta > totalPages) {
+                    start = Math.max(1, start - (current + delta - totalPages));
+                }
+
+                const pagination = [];
+                for (let i = start; i <= end; i++) {
+                    pagination.push(i);
+                }
+
+                return pagination;
+            },
+            checkAnswer(userId) {
+                const task = this.tasks.find(task => task?.user_id == userId);
+                return task && task.answer ? true : false;
+            },
+            searchAnswer(userId) {
+                const task = this.tasks.find(task => task?.user_id == userId);
+                return task && task.answer ? task.answer : null;
             },
             readEditor(id, data) {
-                if (this.readLoad) return;
-                this.readLoad = true;
                 const parsedData = JSON.parse(data);
                 const editorjsconfig = {};
                 new EditorJS({
-                    holder: id,
+                    holder: String(id),
                     data: parsedData,
                     readOnly: true,
                     i18n: {
@@ -485,7 +570,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                     async uploadByFile(file) {
                                         const formData = new FormData();
                                         formData.append('file', file);
-                                        formData.append('content_id', this.idTask);
+                                        formData.append('content_id', this.idContent);
                                         formData.append('classroom_id', this.idClassroom);
                                         const response = await fetch('{{ route('upload-file') }}', {
                                             method: 'POST',

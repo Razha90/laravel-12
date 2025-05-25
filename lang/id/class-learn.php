@@ -69,5 +69,10 @@ return [
     'material_read' => 'Baca Materi',
     'up' => 'Naik',
     'down' => 'Turun',
-    'publish' => 'Terbit'
+    'publish' => 'Terbit',
+    'delete_class' => 'Hapus Kelas',
+    'confirm_delete' => 'Apakah kamu yakin akan menghapus kelas ini!',
+    'delete_class_success' => 'Kelas berhasil dihapus',
+    'delete_class_failed' => 'Kelas gagal dihapus',
+    'already_delete' => 'Kelas sudah dihapus',
 ];

@@ -121,13 +121,18 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
 }; ?>
 
 <flux:main class="relative bg-white">
-    <flux:sidebar.toggle
-        class="text-gray-500! cursor-pointer border transition-all hover:border-gray-400/50 hover:shadow-md lg:hidden"
-        icon="bars-2" inset="left" />
-    @vite(['resources/js/editor.js'])
-
-    <div x-data="classTask" x-init="firstInit">
-        <div class="mb-3 flex">
+    <div class="flex mb-10 flex-row items-center justify-between" x-data="{
+        idClassroom: @entangle('idClassroom'),
+        get urlBack() {
+            const path = window.location.pathname;
+            const segments = path.split('/');
+            if (segments.length >= 3) {
+                return `/classroom/${this.idClassroom}`;
+            }
+            return '/classroom';
+        }
+    }">
+        <div class="flex">
             <a :href="urlBack"
                 class="text-secondary_blue animate-fade hover:text-secondary_blue/50 flex cursor-pointer flex-row gap-x-1 transition-colors">
                 <svg class="w-[35px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -142,6 +147,13 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                 <p class="text-2xl">{{ __('login.back') }}</p>
             </a>
         </div>
+        <flux:sidebar.toggle
+            class="text-gray-500! cursor-pointer border transition-all hover:border-gray-400/50 hover:shadow-md lg:hidden"
+            icon="bars-2" inset="left" />
+    </div>
+    @vite(['resources/js/editor.js'])
+
+    <div x-data="classTask" x-init="firstInit">
         <template x-if="loading && !datas">
             <div class="w-full animate-pulse">
                 <div class="mb-4 h-10 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
@@ -253,7 +265,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                         </div>
                         <button @click="savedButton" x-show="!isDeadlinePassed"
                             class="text-primary_white ml-auto mt-5 w-[120px] px-3 py-2 text-center text-lg transition-all hover:bg-gray-200"
-                            x-bind:class="!changed ? 'bg-gray-200 cursor-not-allowed' : 'cursor-pointer bg-secondary_blue hover:text-secondary_blue'"
+                            x-bind:class="!changed ? 'bg-gray-200 cursor-not-allowed' :
+                                'cursor-pointer bg-secondary_blue hover:text-secondary_blue'"
                             x-text="!answers ? '{{ __('add-task.upload') }}' : saving ? '{{ __('add-task.saving') }}..' : '{{ __('add-task.updated') }}'">
                         </button>
                     </div>
@@ -270,6 +283,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
         </style>
 
     </div>
+    <livewire:component.editor />
 </flux:main>
 <script>
     function classTask() {
@@ -986,6 +1000,12 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                         this.saving = false;
                     }
                 });
+                window.addEventListener('beforeunload', (e) => {
+                    if (!this.changed) return;
+                    e.preventDefault();
+                    e.returnValue = '';
+                });
+
             },
             getRemainingTime(deadlineString) {
                 if (!deadlineString) return '--:--';

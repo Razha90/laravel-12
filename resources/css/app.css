@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Istok+Web:ital,wght@0,400;0,700;1,400;1,700&family=KoHo:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Poetsen+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 @import "tailwindcss-animated";
@@ -21,6 +22,8 @@
 
     --font-sans: "Istok Web", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-koho: "KoHo", ui-sans-serif, system-ui, sans-serif;
+    --font-poetsen: "Poetsen One", sans-serif;
+    --font-merriweather: "Merriweather", serif;
     --color-zinc-50: var(--color-slate-50);
     --color-zinc-100: var(--color-slate-100);
     --color-zinc-200: var(--color-slate-200);
@@ -38,7 +41,19 @@
     --color-secondary_black: #212121;
     --color-accent_grey: #EEEEEE;
     --color-secondary_green: #388E3C;
-    --color-accent_red : #D1042D;    
+    --color-accent_red : #D1042D;   
+
+    --color-accent_yellow: #f9f3e0;
+
+    --max-width: 1920px;
+    --breakpoint-nav-1:620px;
+    --breakpoint-welcome: 860px;
+    --breakpoint-welcome-1: 387px;
+    --breakpoint-welcome-2: 449px;
+    --breakpoint-nav-2:560px;
+    --breakpoint-class: 425px;
+    --breakpoint-task: 650px;
+    /* --breakpoint-nav-1: 1083px; */
 }
 
 @theme {

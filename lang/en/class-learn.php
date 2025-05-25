@@ -68,5 +68,9 @@ return [
     'up' => 'Up',
     'down' => 'Down',
     'publish' => 'Publish',
-
+    'delete_class' => 'Delete Classroom',
+    'confirm_delete' => 'Are you sure you want to delete this class!',
+    'delete_class_success' => 'Delete classroom success',
+    'delete_class_failed' => 'Delete classroom failed',
+    'already_delete' => 'Classroom already deleted',
 ];

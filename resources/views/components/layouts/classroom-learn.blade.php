@@ -39,15 +39,13 @@
     }
 </style> -->
 
-<body class="bg-accent_grey min-h-screen">
+<body class="bg-accent_grey min-h-screen" x-data="{students: $persist([])}">
 
     <flux:sidebar sticky stashable
         class="bg-accent_blue animate-fade-right h-full overflow-hidden py-3 pl-3 pr-6 transition-all duration-300 ease-in-out">
         <flux:sidebar.toggle
             class="text-primary_white! cursor-pointer border transition-all hover:border-gray-400/50 hover:shadow-md lg:hidden hover:text-gray-500!"
             icon="x-mark" inset="right"/>
-
-        <flux:spacer />
         <livewire:component.class-sidebar />
     </flux:sidebar>
 
@@ -56,6 +54,8 @@
     @persist('data-notifikasi')
         <livewire:component.data-notifikasi />
     @endpersist
+
+    <livewire:component.chat />
 
     <div x-cloak x-data="{ alert: false, message: '' }"
         x-on:success.window="(event) => {

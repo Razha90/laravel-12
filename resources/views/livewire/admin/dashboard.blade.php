@@ -335,8 +335,6 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
 }; ?>
 
 <flux:main class="h-full overflow-auto bg-white" x-data="initBar" x-init="init">
-
-
     <div x-cloak x-data="{ alert: false, message: '' }"
         x-on:failed-center.window="(event) => {
         alert = true;
@@ -787,7 +785,7 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
         </div>
     </div>
 
-    <div class="relative overflow-x-auto" x-init="console.log(users)">
+    <div class="relative overflow-x-auto">
         <table class="text-secondary_blue w-full text-left text-sm rtl:text-right">
             <thead class="bg-secondary_blue/15 text-secondary_blue text-sm uppercase">
                 <tr>
@@ -1253,7 +1251,6 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
                 } catch (error) {
                     this.schools = [];
                     this.dummySchools = [];
-                    console.error('Fetch error:', error.message);
                 }
             },
 

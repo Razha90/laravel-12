@@ -118,11 +118,13 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
 }; ?>
 
 <flux:main x-data="initAplication" class="bg-white! overflow-auto" x-init="init">
+<flux:sidebar.toggle class="text-secondary_blue! lg:hidden" icon="bars-2" inset="left" />
+
     <flux:heading size="xl" level="1" class="text-secondary_blue!">{{ __('admin.aplication_letter') }}
     </flux:heading>
 
-    <div class="flex flex-row items-center gap-x-3">
-        <div class="my-5 max-w-md" x-init="console.log(aplications)">
+    <div class="flex mb-5 flex-row flex-wrap items-center gap-x-3 gap-y-3">
+        <div class="mt-5 max-w-md">
             <label for="default-search"
                 class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-white">Search</label>
             <div class="relative">
@@ -190,7 +192,6 @@ new #[Layout('components.layouts.app-sidebar')] class extends Component {
                 </div>
             </div>
         </div>
-
         <div>
             <div x-show="statusSort == 'pending'"
                 class="select-none animate-fade flex cursor-pointer flex-row gap-x-2 rounded-md border-2 border-yellow-400 bg-yellow-300/20 px-4 py-2 transition-opacity hover:opacity-70"

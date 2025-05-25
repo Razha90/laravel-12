@@ -40,12 +40,7 @@
 </style>
 
 <body class="bg-accent_grey">
-
-    @if (empty(auth()->user()->email_verified_at))
-        <x-layouts.app.app-nav-welcome />
-    @else
-        <livewire:component.nav-auth />
-    @endif
+    <livewire:component.nav-auth />
 
     {{ $slot }}
 

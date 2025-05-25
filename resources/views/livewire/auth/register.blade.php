@@ -117,7 +117,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
 <div class="flex flex-col gap-6">
 
-    <x-auth-header :title="__('Create an account')" :description="__('Enter your details below to create your account')" />
+    <x-auth-header :title="__('auth.create_an_account')" :description="__('auth.enter_your_detail_below')" />
 
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
@@ -193,11 +193,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
                     const data = await response.json();
                     this.dummySchools = data.data.map(school => school.sekolah);
                     this.schools = this.dummySchools.slice(0, 10);
-                    console.log(this.schools);
                 } catch (error) {
                     this.schools = [];
                     this.dummySchools = [];
-                    console.error('Fetch error:', error.message);
                 }
             },
         }">
@@ -219,13 +217,13 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         <div class="flex items-center justify-end z-10">
             <flux:button type="submit" variant="primary" class="w-full">
-                {{ __('Create account') }}
+                {{ __('auth.create_account') }}
             </flux:button>
         </div>
     </form>
 
     <div class="space-x-1 text-center text-sm text-zinc-600 dark:text-zinc-400">
-        {{ __('Already have an account?') }}
-        <flux:link :href="route('login')" wire:navigate>{{ __('Log in') }}</flux:link>
+        {{ __('auth.already_have_an_account') }}
+        <flux:link :href="route('login')" wire:navigate>{{ __('auth.login') }}</flux:link>
     </div>
 </div>

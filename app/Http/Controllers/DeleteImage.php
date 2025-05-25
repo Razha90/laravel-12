@@ -49,14 +49,24 @@ class DeleteImage extends Controller
 
     public function deleteImageFromUrl(string $url)
     {
-        $relativePath = str_replace(url('/storage'), '', $url);
-        Log::info('DeleteImage deleteImageFromUrl, ' . $relativePath);
-        $deleted = Storage::disk('public')->delete($relativePath);
-
-        if ($deleted) {
-            return response()->json(['success' => true, 'message' => 'File deleted']);
-        } else {
-            return response()->json(['success' => false, 'message' => 'File not found or failed to delete']);
+        try {
+            // $relativePath = str_replace(url('/storage'), '', $url);
+            // $deleted = Storage::disk('public')->delete($relativePath);
+            $relativePath = str_replace(url('/storage'), '', $url);
+            $relativePath = str_replace('/storage', '', $relativePath);
+            $relativePath = ltrim($relativePath, '/'); // hilangkan slash awal agar jadi "images/xxx.jpg"
+        
+            Log::info('DeleteImage relativePath: ' . $relativePath);
+        
+            $deleted = Storage::disk('public')->delete($relativePath);
+            if ($deleted) {
+                return response()->json(['success' => true, 'message' => 'File deleted']);
+            } else {
+                return response()->json(['success' => false, 'message' => 'File not found or failed to delete']);
+            }
+        } catch (\Throwable $th) {
+            Log::error('DeleteImage deleteImageFromUrl, ' . $th->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to delete image']);
         }
     }
 }

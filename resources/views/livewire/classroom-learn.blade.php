@@ -10,6 +10,8 @@ use Livewire\Attributes\Validate;
 use App\Models\Classroom;
 use App\Models\ClassroomMember;
 use App\Http\Controllers\DeleteImage;
+use Illuminate\Support\Carbon;
+use App\Notifications\UserNotification;
 
 new #[Layout('components.layouts.classroom-learn')] class extends Component {
     use WithFileUploads;
@@ -205,7 +207,16 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                 $this->secureIsTeacher = true;
                 $data = Content::with('tasks')->where('classroom_id', $this->id)->orderByRaw('ISNULL(`order`), `order` DESC, `created_at` DESC')->get();
             } else {
-                $data = Content::with('tasks')->where('classroom_id', $this->id)->where('visibility', true)->orderByRaw('ISNULL(`order`), `order` DESC, `created_at` DESC')->get();
+                // $data = Content::with('tasks')->where('classroom_id', $this->id)->where('visibility', true)->orderByRaw('ISNULL(`order`), `order` DESC, `created_at` DESC')->get();
+                $data = Content::with([
+                    'tasks' => function ($query) {
+                        $query->where('user_id', auth()->id());
+                    },
+                ])
+                    ->where('classroom_id', $this->id)
+                    ->where('visibility', true)
+                    ->orderByRaw('ISNULL(`order`), `order` DESC, `created_at` DESC')
+                    ->get();
             }
             $this->contents = $data->toArray();
         } catch (\Throwable $th) {
@@ -309,6 +320,52 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
         }
     }
 
+    public function deleteClass()
+    {
+        try {
+            if (!$this->secureIsTeacher) {
+                $this->dispatch('failed', ['message' => __('class-learn.error_auth')]);
+                return [
+                    'status' => false,
+                ];
+            }
+            ClassroomMember::where('classroom_id', $this->id)->delete();
+
+            $contents = Content::where('classroom_id', $this->id)->get();
+            $deleteImage = new DeleteImage();
+            if ($contents) {
+                foreach ($contents as $content) {
+                    $deleteImage->deleteByContentId($content->id);
+                    $content->delete();
+                }
+            }
+            $classroom = Classroom::find($this->id);
+            if ($classroom) {
+                $deleteImage->deleteImageFromUrl($classroom->image);
+            } else {
+                Log::error("Classroom not found with ID: " . $this->id);
+            }
+            $classroom->delete();
+            $data = [
+                'message' => 'Classroom ' . $this->classrooms[0]['title'] . ' telah dihapus',
+                'title' => __('class-learn.delete_class'),
+                'user_id' => auth()->user()->id,
+                'created_at' => Carbon::now()->toDateTimeString(),
+            ];
+            $user = auth()->user();
+            $user->notify(new UserNotification($data));
+            return [
+                'status' => true,
+            ];
+        } catch (\Throwable $th) {
+            Log::error('ClassroomLearn Eroor Delete Content' . $th);
+            $this->dispatch('failed', ['message' => __('class-learn.error_server')]);
+            return [
+                'status' => false,
+            ];
+        }
+    }
+
     public function upContent($id, $direction = 'up')
     {
         try {
@@ -348,9 +405,30 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
 }; ?>
 
 <flux:main class="relative bg-white" x-data="starting">
-    <flux:sidebar.toggle
-        class="text-gray-500! cursor-pointer border transition-all hover:border-gray-400/50 hover:shadow-md lg:hidden"
-        icon="bars-2" inset="left" />
+    <div class="mb-5 flex flex-row items-center justify-between" x-data="{
+        get urlBack() {
+            return '/classroom';
+        }
+    }">
+        <div class="flex">
+            <a :href="urlBack"
+                class="text-secondary_blue animate-fade hover:text-secondary_blue/50 flex cursor-pointer flex-row gap-x-1 transition-colors">
+                <svg class="w-[35px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                        <path
+                            d="M16.1795 3.26875C15.7889 2.87823 15.1558 2.87823 14.7652 3.26875L8.12078 9.91322C6.94952 11.0845 6.94916 12.9833 8.11996 14.155L14.6903 20.7304C15.0808 21.121 15.714 21.121 16.1045 20.7304C16.495 20.3399 16.495 19.7067 16.1045 19.3162L9.53246 12.7442C9.14194 12.3536 9.14194 11.7205 9.53246 11.33L16.1795 4.68297C16.57 4.29244 16.57 3.65928 16.1795 3.26875Z"
+                            fill="currentColor"></path>
+                    </g>
+                </svg>
+                <p class="text-2xl">{{ __('login.back') }}</p>
+            </a>
+        </div>
+        <flux:sidebar.toggle
+            class="text-gray-500! cursor-pointer border transition-all hover:border-gray-400/50 hover:shadow-md lg:hidden"
+            icon="bars-2" inset="left" />
+    </div>
 
     @vite(['resources/js/editor.js'])
 
@@ -367,8 +445,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
         class="animate-fade-up absolute bottom-5 left-5 z-30 mb-4 flex flex-row items-start rounded-lg bg-gray-800 p-4 text-sm text-red-400"
         role="alert">
 
-        <svg class="me-3 inline h-4 w-4 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor" viewBox="0 0 20 20">
+        <svg class="me-3 inline h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+            viewBox="0 0 20 20">
             <path
                 d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
         </svg>
@@ -388,8 +466,8 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
         class="animate-fade-up absolute bottom-5 left-5 z-30 mb-4 flex flex-row items-start rounded-lg bg-gray-800 p-4 text-sm text-red-400"
         role="alert">
 
-        <svg class="me-3 inline h-4 w-4 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor" viewBox="0 0 20 20">
+        <svg class="me-3 inline h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+            viewBox="0 0 20 20">
             <path
                 d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
         </svg>
@@ -409,10 +487,10 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
         <p x-text="error.message"></p>
     </div>
 
-    <div aria-hidden="true" x-data="{ open: false }" x-cloak x-on:shared-modal.window="(event) => {
+    <div x-data="{ open: false }" x-cloak x-on:shared-modal.window="(event) => {
     open = true
-}"
-        x-show="open" x-transition
+}" x-show="open"
+        x-transition
         class="animate-fade fixed left-0 right-0 top-0 z-50 flex h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden bg-black/20 backdrop-blur-sm md:inset-0">
         <div class="relative max-h-full w-full max-w-2xl rounded-xl bg-white p-2" @click.away="open = false">
             <div class="flex flex-row items-center justify-between">
@@ -443,8 +521,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                 <button type="button" @click="open = false"
                     class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
                     data-modal-hide="default-modal">
-                    <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 14 14">
+                    <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                     </svg>
@@ -543,12 +620,16 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                 </div>
                             </div>
                             <div
-                                class="bg-primary_white mx-auto mt-10 flex max-w-sm flex-row items-center justify-between rounded-full px-2 py-2 shadow-xl">
-                                <div x-text="cleanUrl" class="text-secondary_blue max-w-[300px] truncate text-lg">
-                                </div>
+                                class="bg-primary_white relative mx-auto mt-10 w-full max-w-sm rounded-full px-2 py-2 shadow-xl">
+                                <div x-text="cleanUrl" class="text-secondary_blue truncate pr-24 text-lg"></div>
+
+                                <!-- Tombol copy -->
                                 <button @click="copyPaste"
-                                    class="bg-secondary_blue text-primary_white border-primary_white hover:bg-primary_white hover:border-secondary_blue hover:text-secondary_blue cursor-pointer rounded-full border-2 px-4 py-2 text-center text-lg transition-all">{{ __('class-learn.copy') }}</button>
+                                    class="border-primary_white bg-secondary_blue text-primary_white hover:border-secondary_blue hover:bg-primary_white hover:text-secondary_blue absolute right-2 top-1/2 -translate-y-1/2 rounded-full border-2 px-4 py-2 text-lg transition-all">
+                                    {{ __('class-learn.copy') }}
+                                </button>
                             </div>
+
                         </div>
 
                         <div x-show="tab === 'setting'"
@@ -612,7 +693,9 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                     class="text-sm italic text-red-500">
                                 </p>
                             </div>
-                            <div class="mt-5 flex justify-center">
+                            <div class="mt-10 flex flex-row justify-center gap-x-4">
+                                <button @Click="$dispatch('delete-sure'); open=false"
+                                    class="text-primary_white hover:bg-primary_white active:bg-primary_white cursor-pointer rounded-full border border-red-500 bg-red-500 px-4 py-2 text-lg font-bold transition-all hover:text-red-500 active:text-red-500">{{ __('class-learn.delete_class') }}</button>
                                 <button @Click="sendSaved"
                                     class="bg-secondary_blue border-secondary_blue text-primary_white hover:bg-primary_white hover:text-secondary_blue cursor-pointer rounded-full border px-4 py-2 text-lg font-bold transition-all">{{ __('class-learn.save') }}</button>
                             </div>
@@ -623,7 +706,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
         </div>
     </div>
 
-    <div aria-hidden="true" x-data="{
+    <div x-data="{
         open: false,
         loading: false,
         async getOutClass() {
@@ -633,8 +716,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
         }
     }" x-cloak x-on:getout-class.window="(event) => {
     open = true
-}"
-        x-show="open"
+}" x-show="open"
         class="animate-fade fixed left-0 right-0 top-0 z-50 flex h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden bg-black/20 backdrop-blur-sm md:inset-0">
         <div class="relative max-h-full w-full max-w-md rounded-xl bg-white p-2" @click.away="open = false">
             <div class="flex flex-row items-center justify-between">
@@ -656,8 +738,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                 <button type="button" @click="open = false"
                     class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
                     data-modal-hide="default-modal">
-                    <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 14 14">
+                    <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                     </svg>
@@ -671,7 +752,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                         class="bg-secondary_blue text-primary_white border-secondary_blue hover:bg-primary_white hover:text-secondary_blue cursor-pointer rounded-2xl border-2 px-4 py-1 transition-all">{{ __('class-learn.cancel') }}</button>
                     <button @click="getOutClass"
                         class="bg-accent_red text-primary_white border-accent_red hover:bg-primary_white hover:text-accent_red cursor-pointer rounded-2xl border-2 px-4 py-1 transition-all">
-                        <svg aria-hidden="true" x-show="loading"
+                        <svg x-show="loading"
                             class="inline h-5 w-5 animate-spin fill-pink-600 text-gray-200 dark:text-gray-600"
                             viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -687,6 +768,102 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
             </div>
         </div>
     </div>
+
+    <div x-data="{ open: false, isDisabled:false ,async deleteClass() {
+        this.isDisabled = true;
+        const data = await this.$wire.deleteClass();
+        if (data.status) {
+            this.$dispatch('success', [{ message: '{{ __('class-learn.delete_class_success') }}' }]);
+            window.location.href = '{{ route('classroom') }}';
+        } else {
+            this.$dispatch('failed', [{ message: '{{ __('class-learn.delete_class_failed') }}' }]);
+        }
+        this.isDisabled = false;
+    } }" x-cloak x-on:delete-sure.window="(event) => {
+    open = true;
+}" x-show="open"
+        x-transition
+        class="animate-fade fixed left-0 right-0 top-0 z-50 flex h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden bg-black/20 backdrop-blur-sm md:inset-0">
+        <div class="relative flex max-h-full w-full max-w-2xl flex-col items-center justify-center gap-y-5 rounded-xl bg-white px-2 py-6"
+            @click.away="open = false">
+            <h2 class="text-xl text-red-500">
+                <span class="sr-only">Error</span>
+                {{ __('class-learn.confirm_delete') }}
+            </h2>
+            <button x-bind:disabled="isDisabled" @Click="deleteClass"
+                class="text-primary_white hover:bg-primary_white active:bg-primary_white cursor-pointer rounded-full border border-red-500 bg-red-500 px-4 py-2 text-lg font-bold transition-all hover:text-red-500 active:text-red-500">{{ __('class-learn.delete_class') }}</button>
+
+            <button  type="button" @click="open = false"
+                class="absolute right-2 top-1 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+                data-modal-hide="default-modal">
+                <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                </svg>
+                <span class="sr-only">Close modal</span>
+            </button>
+        </div>
+    </div>
+
+    <template x-if="justStudent && Array.isArray(contents) && contents.length > 0 && justStudent.length > 0">
+        <div x-data="{ open: false, matGetID: null }" x-cloak
+            x-on:check-material.window="(event) => {
+        open = true;
+    matGetID = event.detail.id;
+    }"
+            x-show="open" x-transition
+            class="animate-fade fixed left-0 right-0 top-0 z-50 flex h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden bg-black/20 backdrop-blur-sm md:inset-0">
+            <div class="relative max-h-full w-full max-w-2xl rounded-xl bg-white px-3 pb-2 pt-3"
+                @click.away="open = false">
+                <div class="text-secondary_blue min-h-[400px] overflow-y-auto">
+                    <h2 class="mb-5 text-xl font-bold">{{ __('add-task.check_reading') }}</h2>
+                    <table class="text-secondary_blue w-full text-left text-sm rtl:text-right">
+                        <thead class="text-xs uppercase text-gray-700">
+                            <tr>
+                                <th scope="col" class="bg-gray-50 px-6 py-3">{{ __('add-task.student') }}</th>
+                                <th scope="col" class="bg-gray-50 px-6 py-3">{{ __('add-task.status') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-if="open">
+                                <template x-for="(data, index) in justStudent" :key="index">
+                                    <tr x-data="{
+                                        data,
+                                        matTask: {},
+                                        matGetStudent() {
+                                            const data1 = contents.find(item => item.id == matGetID);
+                                            this.matTask = data1?.tasks?.find(tasker => tasker.user_id == this.data.user_id);
+                                        }
+                                    }" x-init="matGetStudent"
+                                        class="border-b border-gray-200 bg-white">>
+                                        <td class="flex flex-row items-center gap-x-2 py-4">
+                                            <div class="h-[30px] w-[30px] overflow-hidden rounded-full">
+                                                <img :src="data.user.profile_photo_path" loading="lazy"
+                                                    class="h-full w-full" :alt="data.user.name" />
+                                            </div>
+                                            <p x-text="data.user.name"></p>
+                                        </td>
+                                        <td class="py-4"
+                                            x-text="matTask?.value ? matTask.value : '{{ __('add-task.not_read') }}' "
+                                            x-bind:class="matTask?.value ? 'text-secondary_blue' : 'text-red-400'">
+                                        </td>
+
+                                    </tr>
+                                </template>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" @click="open = false"
+                    class="absolute right-2 top-2 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white">
+                    <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </template>
 
     <div class="w-full">
         <div class="mx-auto max-w-[1200px]">
@@ -713,11 +890,11 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
 
             <!-- Content template -->
             <template x-if="classrooms.length > 0">
-                <div class="flex min-h-[400px] w-full flex-col justify-start gap-y-3 px-5 pt-5">
+                <div class="welcome-2:px-5 flex min-h-[400px] w-full flex-col justify-start gap-y-3 px-0 pt-5">
                     <!-- Wrapper Profile Class -->
                     <div x-bind:style="'background-image: url(' + previewImage + '); background-position: center ' + positionImage +
                         ';'"
-                        class="relative flex max-h-[400px] min-h-[300px] w-full flex-col items-end justify-end rounded-xl bg-cover bg-center bg-no-repeat p-3 before:absolute before:inset-0 before:rounded-xl before:bg-black before:opacity-15 hover:before:opacity-35 hover:before:transition-opacity"
+                        class="animate-fade relative flex max-h-[400px] min-h-[300px] w-full flex-col items-end justify-end rounded-xl bg-cover bg-center bg-no-repeat p-3 before:absolute before:inset-0 before:rounded-xl before:bg-black before:opacity-15 hover:before:opacity-35 hover:before:transition-opacity"
                         x-ref="imageContainer">
 
                         <!-- Title -->
@@ -819,7 +996,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                             <div class="flex flex-row gap-x-2">
                                 <div class="hover:bg-secondary_blue/20 flex cursor-pointer flex-col items-center justify-center rounded-lg p-1 transition-colors duration-300"
                                     @click="$refs.fileInput.click()">
-                                    <svg class="w-[35px]" viewBox="0 0 24 24" fill="none"
+                                    <svg class="w-[25px]" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
@@ -834,7 +1011,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                             </path>
                                         </g>
                                     </svg>
-                                    <p class="text-secondary_blue text-xl">{{ __('class-learn.upload_image') }}
+                                    <p class="text-secondary_blue text-md">{{ __('class-learn.upload_image') }}
                                     </p>
                                     <input wire:model.live="image" type="file"
                                         accept="image/png, image/jpg, image/jpeg, image/webp" class="hidden"
@@ -843,7 +1020,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                 </div>
                                 <div class="flex cursor-pointer flex-col items-center justify-center rounded-lg p-1 transition-colors duration-300 hover:bg-red-500/20"
                                     @click="deletedImage">
-                                    <svg class="w-[35px]" viewBox="0 0 24 24" fill="none"
+                                    <svg class="w-[25px]" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
@@ -864,11 +1041,11 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                 stroke-linejoin="round"></path>
                                         </g>
                                     </svg>
-                                    <p class="text-xl text-red-500">{{ __('class-learn.button_delete') }}</p>
+                                    <p class="text-md text-red-500">{{ __('class-learn.button_delete') }}</p>
                                 </div>
                                 <div class="flex cursor-pointer flex-col items-center justify-center rounded-lg p-1 transition-colors duration-300 hover:bg-orange-200/20"
                                     @click="openEditPosition">
-                                    <svg class="w-[35px]" fill="#fb923c" viewBox="0 0 16 16"
+                                    <svg class="w-[25px]" fill="#fb923c" viewBox="0 0 16 16"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
@@ -879,7 +1056,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                             </path>
                                         </g>
                                     </svg>
-                                    <p class="text-xl text-orange-400">{{ __('class-learn.button_position') }}</p>
+                                    <p class="text-md text-orange-400">{{ __('class-learn.button_position') }}</p>
                                 </div>
                             </div>
                             <div class="flex flex-row justify-center gap-x-2">
@@ -1005,8 +1182,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                         </div>
 
                     </div>
-
-                    <div class="border-secondary_blue bg-primary_white outline-primary_white w-full rounded-lg border border-dashed p-3 outline-8"
+                    <div class="animate-fade-down border-secondary_blue bg-primary_white outline-primary_white w-full rounded-lg border border-dashed p-3 outline-8"
                         x-show="isTeacher" wire:click="addContent" wire:target="addContent"
                         wire:loading.attr="disabled" wire:loading.class="opacity-50">
                         <p class="text-secondary_blue text-center text-2xl font-bold">
@@ -1068,24 +1244,27 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                     </style>
                     <div class="mt-5 flex w-full flex-col gap-y-5">
                         <template x-for="(content, index) in Object.values(contents)" :key="content.id">
-                            <div class="flex flex-row items-start gap-x-2">
+                            <div class="flex flex-row flex-wrap items-start justify-center gap-x-2 gap-y-2"
+                                x-bind:class="`animate-fade-right animate-delay-${500*index}`">
                                 <template x-if="content.type == 'task'">
                                     <div
-                                        class="flex w-full flex-row items-start justify-between gap-x-2 rounded-2xl border border-gray-300 p-3">
-                                        <div class="flex w-full flex-row items-center justify-between gap-x-2">
+                                        class="flex-9 flex flex-row flex-wrap items-start justify-between gap-x-2 gap-y-5 rounded-2xl border border-gray-300 p-3">
+                                        <div
+                                            class="flex-9 flex flex-row flex-wrap items-center justify-between gap-x-2">
                                             <div class="flex flex-col gap-y-2">
                                                 <div class="flex flex-row items-center gap-x-1">
                                                     <flux:icon.clipboard-document-list class="text-gray-500" />
-                                                    <flux:text class="text-lg text-gray-500">
+                                                    <flux:text class="min-w-[150px] text-lg text-gray-500">
                                                         {{ __('class-learn.task') }}
                                                     </flux:text>
                                                 </div>
                                                 <p x-text="content.title.length > 0 ? content.title : '[ {{ __('class-learn.no_title') }} ]'"
                                                     class="line-clamp-1 text-xl text-gray-500"></p>
                                             </div>
-                                            <div class="flex flex-row items-center gap-x-2">
+                                            <div
+                                                class="flex flex-row flex-wrap items-center justify-center gap-x-2 gap-x-2 gap-y-2">
                                                 <template x-if="content.visibility == '1'">
-                                                    <div class="flex w-[135px] flex-col items-center justify-start">
+                                                    <div class="flex flex-col items-center justify-start">
                                                         <div class="flex flex-row items-center gap-x-1">
                                                             <flux:icon.clock class="text-gray-500" />
                                                             <flux:text class="text-lg text-gray-500">
@@ -1107,16 +1286,31 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                     </div>
                                                 </template>
                                                 <template x-if="content.visibility == '1' && isTeacher">
-                                                    <div class="px-3">
-                                                        <p
-                                                            class="rounded-xl bg-green-500/20 !px-3 py-1 text-green-500">
-                                                            {{ __('class-learn.publish') }}
-                                                        </p>
+                                                    <div
+                                                        class="flex flex-row flex-wrap items-center justify-center gap-x-2 gap-y-4">
+                                                        <div class="text-center">
+                                                            <p class="text-secondary_blue">
+                                                                {{ __('add-task.completed_task') }}</p>
+                                                            <div class="text-secondary_blue">
+                                                                <span x-text="countTaskFinish(content.tasks)"></span>
+                                                                <span>/</span>
+                                                                <span x-text="justStudent.length"
+                                                                    class="text-secondary_blue"></span>
+                                                            </div>
+                                                            <a :href="urlReward(content.id)"
+                                                                class="border-secondary_blue bg-primary_white text-secondary_blue mt-2 cursor-pointer rounded-md border px-2 py-1 transition-all hover:bg-gray-200">{{ __('add-task.check') }}</a>
+                                                        </div>
+                                                        <div class="px-3">
+                                                            <p
+                                                                class="rounded-xl bg-green-500/20 !px-3 py-1 text-green-500">
+                                                                {{ __('class-learn.publish') }}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </template>
                                             </div>
                                         </div>
-                                        <div class="flex items-center">
+                                        <div class="flex h-full flex-1 flex-col items-center justify-center">
                                             <flux:button @click="goTaskPage(content.id)" icon="eye">
                                                 {{ __('class-learn.detail') }}
                                             </flux:button>
@@ -1147,12 +1341,13 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                 </template>
                                 <template x-if="content.type == 'material'">
                                     <div
-                                        class="flex w-full flex-row items-start justify-between gap-x-2 rounded-2xl border border-gray-300 p-3">
-                                        <div class="flex w-full flex-row items-center justify-between gap-x-2">
+                                        class="flex-9 flex flex-row flex-wrap items-start justify-between gap-x-2 gap-y-5 rounded-2xl border border-gray-300 p-3">
+                                        <div
+                                            class="flex-9 flex flex-row flex-wrap items-center justify-between gap-x-2">
                                             <div class="flex flex-col gap-y-2">
                                                 <div class="flex flex-row items-center gap-x-1">
                                                     <flux:icon.book-open class="text-gray-500" />
-                                                    <flux:text class="text-lg text-gray-500">
+                                                    <flux:text class="min-w-[150px] text-lg text-gray-500">
                                                         {{ __('class-learn.material_read') }}
                                                     </flux:text>
                                                 </div>
@@ -1167,7 +1362,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                             {{ __('class-learn.progress') }}
                                                         </flux:text>
                                                     </div>
-                                                    <div x-data="circularProgress(Number(content.tasks[0]?.value || 0))" class="relative h-[50px] w-[50px]">
+                                                    <div x-data="{ percent: Number(content.tasks[0]?.value || 0) }" class="relative h-[50px] w-[50px]">
                                                         <svg class="h-full w-full -rotate-90 transform"
                                                             viewBox="0 0 50 50">
                                                             <circle class="text-gray-300" stroke-width="4"
@@ -1186,13 +1381,6 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                             <span x-text="`${percent}%`"></span>
                                                         </div>
                                                     </div>
-                                                    <script>
-                                                        function circularProgress(initial) {
-                                                            return {
-                                                                percent: initial,
-                                                            }
-                                                        }
-                                                    </script>
                                                 </div>
                                             </template>
                                             <template x-if="content.visibility == '0'">
@@ -1204,14 +1392,31 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                 </div>
                                             </template>
                                             <template x-if="content.visibility == '1' && isTeacher">
-                                                <div class="px-3">
-                                                    <p class="rounded-xl bg-green-500/20 !px-3 py-1 text-green-500">
-                                                        {{ __('class-learn.publish') }}
-                                                    </p>
+                                                <div class="flex flex-row items-center gap-x-2">
+                                                    <div class="text-center">
+                                                        <p class="text-secondary_blue">
+                                                            {{ __('add-task.completed_task') }}</p>
+                                                        <div class="text-secondary_blue">
+                                                            <span x-text="countMaterialFinish(content.tasks)"></span>
+                                                            <span>/</span>
+                                                            <span x-text="justStudent.length"
+                                                                class="text-secondary_blue"></span>
+                                                        </div>
+                                                        <button
+                                                            x-show="justStudent && Array.isArray(contents) && contents.length > 0"
+                                                            @click="$dispatch('check-material', {id:content.id})"
+                                                            class="animate-fade border-secondary_blue bg-primary_white text-secondary_blue cursor-pointer rounded-md border px-2 py-1 transition-all hover:bg-gray-200">{{ __('add-task.check') }}</button>
+                                                    </div>
+                                                    <div class="px-3">
+                                                        <p
+                                                            class="rounded-xl bg-green-500/20 !px-3 py-1 text-green-500">
+                                                            {{ __('class-learn.publish') }}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </template>
                                         </div>
-                                        <div class="flex items-center">
+                                        <div class="flex flex-1 items-center justify-center">
                                             <flux:button @click="goReadPage(content.id)" icon="eye">
                                                 {{ __('class-learn.detail') }}
                                             </flux:button>
@@ -1219,12 +1424,12 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                     </div>
                                 </template>
                                 <template x-if="isTeacher">
-                                    <div class="mb-5 flex flex-col justify-center gap-y-2">
+                                    <div class="mb-5 flex flex-1 flex-col justify-center gap-y-2">
                                         <template x-if="content.visibility == '1'">
-                                            <div class="flex flex-row justify-center gap-x-2">
+                                            <div class="flex flex-row items-start justify-center gap-x-2">
                                                 <button x-show="Number(content.order) != minOrder"
                                                     @click="downContent(content.id)"
-                                                    class="text-secondary_blue border-secondary_blue/20 hover:border-secondary_blue/80 hover:bg-secondary_blue/30 flex w-[50px] cursor-pointer flex-col items-center rounded-xl border p-2 transition-all">
+                                                    class="text-secondary_blue border-secondary_blue/20 hover:border-secondary_blue/80 hover:bg-secondary_blue/30 flex w-[50px] cursor-pointer flex-col items-center rounded-xl border px-2 transition-all">
                                                     <svg class="w-[25px] -rotate-90" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -1240,7 +1445,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                     </butto>
                                                     <button x-show="Number(content.order) != maxOrder"
                                                         @click="upContent(content.id)"
-                                                        class="text-secondary_blue border-secondary_blue/20 hover:border-secondary_blue/80 hover:bg-secondary_blue/30 flex w-[50px] cursor-pointer flex-col items-center rounded-xl border p-2 transition-all">
+                                                        class="text-secondary_blue border-secondary_blue/20 hover:border-secondary_blue/80 hover:bg-secondary_blue/30 flex w-[50px] cursor-pointer flex-col items-center rounded-xl border px-2 transition-all">
                                                         <svg class="w-[25px] rotate-90" viewBox="0 0 24 24"
                                                             fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -1256,11 +1461,11 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                     </button>
                                             </div>
                                         </template>
-                                        <div class="animate-fade flex flex-row gap-x-2">
+                                        <div class="animate-fade flex flex-row items-start justify-center gap-x-2">
                                             <button @click="goEditPage(content.id)"
-                                                class="text-secondary_blue/80 bg-secondary_blue/20 hover:bg-secondary_blue/60 hover:text-primary_white flex cursor-pointer flex-col items-center justify-center rounded-xl p-3 transition-all">
+                                                class="text-secondary_blue/80 bg-secondary_blue/20 hover:bg-secondary_blue/60 hover:text-primary_white flex cursor-pointer flex-col items-center justify-center rounded-xl p-2 transition-all">
                                                 <div class="">
-                                                    <svg class="h-[25px] w-[25px]" viewBox="0 0 24 24" fill="none"
+                                                    <svg class="h-[20px] w-[20px]" viewBox="0 0 24 24" fill="none"
                                                         xmlns="http://www.w3.org/2000/svg">
                                                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
@@ -1277,13 +1482,13 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                         </g>
                                                     </svg>
                                                 </div>
-                                                <p>{{ __('class-learn.button_edit') }}</p>
+                                                <p class="text-sm">{{ __('class-learn.button_edit') }}</p>
                                             </button>
-                                            <button x-data="{ asking: false, deleteContent(id) { $wire.deleteContent(id) } }"
-                                                class="text-accent_red/80 bg-accent_red/20 hover:bg-accent_red/60 hover:text-primary_white animate-fade flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-xl p-3 transition-all"
-                                                @click="asking=true" @click.away="asking=false">
+                                            <button x-data="{ hilang: false, asking: false, deleteContent(id) { $wire.deleteContent(id) } }"
+                                                class="text-accent_red/80 bg-accent_red/20 hover:bg-accent_red/60 hover:text-primary_white animate-fade flex cursor-pointer flex-col items-center justify-center rounded-xl p-2 transition-all"
+                                                @click="asking=true" @click.away="asking=false" x-show="!hilang">
                                                 <div x-show="!asking">
-                                                    <svg class="h-[25px] w-[25px]" viewBox="0 0 1024 1024"
+                                                    <svg class="h-[20px] w-[20px]" viewBox="0 0 1024 1024"
                                                         class="icon" version="1.1"
                                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor">
                                                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -1299,15 +1504,14 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                                                         </g>
                                                     </svg>
                                                 </div>
-                                                <p x-show="!asking" class="animate-fade">
+                                                <p x-show="!asking" class="animate-fade text-sm">
                                                     {{ __('class-learn.button_delete') }}
                                                 </p>
-                                                <p class="h-full w-full p-3" @click="deleteContent(content.id)"
-                                                    x-show="asking" @click="">
+                                                <p class="h-full w-full p-3"
+                                                    @click="hilang=true; deleteContent(content.id);" x-show="asking">
                                                     {{ __('class-learn.yes') }}
                                                 </p>
                                             </button>
-
                                         </div>
                                     </div>
                                 </template>
@@ -1316,16 +1520,9 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                     </div>
                 </div>
             </template>
-            <!-- <div class="flex h-full flex-col items-center justify-center" x-init="console.log(classrooms)">
-                    <p class="text-primary_black mt-5 text-2xl font-bold">Classroom Found</p>
-                    <button x-data="{ disabled: false }" :disabled="disabled" @click="disabled = true"
-                        wire:click="addContent" wire:target="addContent" wire:loading.attr="disabled"
-                        wire:loading.class="opacity-50">
-                        Add Content
-                    </button>
-                </div> -->
         </div>
     </div>
+
 </flux:main>
 
 <script>
@@ -1336,6 +1533,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
             isLoading: @entangle('isLoading').live,
             isTeacher: @entangle('isTeacher'),
             contents: @entangle('contents').live,
+            get_students: [],
             idClassrooom: @entangle('id'),
             editProfile: false,
             savedTemp: {},
@@ -1350,6 +1548,7 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
             errorMax: "{{ __('class-learn.image.max') }}",
             errorImage: "{{ __('class-learn.image.image') }}",
             token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            justStudent: [],
             error: {
                 condition: false,
                 message: "",
@@ -1364,6 +1563,17 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                     .map(c => Number(c.order))
                     .filter(order => order >= 1)
                 );
+            },
+            countMaterialFinish(data) {
+                const cleanedData = data.filter(item => item.user_id != this.classrooms[0].user_id);
+                return cleanedData.filter(item => item.value == 100).length;
+            },
+            countTaskFinish(data) {
+                return data.filter(item => item.answer !== null).length;
+            },
+            urlReward(task) {
+                return '{{ route('classroom-reward', ['id' => '__ID__', 'task' => '__TASK__']) }}'.replace('__ID__',
+                    this.idClassrooom).replace('__TASK__', task);
             },
             readEditor(id, data) {
                 const parsedData = JSON.parse(data);
@@ -1752,12 +1962,14 @@ new #[Layout('components.layouts.classroom-learn')] class extends Component {
                 this.editTitle = this.classrooms[0].title;
                 this.previewImage = this.classrooms[0].image;
                 this.positionImage = this.classrooms[0].position;
+                this.get_students = this.students
+                this.justStudent = this.get_students.filter(item => item.user?.role !== 'teacher');
             },
             toggle() {
                 this.isNav = !this.isNav
             },
             check() {
-                console.log(this.classrooms)
+                // console.log(this.classrooms)
             },
             initEdit() {
                 this.savedTemp = {

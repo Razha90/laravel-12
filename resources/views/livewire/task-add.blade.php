@@ -212,22 +212,43 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                     <p>{{ __('add-class.back') }}</p>
                 </button>
             </div>
-            <div class="flex flex-row items-center gap-x-4">
-
-                <a wire:navigate href="{{ route('settings.profile') }}"
-                    class="border-secondary_blue h-[45px] w-[45px] overflow-hidden rounded-full border p-1 transition-opacity hover:opacity-50"
-                    x-data="{ isClicked: false }"
-                    @click.prevent="if (!isClicked) { isClicked = true; window.location.href = '{{ route('settings.profile') }}'; }"
-                    :class="{ 'pointer-events-none opacity-50': isClicked }">
-                    <img loading="lazy" src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo">
-                </a>
-
-            </div>
+            <div x-data="{
+            showingNav() {
+                this.$dispatch('nav-rule')
+            }
+        }" @click="showingNav"
+            class="animate-fade-left task:hidden text-primary_white bg-primary_white/20 group block cursor-pointer rounded-md p-2 transition-all hover:text-orange-500 active:text-orange-500">
+            <svg class="h-[35px] w-[35px] active:scale-110 group-hover:scale-110" viewBox="-0.5 0 25 25"
+                fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                    <path
+                        d="M6.5 10.32C8.433 10.32 10 8.753 10 6.82001C10 4.88701 8.433 3.32001 6.5 3.32001C4.567 3.32001 3 4.88701 3 6.82001C3 8.753 4.567 10.32 6.5 10.32Z"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    </path>
+                    <path
+                        d="M17.5 10.32C19.433 10.32 21 8.753 21 6.82001C21 4.88701 19.433 3.32001 17.5 3.32001C15.567 3.32001 14 4.88701 14 6.82001C14 8.753 15.567 10.32 17.5 10.32Z"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    </path>
+                    <path
+                        d="M6.5 21.32C8.433 21.32 10 19.753 10 17.82C10 15.887 8.433 14.32 6.5 14.32C4.567 14.32 3 15.887 3 17.82C3 19.753 4.567 21.32 6.5 21.32Z"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    </path>
+                    <path
+                        d="M17.5 21.32C19.433 21.32 21 19.753 21 17.82C21 15.887 19.433 14.32 17.5 14.32C15.567 14.32 14 15.887 14 17.82C14 19.753 15.567 21.32 17.5 21.32Z"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    </path>
+                </g>
+            </svg>
+        </div>
         </nav>
     </header>
 
     <main x-data="cmsContent()" x-init="init()" class="relative h-[92vh] min-h-[500px] w-full min-w-[500px]">
-        <div x-cloak="" x-data="{ alert: false, message: '' }"
+        <div x-on:nav-rule.window="() => {openNav = true; tirai=true}"></div>
+
+        <div x-cloak x-data="{ alert: false, message: '' }"
             x-on:show-failed.window="(event) => { 
         message = event.detail.message;
         alert = true;
@@ -299,8 +320,8 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                     </div>
                 </div>
             </div>
-        </div>
-
+        </div> 
+        <div x-show="tirai && openNav" @click="tirai = false; openNav = false" x-transition x-cloak class="fixed inset-0 bg-black/50 z-40"></div>
         <!-- Title Zero Modal -->
         <div x-cloak x-data="{ alert: false }" x-show="alert" x-on:show-modal-="(event) => { 
         alert = true;
@@ -345,9 +366,10 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                 </div>
             </div>
         </div>
-
+        
         <template x-if="isLoading && content.length > 0">
-            <div class="fixed mt-[70px] h-full w-1/4 rounded-lg bg-gray-100 p-4 shadow-xl">
+            <div x-cloak x-show="openNav || tirai" x-transition class="fixed h-full w-[310px] task:pt-[80px] bg-gray-100 p-4 shadow-xl task:z-0 z-50">
+
                 <div class="flex w-full justify-end">
                     <button x-bind:disabled="saveNew" @click="clickSave"
                         :class="{
@@ -488,10 +510,9 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                         class="text-primary_white mb-2 me-2 rounded-lg bg-blue-700 px-6 py-2 text-center text-lg font-medium hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-red-300"></button>
                 </div>
             </div>
-
         </template>
-        <div class="ml-[25%] flex w-3/4 flex-col items-center px-[5%] pt-[80px]">
 
+        <div class="task:ml-[310px] flex task:w-3/4 w-full flex-col items-center px-[5%] pt-[80px]">
             <template x-if="isLoading && content.length == 0">
                 <div class="flex h-full w-full flex-col items-center justify-center gap-y-3">
                     <p class="font-koho text-4xl font-bold text-gray-700">
@@ -507,7 +528,6 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                         {{ __('add-task.back') }}</p>
                 </div>
             </template>
-
             <div x-show="isLoading && content.length > 0"
                 class="bg-primary_white mt-5 h-auto w-full rounded-xl px-4 pb-3 pt-3">
                 <input type="text" x-init="initTitle" x-model="title" x-on:input="saveNew = false"
@@ -515,7 +535,6 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                     placeholder="{{ __('add-task.title') }}">
                 <div class="bg-white" id="editorjs" wire:ignore></div>
             </div>
-
             <div x-show="(type == 'task') && isLoading && content.length > 0"
                 class="bg-primary_white animate-fade mt-4 w-full p-3">
                 <div
@@ -551,7 +570,6 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                     <p class="text-secondary_blue ml-2 text-2xl font-bold">{{ __('add-class.upload') }}</p>
                 </div>
             </div>
-
         </div>
 
     </main>
@@ -631,6 +649,8 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                 borderDeadline: false,
                 lastBorderDeadline: false,
                 showUpdatePublish: false,
+                openNav: false,
+                tirai: false,
                 init() {
                     if (this.selectionPos) return;
                     this.selectionPos = true;
@@ -639,6 +659,11 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                         this.initRelease();
                         this.initDeadline();
                         this.initType();
+                        this.checkWidth()
+
+                        window.addEventListener('resize', () => {
+                            this.checkWidth()
+                        })
                     } else {
                         this.$nextTick(() => {
                             this.$dispatch('show-failed', {
@@ -646,6 +671,10 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                             });
                         });
                     }
+                },
+                checkWidth() {
+                    const condi = window.innerWidth >= 650;
+                    this.openNav = condi;
                 },
                 initEditor(initialData, idContent, idClass) {
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -975,12 +1004,16 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                             this.saveNew = false;
                         },
                         onReady: () => {
-                            MermaidTool.config({ 'theme': 'neutral' });
-                            new Undo({ editor });
+                            MermaidTool.config({
+                                'theme': 'neutral'
+                            });
+                            new Undo({
+                                editor
+                            });
                             new DragDrop(editor);
                         }
                     });
-                    
+
                     document.addEventListener('keydown', async (event) => {
                         if (event.ctrlKey && (event.key === 's' || event.key === 'S')) {
                             event.preventDefault();
@@ -1000,6 +1033,12 @@ new #[Layout('components.layouts.app-task')] class extends Component {
                     Livewire.on('savedSuccess', (event) => {
                         this.saved = true;
                         this.saveNew = true;
+                    });
+
+                    window.addEventListener('beforeunload', (e) => {
+                        if (this.saveNew) return;
+                        e.preventDefault();
+                        e.returnValue = '';
                     });
                 },
                 initTitle() {
@@ -1139,7 +1178,6 @@ new #[Layout('components.layouts.app-task')] class extends Component {
 
                         if (event[0].STATUS == 'PUBLISH') {
                             const dateTime = event[0].DATE;
-                            console.log(dateTime);
                             let [date, time] = dateTime.split(' ');
                             let [hours, minutes] = time.split(':');
                             this.$nextTick(() => {

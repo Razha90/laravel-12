@@ -44,9 +44,15 @@
     <flux:sidebar class="bg-accent_blue" sticky stashable>
         <flux:sidebar.toggle class="text-right! text-white! lg:hidden" icon="x-mark" />
         <div>
-            <a href="/" class="flex flex-row items-center gap-x-2">
+            <!-- <a href="/" class="flex flex-row items-center gap-x-2">
                 <img src="{{ url('/img/web/logo.png') }}" width="30" height="30" />
                 <p class="text-base">{{ config('app.name') }}</p>
+            </a> -->
+            <a href="{{ route('home') }}" class="flex flex-col items-center gap-2 font-medium" wire:navigate>
+                <span class="mb-1 flex h-12 w-12 items-center justify-center rounded-md">
+                    <x-app-logo-icon class="size-9 fill-current text-black" />
+                </span>
+                <span class="sr-only">{{ config('app.name', 'Laravel') }}</span>
             </a>
         </div>
 
@@ -154,6 +160,7 @@
         </div>
     </flux:sidebar>
     {{ $slot }}
+    <livewire:component.chat />
 
     <script>
         function init() {
