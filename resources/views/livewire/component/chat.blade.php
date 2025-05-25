@@ -487,7 +487,7 @@ new class extends Component {
                                 if (result.status && result.data) {
                                     this.messages = result.data;
                                 } else {}
-                            }
+                            } 
                         }
                     } else {
                         const con = await this.$wire.createConversation(data.receiver_id);
