@@ -1,15 +1,12 @@
 <?php
 
 use App\Models\User;
-use App\Notifications\UserNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
-use App\Http\Controllers\NotificationController;
 use App\Models\RandomAvatar;
 use App\Notifications\UserMaiRegisterationlNotification;
 
@@ -107,7 +104,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             Auth::login($user);
             $user = Auth::user();
             $user->notify(new UserMaiRegisterationlNotification());
-            redirect(route('verification.notice', absolute: true));
+            redirect(route('my-app', absolute: true));
         } catch (\Throwable $th) {
             $this->dispatch('failed', ['message' => __('profile.default_error')]);
             Log::error('Register: ' . $th->getMessage());
@@ -116,7 +113,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
 }; ?>
 
 <div class="flex flex-col gap-6">
-
     <x-auth-header :title="__('auth.create_an_account')" :description="__('auth.enter_your_detail_below')" />
 
     <!-- Session Status -->

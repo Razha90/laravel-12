@@ -8,7 +8,7 @@
 <body class="dark:bg-linear-to-b min-h-screen bg-white antialiased dark:from-neutral-950 dark:to-neutral-900">
     <x-layouts.app.app-nav-welcome />
     <div x-data="{ path: window.location.pathname }" class="bg-background flex h-svh min-h-[700px] flex-col items-center justify-center gap-6"
-        x-bind:class="path == '/register' ? 'pt-25 nav-1:pt-35 md:pt-20' : 'p-6 md:p-10'">
+        x-bind:class="path == '/register' ? 'pt-[260px] nav-1:pt-[300px] md:pt-[150px]' : 'p-6 md:p-10'">
         <div class="flex w-full max-w-sm flex-col gap-2">
             <a href="{{ route('home') }}" class="flex flex-col items-center gap-2 font-medium" wire:navigate>
                 <span class="mb-1 flex h-12 w-12 items-center justify-center rounded-md">

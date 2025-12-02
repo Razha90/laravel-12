@@ -53,6 +53,8 @@
     --breakpoint-nav-2:560px;
     --breakpoint-class: 425px;
     --breakpoint-task: 650px;
+    --breakpoint-app:1170px;
+    --breakpoint-app-1: 430px;
     /* --breakpoint-nav-1: 1083px; */
 }
 

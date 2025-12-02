@@ -38,5 +38,7 @@ return [
     'feature_5.detail' => 'Pengelolaan pengguna yang mudah dan fleksibel untuk mendukung proses pembelajaran.',
     'feature_6' => ' Antarmuka yang Menarik',
     'feature_6.detail' => 'Antarmuka yang menarik dan mudah digunakan untuk pengalaman belajar yang lebih baik.',
-
+    'friend' => 'Teman Saya',
+    'friend.detail' => 'Temukan dan terhubung dengan teman-teman Anda untuk belajar bersama.',
+    'time' => 'Waktu',
 ];

@@ -354,7 +354,7 @@ new class extends Component {}; ?>
                                 </g>
                             </g>
                         </svg>
-                        <svg x-show="`{{ Cookie::get('locale', 'id') }}` == `id`" viewBox="0 0 36 36"
+                        <svg class="w-[40px] -translate-[7px]" x-show="`{{ Cookie::get('locale', 'id') }}` == `id`" viewBox="0 0 36 36"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             aria-hidden="true" role="img" class="iconify iconify--twemoji"
                             preserveAspectRatio="xMidYMid meet" fill="#000000">
@@ -511,7 +511,7 @@ new class extends Component {}; ?>
                                 'bg-accent_grey text-gray-400 cursor-not-allowed' :
                                 'hover:bg-accent_grey cursor-pointer'">
                             <div class="border-accent_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
-                                <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"
+                                <svg class="w-[40px] -translate-[7px]" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"
                                     xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img"
                                     class="iconify iconify--twemoji" preserveAspectRatio="xMidYMid meet"
                                     fill="#000000">
@@ -782,7 +782,7 @@ new class extends Component {}; ?>
                                 </g>
                             </g>
                         </svg>
-                        <svg x-show="`{{ Cookie::get('locale', 'id') }}` == `id`" viewBox="0 0 36 36"
+                        <svg class="w-[40px] -translate-[7px]" x-show="`{{ Cookie::get('locale', 'id') }}` == `id`" viewBox="0 0 36 36"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             aria-hidden="true" role="img" class="iconify iconify--twemoji"
                             preserveAspectRatio="xMidYMid meet" fill="#000000">
@@ -933,7 +933,7 @@ new class extends Component {}; ?>
                                 'bg-accent_grey text-gray-400 cursor-not-allowed' :
                                 'hover:bg-accent_grey cursor-pointer'">
                             <div class="border-accent_blue h-[30px] w-[30px] overflow-hidden rounded-full border">
-                                <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"
+                                <svg class="w-[40px] -translate-[7px]" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"
                                     xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img"
                                     class="iconify iconify--twemoji" preserveAspectRatio="xMidYMid meet"
                                     fill="#000000">

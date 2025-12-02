@@ -63,7 +63,7 @@ return [
     'success_task' => 'Berhasil mengunggah tugas.',
     'expired_task' => 'Tugas telah berakhir',
     'congratulation' => 'Selamat Anda telah menyelesaikan tugas ini',
-    'student' => 'Siswa',
+    'student' => 'Murid',
     'teacher' => 'Guru',
     'member' => 'Anggota',
     'completed_task' => 'Tugas Selesai',

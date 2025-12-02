@@ -26,7 +26,7 @@ Route::middleware(['csrf'])->group(function () {
 
 Volt::route('not-found', 'error.not-found')->name('not-found');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::prefix('/api')->group(function () {
         Route::post('/upload-image', [SaveImageController::class, 'upload'])->name('upload-image');
         Route::post('/upload-file', [SaveImageController::class, 'uploadFile'])->name('upload-file');

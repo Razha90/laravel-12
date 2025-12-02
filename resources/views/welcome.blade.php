@@ -28,7 +28,7 @@
                 class="absolute inset-0 mx-auto h-full w-full max-w-7xl overflow-y-auto bg-cover bg-center">
                 <div class="lg:h-50 welcome:h-40 nav-1:h-30 h-20"></div>
                 <div class="welcome:flex-row mx-auto flex flex-col-reverse items-center justify-center">
-                    <div class="animate-fade-right animate-delay-200 welcome:w-[45%] nav-1:pl-10 w-full px-5">
+                    <div class="relative z-20 animate-fade-right animate-delay-200 welcome:w-[45%] nav-1:pl-10 w-full px-5">
                         <h1
                             class="welcome:text-left text-secondary_blue font-poetsen lg:leading-15 text-center text-4xl leading-10 lg:text-5xl">
                             {{ __('welcome.title') }}</h1>
@@ -55,7 +55,7 @@
                         <img class="-translate-x-1/12 w-full" src="{{ asset('img/web/bg-welcome-1.png') }}" />
                     </div>
                 </div>
-                <div
+                <!-- <div
                     class="welcome:mt-0 animate-fade-up animate-delay-200 bg-primary_white mx-auto mb-10 mt-10 flex w-[80%] flex-row flex-wrap justify-around gap-y-5 rounded-xl p-5">
                     <div class="flex w-[300px] flex-row items-start gap-x-2 rounded-xl bg-gray-100 p-3 px-3">
                         <div class="text-secondary_blue">
@@ -114,7 +114,7 @@
                             <p class="text-secondary_blue/50 text-sm">{{ __('welcome.install.detail') }}</p>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             <!-- About Page -->
@@ -136,7 +136,7 @@
                         <div class="absolute left-0 top-0 -z-10 h-full w-full animate-pulse bg-gray-200"></div>
                     </div>
                     <div
-                        class="animate-fade-up text-secondary_blue welcome-1:px-6 welcome-1:py-4 welcome:text-5xl welcome-1:text-2xl absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rounded-[30px] bg-white px-3 py-1 text-xl font-bold shadow">
+                        class="text-center animate-fade-up text-secondary_blue welcome-1:px-6 welcome-1:py-4 welcome:text-5xl welcome-1:text-2xl absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rounded-[30px] bg-white px-3 py-1 text-xl font-bold shadow">
                         {{ __('welcome.get_to_know_use') }}
                     </div>
                 </div>

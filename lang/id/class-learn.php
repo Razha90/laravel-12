@@ -47,7 +47,7 @@ return [
     'copy_failed' => 'Salin kelas gagal',
     'status_class' => 'Status Kelas',
     'status_class_detail' => 'Rincian Status Kelas',
-    'status_class_message' => 'Jika kelas tidak aktif, maka siswa tidak dapat mengakses kelas tersebut. Jika kelas aktif, maka siswa dapat mengakses kelas tersebut.',
+    'status_class_message' => 'Jika kelas tidak aktif, maka murid tidak dapat mengakses kelas tersebut. Jika kelas aktif, maka murid dapat mengakses kelas tersebut.',
     'status_active' => 'Aktif',
     'status_inactive' => 'Tidak Aktif',
     'ask_join' => 'Tanya untuk bergabung',
