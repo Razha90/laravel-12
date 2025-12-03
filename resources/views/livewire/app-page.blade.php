@@ -70,14 +70,20 @@ new #[Layout('components.layouts.app-page')] class extends Component {
         }
     }
 
+
     public function getTasks()
     {
         try {
-            $this->tasks = Task::with('content')
+            $tasks = Task::with('content')
                 ->where('user_id', auth()->id())
                 ->orderBy('created_at', 'desc')
                 ->get()
-                ->toArray();
+            ;
+            if (!empty($tasks)) {
+                $this->tasks = $tasks->toArray();
+            }
+            $this->tasks = [];
+
         } catch (\Throwable $th) {
             Log::error('Error fetching tasks: ' . $th->getMessage());
             $this->error = $th->getMessage();
@@ -155,16 +161,14 @@ new #[Layout('components.layouts.app-page')] class extends Component {
             </div>
         </div>
         <div class="flex flex-row flex-wrap gap-y-5 gap-x-5 justify-center">
-            <div
-                class="animate-fade-right bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600
+            <div class="animate-fade-right bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600
  group w-[350px] rounded-xl p-5 transition-all flex items-center justify-center flex-col">
                 <h3 class="text-primary_white text-3xl font-bold text-center">{{ __('app.many_class') }}</h3>
                 <p class="text-primary_white mt-2 text-5xl my-5 font-bold text-center" x-text="totalClass"></p>
                 <a href="{{ route('classroom') }}"
                     class="mt-3 flex cursor-pointer flex-row items-center justify-between rounded-md border border-white !p-2 text-white group-hover:animate-pulse">
                     <p>{{ __('app.check_class') }}</p>
-                    <svg class="h-[25px] w-[25px]" viewBox="0 0 24 24" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
+                    <svg class="h-[25px] w-[25px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                         <g id="SVGRepo_iconCarrier">
@@ -199,8 +203,7 @@ new #[Layout('components.layouts.app-page')] class extends Component {
                 <h3 class="text-primary_white text-3xl font-bold text-center">{{ __('welcome.friend') }}</h3>
                 <div class="flex flex-row items-center !my-5 justify-center">
                     <div class="h-[50px] w-[50px] text-white">
-                        <svg class="h-full w-full" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
+                        <svg class="h-full w-full" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                             <g id="SVGRepo_iconCarrier">

@@ -86,14 +86,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
             }
 
             $randomAvatars = RandomAvatar::all();
-            $randomProfile = $randomAvatars->random();
+            $randomProfile = $randomAvatars->isNotEmpty() ? $randomAvatars->random()->path : null;
             $language = Cookie::get('locale', config('app.locale'));
             $data['password'] = Hash::make($data['password']);
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'language' => $language,
-                'profile_photo_path' => $randomProfile->path,
+                'profile_photo_path' => $randomProfile ?? asset('img/profile/profile-1.svg'),
                 'password' => $data['password'],
                 'role' => 'guest',
                 'birth_date' => $data['birth_date'],
@@ -121,8 +121,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
     <form wire:submit.prevent="register" class="flex flex-col gap-6">
 
         <!-- Name -->
-            <flux:input wire:model="name" :label="__('register.name')" type="text" required autofocus
-                autocomplete="name" :placeholder="__('register.example_name')" />
+        <flux:input wire:model="name" :label="__('register.name')" type="text" required autofocus autocomplete="name"
+            :placeholder="__('register.example_name')" />
 
         <!-- Email Address -->
         <flux:input wire:model="email" :label="__('register.email')" type="email" required autocomplete="email"
@@ -150,8 +150,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
             }
         </style>
 
-        <flux:input wire:model="birth_date" :label="__('register.birth_date')" type="date" required
-            autocomplete="bday" class="text-secondary_blue" />
+        <flux:input wire:model="birth_date" :label="__('register.birth_date')" type="date" required autocomplete="bday"
+            class="text-secondary_blue" />
 
 
         <!-- Birth Date -->
@@ -196,8 +196,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             },
         }">
             <flux:input x-model="origin" wire:model="origin" :label="__('register.origin')" type="text" required
-                :placeholder="__('register.origin_example')"
-                @input="(event) => {loadSchool(event);}"
+                :placeholder="__('register.origin_example')" @input="(event) => {loadSchool(event);}"
                 @focus="(event) => { open = true; loadSchool(event); }" @click.away="open = false"
                 autocomplete="origin" />
             <div class="relative z-20" x-show="open && schools.length > 0" x-transition>

@@ -56,7 +56,8 @@
             </a>
         </div>
 
-        <flux:navlist variant="outline" x-data="{ path: window.location.pathname, admin: new URL('{{ route('admin') }}').pathname, aplication: new URL('{{ route(name: 'admin.aplication') }}').pathname, default_avatar: new URL('{{ route('admin.avatar') }}').pathname }">
+        <flux:navlist variant="outline"
+            x-data="{ path: window.location.pathname, admin: new URL('{{ route('admin') }}').pathname, aplication: new URL('{{ route(name: 'admin.aplication') }}').pathname, default_avatar: new URL('{{ route('admin.avatar') }}').pathname }">
             <template x-if="path == admin">
                 <div>
                     <flux:navlist.item icon="user" current class="text-secondary_blue!">{{ __('admin.users') }}
@@ -83,8 +84,10 @@
             </template>
             <template x-if="path == default_avatar">
                 <div>
-                    <flux:navlist.item icon="user" href="/admin" class="text-white! transition-opacity hover:opacity-50">
-                        {{ __('admin.users') }}</flux:navlist.item>
+                    <flux:navlist.item icon="user" href="/admin"
+                        class="text-white! transition-opacity hover:opacity-50">
+                        {{ __('admin.users') }}
+                    </flux:navlist.item>
                     <flux:navlist.item icon="document-text" href="/admin/aplication"
                         class="text-white! transition-opacity hover:opacity-50">{{ __('admin.aplication_letter') }}
                     </flux:navlist.item>
@@ -131,7 +134,8 @@
                     <img src="{{ asset(auth()->user()->profile_photo_path) }}" alt="Profile Photo" loading="lazy">
                 </div>
                 <p class="text-secondary_blue w-[110px] truncate overflow-ellipsis whitespace-nowrap text-sm font-bold">
-                    {{ auth()->user()->name }}</p>
+                    {{ auth()->user()->name }}
+                </p>
                 <div @click="showBar = true"
                     class="hover:bg-secondary_black/20 cursor-pointer rounded-full p-2 transition-colors">
                     <svg class="w-[22px]" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -171,19 +175,17 @@
     </script>
 
     @persist('data-notifikasi')
-        <livewire:component.data-notifikasi />
+    <livewire:component.data-notifikasi />
     @endpersist
 
-    <div x-cloak x-data="{ alert: false, message: '' }"
-        x-on:success.window="(event) => {
+    <div x-cloak x-data="{ alert: false, message: '' }" x-on:success.window="(event) => {
         alert = true;
         message = event.detail[0].message;
         
         setTimeout(() => {
             alert = false;
         }, 4000);
-    }"
-        x-show="alert" x-transition id="toast-success"
+    }" x-show="alert" x-transition id="toast-success"
         class="absolute bottom-3 left-3 z-30 mb-4 flex w-full max-w-xs items-center rounded-lg bg-white p-4 text-gray-500 shadow-sm dark:bg-gray-800 dark:text-gray-400"
         role="alert">
         <div
@@ -200,24 +202,21 @@
             class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
             data-dismiss-target="#toast-success" aria-label="Close">
             <span class="sr-only">Close</span>
-            <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 14 14">
+            <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
             </svg>
         </button>
     </div>
 
-    <div x-cloak x-data="{ alert: false, message: '' }"
-        x-on:failed.window="(event) => {
+    <div x-cloak x-data="{ alert: false, message: '' }" x-on:failed.window="(event) => {
         alert = true;
         message = event.detail[0].message;
         
         setTimeout(() => {
             alert = false;
         }, 4000);
-    }"
-        id="toast-danger" x-show="alert" x-transition
+    }" id="toast-danger" x-show="alert" x-transition
         class="absolute bottom-3 left-3 z-30 mb-4 flex w-full max-w-xs items-center rounded-lg bg-white p-4 text-gray-500 shadow-sm dark:bg-gray-800 dark:text-gray-400"
         role="alert">
         <div
@@ -234,8 +233,7 @@
             class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
             data-dismiss-target="#toast-danger" aria-label="Close">
             <span class="sr-only">Close</span>
-            <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 14 14">
+            <svg class="h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
             </svg>

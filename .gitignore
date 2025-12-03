@@ -23,3 +23,5 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+laravel-12.zip
+bootstrap/cache
